@@ -29,6 +29,8 @@ public class ProdutoServiceImpl implements ProdutoService {
         produtoBase.setCodigo(request.codigo());
         produtoBase.setNome(request.nome());
         produtoBase.setDescricao(request.descricao());
+        produtoBase.setPrecoVenda(request.precoVenda());
+        produtoBase.setPrecoCusto(request.precoCusto());
 
         if (request.skus() != null) {
             request.skus().forEach(skuDto -> {
@@ -70,6 +72,8 @@ public class ProdutoServiceImpl implements ProdutoService {
                 produtoBase.getCodigo(),
                 produtoBase.getNome(),
                 produtoBase.getDescricao(),
+                produtoBase.getPrecoVenda(),
+                produtoBase.getPrecoCusto(),
                 skuResponses
         );
     }

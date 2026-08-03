@@ -26,6 +26,12 @@ public class ProdutoBase {
     @Column(name = "criado_em", updatable = false)
     private LocalDateTime criadoEm;
 
+    @Column(name = "preco_venda", precision = 10, scale = 2)
+    private java.math.BigDecimal precoVenda;
+
+    @Column(name = "preco_custo", precision = 10, scale = 2)
+    private java.math.BigDecimal precoCusto;
+
     @OneToMany(mappedBy = "produtoBase", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProdutoSku> skus = new ArrayList<>();
 
@@ -74,6 +80,22 @@ public class ProdutoBase {
 
     public void setCriadoEm(LocalDateTime criadoEm) {
         this.criadoEm = criadoEm;
+    }
+
+    public java.math.BigDecimal getPrecoVenda() {
+        return precoVenda;
+    }
+
+    public void setPrecoVenda(java.math.BigDecimal precoVenda) {
+        this.precoVenda = precoVenda;
+    }
+
+    public java.math.BigDecimal getPrecoCusto() {
+        return precoCusto;
+    }
+
+    public void setPrecoCusto(java.math.BigDecimal precoCusto) {
+        this.precoCusto = precoCusto;
     }
 
     public List<ProdutoSku> getSkus() {

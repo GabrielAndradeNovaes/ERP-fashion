@@ -8,5 +8,7 @@ public record ProdutoBaseResponse(
         String codigo,
         String nome,
         String descricao,
+        java.math.BigDecimal precoVenda,
+        java.math.BigDecimal precoCusto,
         List<ProdutoSkuResponse> skus
 ) {}
