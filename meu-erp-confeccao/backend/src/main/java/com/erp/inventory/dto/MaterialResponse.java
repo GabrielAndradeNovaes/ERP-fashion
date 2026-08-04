@@ -8,5 +8,6 @@ public record MaterialResponse(
         String nome,
         String descricao,
         String unidadeMedida,
-        java.math.BigDecimal custoUnitario
+        java.math.BigDecimal custoUnitario,
+        java.math.BigDecimal quantidadeAtual
 ) {}

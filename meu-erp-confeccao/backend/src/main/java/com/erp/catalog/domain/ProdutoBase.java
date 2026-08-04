@@ -35,6 +35,9 @@ public class ProdutoBase {
     @OneToMany(mappedBy = "produtoBase", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProdutoSku> skus = new ArrayList<>();
 
+    @OneToOne(mappedBy = "produtoBase", cascade = CascadeType.ALL, orphanRemoval = true)
+    private com.erp.production.domain.FichaTecnica fichaTecnica;
+
     @PrePersist
     protected void onCreate() {
         this.criadoEm = LocalDateTime.now();
@@ -114,5 +117,16 @@ public class ProdutoBase {
     public void removeSku(ProdutoSku sku) {
         skus.remove(sku);
         sku.setProdutoBase(null);
+    }
+
+    public com.erp.production.domain.FichaTecnica getFichaTecnica() {
+        return fichaTecnica;
+    }
+
+    public void setFichaTecnica(com.erp.production.domain.FichaTecnica fichaTecnica) {
+        this.fichaTecnica = fichaTecnica;
+        if (fichaTecnica != null) {
+            fichaTecnica.setProdutoBase(this);
+        }
     }
 }

@@ -17,8 +17,8 @@ public class FichaTecnica {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "produto_base_id", nullable = false)
+    @OneToOne(optional = false)
+    @JoinColumn(name = "produto_base_id", nullable = false, unique = true)
     private ProdutoBase produtoBase;
 
     @Column(nullable = false, length = 10)

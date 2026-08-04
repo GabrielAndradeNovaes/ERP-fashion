@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -56,6 +57,35 @@ public class ProdutoServiceImpl implements ProdutoService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public ProdutoBaseResponse getProduto(UUID id) {
+        ProdutoBase produto = produtoBaseRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado"));
+        return mapToResponse(produto);
+    }
+
+    @Override
+    @Transactional
+    public ProdutoBaseResponse updateProduto(UUID id, ProdutoBaseRequest request) {
+        ProdutoBase produto = produtoBaseRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado"));
+        produto.setCodigo(request.codigo());
+        produto.setNome(request.nome());
+        produto.setDescricao(request.descricao());
+        produto.setPrecoVenda(request.precoVenda());
+        produto.setPrecoCusto(request.precoCusto());
+        return mapToResponse(produtoBaseRepository.save(produto));
+    }
+
+    @Override
+    @Transactional
+    public void deleteProduto(UUID id) {
+        ProdutoBase produto = produtoBaseRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado"));
+        produtoBaseRepository.delete(produto);
+    }
+
     private ProdutoBaseResponse mapToResponse(ProdutoBase produtoBase) {
         List<ProdutoSkuResponse> skuResponses = produtoBase.getSkus().stream()
                 .map(sku -> new ProdutoSkuResponse(
@@ -63,9 +93,25 @@ public class ProdutoServiceImpl implements ProdutoService {
                         sku.getCor(),
                         sku.getTamanho(),
                         sku.getCodigoBarras(),
-                        sku.getPrecoVenda()
+                        sku.getPrecoVenda(),
+                        sku.getQuantidadeAtual()
                 ))
                 .collect(Collectors.toList());
+
+        com.erp.production.dto.FichaTecnicaResponse fichaTecnicaResponse = null;
+        if (produtoBase.getFichaTecnica() != null) {
+            fichaTecnicaResponse = new com.erp.production.dto.FichaTecnicaResponse(
+                    produtoBase.getFichaTecnica().getId(),
+                    produtoBase.getId(),
+                    produtoBase.getNome(),
+                    produtoBase.getFichaTecnica().getVersao(),
+                    produtoBase.getFichaTecnica().getObservacoes(),
+                    produtoBase.getFichaTecnica().getTempoPadraoTotalCentesimal(),
+                    java.math.BigDecimal.ZERO, // getCustoTotalMateriais() not defined
+                    produtoBase.getFichaTecnica().getMateriais().stream().map(m -> new com.erp.production.dto.FichaTecnicaMaterialResponse(m.getId(), m.getMaterial().getId(), m.getMaterial().getNome(), m.getMaterial().getUnidadeMedida(), m.getQuantidade())).collect(Collectors.toList()),
+                    produtoBase.getFichaTecnica().getOperacoes().stream().map(op -> new com.erp.production.dto.FichaTecnicaOperacaoResponse(op.getId(), op.getNome(), op.getMaquina(), op.getOrdemExecucao(), op.getQuantidadeFolhas(), op.getQuantidadeParadas(), op.getGrauDificuldade(), op.getFaixaComprimento(), op.getTempoCalculadoCentesimal())).collect(Collectors.toList())
+            );
+        }
 
         return new ProdutoBaseResponse(
                 produtoBase.getId(),
@@ -74,7 +120,8 @@ public class ProdutoServiceImpl implements ProdutoService {
                 produtoBase.getDescricao(),
                 produtoBase.getPrecoVenda(),
                 produtoBase.getPrecoCusto(),
-                skuResponses
+                skuResponses,
+                fichaTecnicaResponse
         );
     }
 }

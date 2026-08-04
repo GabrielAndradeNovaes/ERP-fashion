@@ -1,6 +1,7 @@
 package com.erp.inventory.domain;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -25,7 +26,10 @@ public class Material {
     private String unidadeMedida; // Ex: KG, METRO, UNIDADE
 
     @Column(name = "custo_unitario", precision = 10, scale = 2)
-    private java.math.BigDecimal custoUnitario;
+    private BigDecimal custoUnitario;
+
+    @Column(name = "quantidade_atual", precision = 19, scale = 4)
+    private BigDecimal quantidadeAtual = BigDecimal.ZERO;
 
     @Column(name = "criado_em", updatable = false)
     private LocalDateTime criadoEm;
@@ -77,12 +81,20 @@ public class Material {
         this.unidadeMedida = unidadeMedida;
     }
 
-    public java.math.BigDecimal getCustoUnitario() {
+    public BigDecimal getCustoUnitario() {
         return custoUnitario;
     }
 
-    public void setCustoUnitario(java.math.BigDecimal custoUnitario) {
+    public void setCustoUnitario(BigDecimal custoUnitario) {
         this.custoUnitario = custoUnitario;
+    }
+
+    public BigDecimal getQuantidadeAtual() {
+        return quantidadeAtual;
+    }
+
+    public void setQuantidadeAtual(BigDecimal quantidadeAtual) {
+        this.quantidadeAtual = quantidadeAtual;
     }
 
     public LocalDateTime getCriadoEm() {

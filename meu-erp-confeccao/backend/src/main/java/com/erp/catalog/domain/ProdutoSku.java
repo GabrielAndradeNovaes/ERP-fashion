@@ -32,6 +32,9 @@ public class ProdutoSku {
     @Column(name = "criado_em", updatable = false)
     private LocalDateTime criadoEm;
 
+    @Column(name = "quantidade_atual", nullable = false)
+    private Integer quantidadeAtual = 0;
+
     @PrePersist
     protected void onCreate() {
         this.criadoEm = LocalDateTime.now();
@@ -93,5 +96,13 @@ public class ProdutoSku {
 
     public void setCriadoEm(LocalDateTime criadoEm) {
         this.criadoEm = criadoEm;
+    }
+
+    public Integer getQuantidadeAtual() {
+        return quantidadeAtual;
+    }
+
+    public void setQuantidadeAtual(Integer quantidadeAtual) {
+        this.quantidadeAtual = quantidadeAtual;
     }
 }

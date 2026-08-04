@@ -1,9 +1,14 @@
 import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Clock, Scissors, PackageSearch, Package } from 'lucide-react';
+import { LayoutDashboard, Clock, Scissors, PackageSearch, Package, ClipboardList } from 'lucide-react';
 import TabelaTempos from './pages/TabelaTempos';
 import Estoque from './pages/Estoque';
-import FichasTecnicas from './pages/FichasTecnicas';
 import Produtos from './pages/Produtos';
+import OrdensProducao from './pages/OrdensProducao';
+import Clientes from './pages/Clientes';
+import Fornecedores from './pages/Fornecedores';
+import Categorias from './pages/Categorias';
+import UnidadesMedida from './pages/UnidadesMedida';
+import { Users, Truck, Tags, Ruler } from 'lucide-react';
 
 // Menu Lateral Premium
 const Sidebar = () => {
@@ -11,9 +16,13 @@ const Sidebar = () => {
   
   const navItems = [
     { path: '/', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
-    { path: '/catalog/produtos', label: 'Produtos', icon: <Package size={20} /> },
+    { path: '/core/clientes', label: 'Clientes', icon: <Users size={20} /> },
+    { path: '/core/fornecedores', label: 'Fornecedores', icon: <Truck size={20} /> },
+    { path: '/core/categorias', label: 'Categorias', icon: <Tags size={20} /> },
+    { path: '/core/unidades-medida', label: 'Unidades de Medida', icon: <Ruler size={20} /> },
+    { path: '/catalog/produtos', label: 'Produtos e Fichas', icon: <Package size={20} /> },
     { path: '/estoque', label: 'Estoque', icon: <PackageSearch size={20} /> },
-    { path: '/producao/fichas', label: 'Fichas Técnicas', icon: <Scissors size={20} /> },
+    { path: '/pcp/ordens', label: 'Ordens de Produção', icon: <ClipboardList size={20} /> },
     { path: '/pcp/tempos', label: 'Tabela de Tempos', icon: <Clock size={20} /> },
   ];
 
@@ -71,10 +80,14 @@ function App() {
         <main className="main-content">
           <Routes>
             <Route path="/" element={<DashboardPlaceholder />} />
+            <Route path="/core/clientes" element={<Clientes />} />
+            <Route path="/core/fornecedores" element={<Fornecedores />} />
+            <Route path="/core/categorias" element={<Categorias />} />
+            <Route path="/core/unidades-medida" element={<UnidadesMedida />} />
             <Route path="/catalog/produtos" element={<Produtos />} />
             <Route path="/pcp/tempos" element={<TabelaTempos />} />
             <Route path="/estoque" element={<Estoque />} />
-            <Route path="/producao/fichas" element={<FichasTecnicas />} />
+            <Route path="/pcp/ordens" element={<OrdensProducao />} />
           </Routes>
         </main>
       </div>

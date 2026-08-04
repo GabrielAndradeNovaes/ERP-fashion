@@ -8,5 +8,6 @@ public record ProdutoSkuResponse(
         String cor,
         String tamanho,
         String codigoBarras,
-        BigDecimal precoVenda
+        BigDecimal precoVenda,
+        Integer quantidadeAtual
 ) {}

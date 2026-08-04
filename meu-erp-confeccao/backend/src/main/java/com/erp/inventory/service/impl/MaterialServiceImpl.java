@@ -62,7 +62,8 @@ public class MaterialServiceImpl implements MaterialService {
                 material.getNome(),
                 material.getDescricao(),
                 material.getUnidadeMedida(),
-                material.getCustoUnitario()
+                material.getCustoUnitario(),
+                material.getQuantidadeAtual()
         );
     }
 }

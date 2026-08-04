@@ -10,5 +10,6 @@ public record ProdutoBaseResponse(
         String descricao,
         java.math.BigDecimal precoVenda,
         java.math.BigDecimal precoCusto,
-        List<ProdutoSkuResponse> skus
+        List<ProdutoSkuResponse> skus,
+        com.erp.production.dto.FichaTecnicaResponse fichaTecnica
 ) {}
