@@ -10,15 +10,12 @@ import org.hibernate.annotations.SQLDelete;
 @Entity
 @Table(name = "clientes")
 @SQLDelete(sql = "UPDATE clientes SET deleted = true WHERE id=?")
-@FilterDef(name = "tenantFilter", parameters = {@ParamDef(name = "tenantId", type = String.class)})
-@Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 public class Cliente {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(name = "tenant_id", nullable = false)
-    private String tenantId;
+
 
     @Column(nullable = false)
     private String nome;
@@ -37,8 +34,7 @@ public class Cliente {
 
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
-    public String getTenantId() { return tenantId; }
-    public void setTenantId(String tenantId) { this.tenantId = tenantId; }
+
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
     public String getDocumento() { return documento; }

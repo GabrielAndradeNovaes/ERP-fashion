@@ -1,7 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { PackageSearch, Plus, Loader2, Info, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { Loader2, Info } from 'lucide-react';
 import api from '../api/axios';
 import Modal from '../components/Modal';
+import { DataTable } from '../components/DataTable';
+import type { ColumnDef } from '@tanstack/react-table';
+import {
+  Box,
+  Typography,
+  Button,
+  Card,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Stack,
+  Chip,
+  CircularProgress,
+  Tabs,
+  Tab,
+  Grid
+} from '@mui/material';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import AddIcon from '@mui/icons-material/Add';
 
 interface Material {
   id: string;
@@ -30,7 +52,7 @@ interface ProdutoBase {
 }
 
 const Estoque = () => {
-  const [activeTab, setActiveTab] = useState<'MATERIAIS' | 'PRODUTOS'>('MATERIAIS');
+  const [activeTab, setActiveTab] = useState(0); // 0 = Materiais, 1 = Produtos
   
   // Data
   const [materiais, setMateriais] = useState<Material[]>([]);
@@ -52,7 +74,7 @@ const Estoque = () => {
 
   // Movimentacao Form
   const [movType, setMovType] = useState<'ENTRADA' | 'SAIDA'>('ENTRADA');
-  const [movItemId, setMovItemId] = useState(''); // ID do Material ou do SKU
+  const [movItemId, setMovItemId] = useState(''); 
   const [movQtd, setMovQtd] = useState('');
   const [movDoc, setMovDoc] = useState('');
 
@@ -110,7 +132,7 @@ const Estoque = () => {
 
     try {
       setIsSubmitting(true);
-      if (activeTab === 'MATERIAIS') {
+      if (activeTab === 0) {
         await api.post(`/inventory/materiais/${movItemId}/movimentacoes`, {
           tipo: movType,
           quantidade: parseFloat(movQtd),
@@ -141,229 +163,310 @@ const Estoque = () => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
   };
 
+  const columnsMateriais: ColumnDef<Material, any, any>[] = React.useMemo(() => [
+    {
+      accessorKey: 'codigo',
+      header: 'Código',
+      cell: (info) => <Chip label={info.getValue() as string} color="warning" variant="outlined" size="small" />
+    },
+    {
+      accessorKey: 'nome',
+      header: 'Material',
+      cell: (info) => <Typography fontWeight={500}>{info.getValue() as string}</Typography>
+    },
+    {
+      accessorKey: 'unidadeMedida',
+      header: 'Unidade',
+      cell: (info) => <Typography color="text.secondary">{info.getValue() as string}</Typography>
+    },
+    {
+      accessorKey: 'quantidadeAtual',
+      header: 'Qtd Atual',
+      cell: (info) => <Typography color="primary" fontWeight={600}>{info.getValue() as number || 0}</Typography>
+    },
+    {
+      accessorKey: 'custoUnitario',
+      header: 'Custo Unitário',
+      cell: (info) => <Typography color="success.main" fontWeight={600}>{formatCurrency(info.getValue() as number)}</Typography>
+    }
+  ], []);
+
+  const flatSkus = React.useMemo(() => {
+    return produtos.flatMap(p => p.skus.map(sku => ({
+      ...sku,
+      produtoBaseNome: p.nome,
+      produtoBaseCodigo: p.codigo
+    })));
+  }, [produtos]);
+
+  const columnsProdutos: ColumnDef<any, any, any>[] = React.useMemo(() => [
+    {
+      id: 'produto',
+      header: 'Produto Base',
+      cell: (info) => <Typography fontWeight={500}>{info.row.original.produtoBaseCodigo} - {info.row.original.produtoBaseNome}</Typography>
+    },
+    {
+      id: 'sku',
+      header: 'SKU (Cor/Tamanho)',
+      cell: (info) => (
+        <Stack direction="row" spacing={1}>
+          <Chip label={info.row.original.cor} color="warning" variant="outlined" size="small" />
+          <Chip label={info.row.original.tamanho} size="small" />
+        </Stack>
+      )
+    },
+    {
+      accessorKey: 'codigoBarras',
+      header: 'Código Barras',
+      cell: (info) => <Typography color="text.secondary">{info.getValue() || '-'}</Typography>
+    },
+    {
+      accessorKey: 'quantidadeAtual',
+      header: 'Qtd Atual',
+      cell: (info) => <Typography color="primary" fontWeight={600}>{info.getValue() || 0}</Typography>
+    }
+  ], []);
+
   return (
-    <div className="animate-fade-in">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <div>
-          <h1 style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>Estoque</h1>
-          <p style={{ color: 'var(--text-secondary)' }}>Gerencie o estoque de Matérias-Primas e Produtos Acabados (SKUs).</p>
-        </div>
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <button className="btn-secondary" onClick={() => setIsMovimentacaoModalOpen(true)}>
-            <ArrowUpRight size={18} /> Movimentar
-          </button>
-          {activeTab === 'MATERIAIS' && (
-            <button className="btn-primary" onClick={() => setIsMaterialModalOpen(true)}>
-              <Plus size={18} /> Novo Material
-            </button>
+    <Box className="animate-fade-in">
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+        <Box>
+          <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
+            Estoque
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            Gerencie o estoque de Matérias-Primas e Produtos Acabados (SKUs).
+          </Typography>
+        </Box>
+        <Stack direction="row" spacing={2}>
+          <Button 
+            variant="outlined" 
+            color="primary" 
+            onClick={() => setIsMovimentacaoModalOpen(true)}
+            size="large"
+          >
+            Movimentar
+          </Button>
+          {activeTab === 0 && (
+            <Button 
+              variant="contained" 
+              color="primary" 
+              startIcon={<AddIcon />}
+              onClick={() => setIsMaterialModalOpen(true)}
+              size="large"
+              disableElevation
+            >
+              Novo Material
+            </Button>
           )}
-        </div>
-      </div>
+        </Stack>
+      </Box>
 
-      <div style={{ display: 'flex', gap: '1rem', borderBottom: '1px solid var(--border-color)', marginBottom: '2rem' }}>
-        <button 
-          onClick={() => setActiveTab('MATERIAIS')}
-          style={{
-            background: 'none', border: 'none', padding: '0.5rem 1rem', fontSize: '1rem', cursor: 'pointer',
-            fontWeight: activeTab === 'MATERIAIS' ? 600 : 400,
-            color: activeTab === 'MATERIAIS' ? 'var(--accent-primary)' : 'var(--text-secondary)',
-            borderBottom: activeTab === 'MATERIAIS' ? '2px solid var(--accent-primary)' : 'none'
-          }}
-        >
-          Matéria-Prima
-        </button>
-        <button 
-          onClick={() => setActiveTab('PRODUTOS')}
-          style={{
-            background: 'none', border: 'none', padding: '0.5rem 1rem', fontSize: '1rem', cursor: 'pointer',
-            fontWeight: activeTab === 'PRODUTOS' ? 600 : 400,
-            color: activeTab === 'PRODUTOS' ? 'var(--accent-primary)' : 'var(--text-secondary)',
-            borderBottom: activeTab === 'PRODUTOS' ? '2px solid var(--accent-primary)' : 'none'
-          }}
-        >
-          Produto Acabado (SKUs)
-        </button>
-      </div>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+        <Tabs value={activeTab} onChange={(e, val) => setActiveTab(val)}>
+          <Tab label="Matéria-Prima" />
+          <Tab label="Produto Acabado (SKUs)" />
+        </Tabs>
+      </Box>
 
-      {/* Tabelas */}
-      <div className="glass-card" style={{ padding: 0, overflow: 'hidden' }}>
+      <Card variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
         {loading ? (
-          <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-            <Loader2 className="animate-spin" size={32} style={{ margin: '0 auto', marginBottom: '1rem' }} />
-            Carregando...
-          </div>
+          <Box sx={{ p: 6, display: 'flex', justifyContent: 'center' }}>
+            <CircularProgress />
+          </Box>
         ) : error ? (
-          <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--danger)' }}>{error}</div>
-        ) : activeTab === 'MATERIAIS' ? (
-          <div style={{ overflowX: 'auto' }}>
-            <table className="premium-table">
-              <thead>
-                <tr>
-                  <th>Código</th>
-                  <th>Material</th>
-                  <th>Unidade</th>
-                  <th>Qtd Atual</th>
-                  <th>Custo Unitário</th>
-                </tr>
-              </thead>
-              <tbody>
-                {materiais.map(m => (
-                  <tr key={m.id}>
-                    <td><span className="badge badge-orange">{m.codigo}</span></td>
-                    <td style={{ fontWeight: 500 }}>{m.nome}</td>
-                    <td style={{ color: 'var(--text-secondary)' }}>{m.unidadeMedida}</td>
-                    <td style={{ fontWeight: 600, color: 'var(--accent-primary)' }}>{m.quantidadeAtual || 0}</td>
-                    <td style={{ fontWeight: 600, color: 'var(--success)' }}>{formatCurrency(m.custoUnitario)}</td>
-                  </tr>
-                ))}
-                {materiais.length === 0 && (
-                  <tr><td colSpan={5} style={{ textAlign: 'center', padding: '2rem' }}>Nenhum material.</td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          <Box sx={{ p: 4, textAlign: 'center' }}>
+            <Typography color="error">{error}</Typography>
+          </Box>
+        ) : activeTab === 0 ? (
+          materiais.length === 0 ? (
+            <Box sx={{ p: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', color: 'text.secondary' }}>
+              <Typography>Nenhum material encontrado.</Typography>
+            </Box>
+          ) : (
+            <DataTable columns={columnsMateriais} data={materiais} />
+          )
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table className="premium-table">
-              <thead>
-                <tr>
-                  <th>Produto Base</th>
-                  <th>SKU (Cor/Tamanho)</th>
-                  <th>Código Barras</th>
-                  <th>Qtd Atual</th>
-                </tr>
-              </thead>
-              <tbody>
-                {produtos.flatMap(p => p.skus.map(sku => (
-                  <tr key={sku.id}>
-                    <td style={{ fontWeight: 500 }}>{p.codigo} - {p.nome}</td>
-                    <td>
-                      <span className="badge badge-orange" style={{ marginRight: '0.5rem' }}>{sku.cor}</span>
-                      <span className="badge">{sku.tamanho}</span>
-                    </td>
-                    <td style={{ color: 'var(--text-secondary)' }}>{sku.codigoBarras || '-'}</td>
-                    <td style={{ fontWeight: 600, color: 'var(--accent-primary)' }}>{sku.quantidadeAtual || 0}</td>
-                  </tr>
-                )))}
-                {produtos.flatMap(p => p.skus).length === 0 && (
-                  <tr><td colSpan={4} style={{ textAlign: 'center', padding: '2rem' }}>Nenhum SKU encontrado. Você precisa cadastrar SKUs nos produtos.</td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          flatSkus.length === 0 ? (
+            <Box sx={{ p: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', color: 'text.secondary' }}>
+              <Typography>Nenhum SKU encontrado. Você precisa cadastrar SKUs nos produtos.</Typography>
+            </Box>
+          ) : (
+            <DataTable columns={columnsProdutos} data={flatSkus} />
+          )
         )}
-      </div>
+      </Card>
 
       {/* Modal Cadastro de Material */}
       <Modal isOpen={isMaterialModalOpen} onClose={() => setIsMaterialModalOpen(false)} title="Novo Material" width="500px">
-        <form onSubmit={handleAddMaterial} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Código</label>
-            <input type="text" required value={codigo} onChange={(e) => setCodigo(e.target.value)} placeholder="Ex: TEC-01" />
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Nome do Material</label>
-            <input type="text" required value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex: Tecido Malha" />
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Medida</label>
-              <select value={unidadeMedida} onChange={e => setUnidadeMedida(e.target.value)}>
-                <option value="KG">Quilo (kg)</option>
-                <option value="METRO">Metro (m)</option>
-                <option value="UNIDADE">Unidade (un)</option>
-                <option value="GRAMA">Grama (g)</option>
-              </select>
-            </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Custo (R$)</label>
-              <input type="number" step="0.01" min="0" required value={custoUnitario} onChange={(e) => setCustoUnitario(e.target.value)} />
-            </div>
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Descrição</label>
-            <textarea rows={2} value={descricao} onChange={(e) => setDescricao(e.target.value)} />
-          </div>
-          <button type="submit" className="btn-primary" disabled={isSubmitting}>
-            {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : 'Salvar Material'}
-          </button>
+        <form onSubmit={handleAddMaterial}>
+          <Stack spacing={3} sx={{ mt: 1 }}>
+            <TextField
+              label="Código"
+              variant="outlined"
+              fullWidth
+              required
+              value={codigo}
+              onChange={(e) => setCodigo(e.target.value)}
+              placeholder="Ex: TEC-01"
+            />
+            <TextField
+              label="Nome do Material"
+              variant="outlined"
+              fullWidth
+              required
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              placeholder="Ex: Tecido Malha"
+            />
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <FormControl fullWidth>
+                  <InputLabel id="medida-label">Medida</InputLabel>
+                  <Select
+                    labelId="medida-label"
+                    value={unidadeMedida}
+                    label="Medida"
+                    onChange={e => setUnidadeMedida(e.target.value)}
+                  >
+                    <MenuItem value="KG">Quilo (kg)</MenuItem>
+                    <MenuItem value="METRO">Metro (m)</MenuItem>
+                    <MenuItem value="UNIDADE">Unidade (un)</MenuItem>
+                    <MenuItem value="GRAMA">Grama (g)</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="Custo (R$)"
+                  type="number"
+                  variant="outlined"
+                  fullWidth
+                  required
+                  inputProps={{ step: "0.01", min: "0" }}
+                  value={custoUnitario}
+                  onChange={(e) => setCustoUnitario(e.target.value)}
+                />
+              </Grid>
+            </Grid>
+            <TextField
+              label="Descrição"
+              variant="outlined"
+              fullWidth
+              multiline
+              rows={2}
+              value={descricao}
+              onChange={(e) => setDescricao(e.target.value)}
+            />
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 2 }}>
+              <Button onClick={() => setIsMaterialModalOpen(false)} sx={{ mr: 2 }}>Cancelar</Button>
+              <Button 
+                type="submit" 
+                variant="contained" 
+                color="primary"
+                disabled={isSubmitting}
+                startIcon={isSubmitting && <CircularProgress size={20} color="inherit" />}
+                disableElevation
+              >
+                Salvar Material
+              </Button>
+            </Box>
+          </Stack>
         </form>
       </Modal>
 
       {/* Modal Movimentação */}
       <Modal isOpen={isMovimentacaoModalOpen} onClose={() => setIsMovimentacaoModalOpen(false)} title="Movimentação Manual" width="500px">
-        <form onSubmit={handleMovimentacao} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          <div style={{ display: 'flex', gap: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
-            <button 
-              type="button"
-              onClick={() => setMovType('ENTRADA')}
-              style={{
-                flex: 1, padding: '0.5rem', borderRadius: 'var(--radius-md)', border: 'none', cursor: 'pointer',
-                background: movType === 'ENTRADA' ? 'var(--success)' : 'var(--bg-secondary)',
-                color: movType === 'ENTRADA' ? '#fff' : 'var(--text-primary)',
-                fontWeight: 600
-              }}
-            >
-              Entrada
-            </button>
-            <button 
-              type="button"
-              onClick={() => setMovType('SAIDA')}
-              style={{
-                flex: 1, padding: '0.5rem', borderRadius: 'var(--radius-md)', border: 'none', cursor: 'pointer',
-                background: movType === 'SAIDA' ? 'var(--danger)' : 'var(--bg-secondary)',
-                color: movType === 'SAIDA' ? '#fff' : 'var(--text-primary)',
-                fontWeight: 600
-              }}
-            >
-              Saída
-            </button>
-          </div>
-          
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-              Selecione o Item ({activeTab === 'MATERIAIS' ? 'Matéria-Prima' : 'SKU'})
-            </label>
-            <select value={movItemId} onChange={e => setMovItemId(e.target.value)} required>
-              <option value="">Selecione...</option>
-              {activeTab === 'MATERIAIS' ? (
-                materiais.map(m => (
-                  <option key={m.id} value={m.id}>{m.codigo} - {m.nome} (Atual: {m.quantidadeAtual})</option>
-                ))
-              ) : (
-                produtos.flatMap(p => p.skus.map(sku => (
-                  <option key={sku.id} value={sku.id}>
-                    {p.codigo} - {sku.cor}/{sku.tamanho} (Atual: {sku.quantidadeAtual})
-                  </option>
-                )))
-              )}
-            </select>
-          </div>
+        <form onSubmit={handleMovimentacao}>
+          <Stack spacing={3} sx={{ mt: 1 }}>
+            <Stack direction="row" spacing={2}>
+              <Button
+                fullWidth
+                variant={movType === 'ENTRADA' ? 'contained' : 'outlined'}
+                color="success"
+                onClick={() => setMovType('ENTRADA')}
+                startIcon={<ArrowUpwardIcon />}
+                disableElevation
+              >
+                Entrada
+              </Button>
+              <Button
+                fullWidth
+                variant={movType === 'SAIDA' ? 'contained' : 'outlined'}
+                color="error"
+                onClick={() => setMovType('SAIDA')}
+                startIcon={<ArrowDownwardIcon />}
+                disableElevation
+              >
+                Saída
+              </Button>
+            </Stack>
 
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Quantidade</label>
-            <input 
-              type="number" 
-              step={activeTab === 'MATERIAIS' ? "0.001" : "1"} 
-              min="0.001" 
-              required 
-              value={movQtd} 
-              onChange={(e) => setMovQtd(e.target.value)} 
+            <FormControl fullWidth required>
+              <InputLabel id="item-label">
+                Selecione o Item ({activeTab === 0 ? 'Matéria-Prima' : 'SKU'})
+              </InputLabel>
+              <Select
+                labelId="item-label"
+                value={movItemId}
+                label={`Selecione o Item (${activeTab === 0 ? 'Matéria-Prima' : 'SKU'})`}
+                onChange={e => setMovItemId(e.target.value)}
+              >
+                <MenuItem value=""><em>Selecione...</em></MenuItem>
+                {activeTab === 0 ? (
+                  materiais.map(m => (
+                    <MenuItem key={m.id} value={m.id}>{m.codigo} - {m.nome} (Atual: {m.quantidadeAtual})</MenuItem>
+                  ))
+                ) : (
+                  produtos.flatMap(p => p.skus.map(sku => (
+                    <MenuItem key={sku.id} value={sku.id}>
+                      {p.codigo} - {sku.cor}/{sku.tamanho} (Atual: {sku.quantidadeAtual})
+                    </MenuItem>
+                  )))
+                )}
+              </Select>
+            </FormControl>
+
+            <TextField
+              label="Quantidade"
+              type="number"
+              variant="outlined"
+              fullWidth
+              required
+              inputProps={{ 
+                step: activeTab === 0 ? "0.001" : "1",
+                min: "0.001"
+              }}
+              value={movQtd}
+              onChange={(e) => setMovQtd(e.target.value)}
             />
-          </div>
 
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Doc. Referência (Opcional)</label>
-            <input type="text" value={movDoc} onChange={(e) => setMovDoc(e.target.value)} placeholder="Ex: NF 1234, Contagem, Ajuste..." />
-          </div>
+            <TextField
+              label="Doc. Referência (Opcional)"
+              variant="outlined"
+              fullWidth
+              value={movDoc}
+              onChange={(e) => setMovDoc(e.target.value)}
+              placeholder="Ex: NF 1234, Contagem, Ajuste..."
+            />
 
-          <button type="submit" className="btn-primary" disabled={isSubmitting}>
-            {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : 'Confirmar Movimentação'}
-          </button>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 2 }}>
+              <Button onClick={() => setIsMovimentacaoModalOpen(false)} sx={{ mr: 2 }}>Cancelar</Button>
+              <Button 
+                type="submit" 
+                variant="contained" 
+                color="primary"
+                disabled={isSubmitting}
+                startIcon={isSubmitting && <CircularProgress size={20} color="inherit" />}
+                disableElevation
+              >
+                Confirmar
+              </Button>
+            </Box>
+          </Stack>
         </form>
       </Modal>
-
-    </div>
+    </Box>
   );
 };
 

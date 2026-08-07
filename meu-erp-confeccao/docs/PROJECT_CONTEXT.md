@@ -12,7 +12,7 @@ Para garantir escalabilidade, segurança e suporte a planos Enterprise, adotarem
 - **Backend:** Java 17+ com Spring Boot 3. (Escolhido pela robustez corporativa, tipagem estática e suporte nativo a transações complexas e roteamento multi-tenant).
 - **Banco de Dados:** PostgreSQL (Tanto para o Master quanto para os Tenants).
 - **Migrations:** Flyway (com lógica customizada para rodar migrações dinamicamente em todos os tenants).
-- **Frontend:** React com Vite, TypeScript e tipagem estrita, organizado de forma modular.
+- **Frontend:** React com Vite, TypeScript e tipagem estrita, organizado de forma modular. Utiliza **Material UI (MUI)** para a camada visual de componentes e **TanStack Table** para renderização e controle lógico de listagens e grades complexas de dados.
 - **Cache/Fila:** Redis (para processamento assíncrono e gerenciamento de tokens/sessões).
 - **Infraestrutura Local:** Docker e Docker Compose.
 

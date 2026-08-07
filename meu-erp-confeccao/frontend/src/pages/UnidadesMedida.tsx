@@ -1,11 +1,12 @@
 import React from 'react';
 import CrudPage from '../components/CrudPage';
+import { TextField } from '@mui/material';
 
 const UnidadesMedida = () => {
   return (
     <CrudPage
       title="Unidades de Medida"
-      description="Gerencie as unidades de medida (KG, Metro, Litro, etc)."
+      description="Gerencie as unidades de medida."
       endpoint="/core/unidades-medida"
       columns={[
         { key: 'sigla', label: 'Sigla' },
@@ -14,14 +15,24 @@ const UnidadesMedida = () => {
       emptyEntity={{ sigla: '', nome: '' }}
       renderForm={(entity, setEntity) => (
         <>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Sigla</label>
-            <input type="text" required value={entity.sigla} onChange={e => setEntity({ ...entity, sigla: e.target.value })} placeholder="Ex: KG" />
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Nome</label>
-            <input type="text" required value={entity.nome} onChange={e => setEntity({ ...entity, nome: e.target.value })} placeholder="Ex: Quilograma" />
-          </div>
+          <TextField
+            label="Sigla"
+            variant="outlined"
+            fullWidth
+            required
+            value={entity.sigla}
+            onChange={e => setEntity({ ...entity, sigla: e.target.value })}
+            placeholder="Ex: KG"
+          />
+          <TextField
+            label="Nome"
+            variant="outlined"
+            fullWidth
+            required
+            value={entity.nome}
+            onChange={e => setEntity({ ...entity, nome: e.target.value })}
+            placeholder="Ex: Quilograma"
+          />
         </>
       )}
     />

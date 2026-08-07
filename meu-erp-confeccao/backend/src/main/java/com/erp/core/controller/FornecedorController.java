@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/core/fornecedors")
+@RequestMapping("/api/core/fornecedores")
 public class FornecedorController {
 
     private final FornecedorService service;

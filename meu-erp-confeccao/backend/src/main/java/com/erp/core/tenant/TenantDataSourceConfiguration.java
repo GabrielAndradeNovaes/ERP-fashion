@@ -42,20 +42,15 @@ public class TenantDataSourceConfiguration implements WebMvcConfigurer {
     @Bean
     @Primary
     public DataSource dataSource() {
-        TenantRoutingDataSource customDataSource = new TenantRoutingDataSource();
-        
         // Configurando o datasource do schema MASTER
         DataSource masterDataSource = createDataSource("master");
+
+        TenantRoutingDataSource customDataSource = new TenantRoutingDataSource(
+            masterDataSource, url, username, password, driverClassName
+        );
         
         Map<Object, Object> targetDataSources = new HashMap<>();
         targetDataSources.put(TenantContext.MASTER_TENANT, masterDataSource);
-
-        // AQUI: Buscaríamos os tenants no banco MASTER para adicionar os DataSources de cada tenant.
-        // Como o Flyway precisa rodar antes para criar as tabelas, vamos adicionar os tenants 
-        // dinamicamente em runtime, ou durante a inicialização do Flyway.
-        
-        // Exemplo hardcoded temporário para o tenant1
-        targetDataSources.put("tenant_1", createDataSource("tenant_1"));
 
         customDataSource.setTargetDataSources(targetDataSources);
         customDataSource.setDefaultTargetDataSource(masterDataSource);

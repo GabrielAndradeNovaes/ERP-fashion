@@ -1,6 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { PackageSearch, Plus, Loader2, Info, CheckCircle, Play } from 'lucide-react';
+import { Play } from 'lucide-react';
 import api from '../api/axios';
+import Modal from '../components/Modal';
+import {
+  Box,
+  Typography,
+  Button,
+  Card,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Stack,
+  Chip,
+  CircularProgress,
+} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import type { ColumnDef } from '@tanstack/react-table';
+import { DataTable } from '../components/DataTable';
 
 interface ProdutoBase {
   id: string;
@@ -28,6 +46,8 @@ const OrdensProducao = () => {
   const [produtos, setProdutos] = useState<ProdutoBase[]>([]);
   const [fichas, setFichas] = useState<FichaTecnica[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
   
   const [numero, setNumero] = useState('');
   const [produtoBaseId, setProdutoBaseId] = useState('');
@@ -83,6 +103,7 @@ const OrdensProducao = () => {
         quantidade: parseInt(quantidade)
       });
       setNumero('');
+      setIsModalOpen(false);
       fetchInitialData();
     } catch (err: any) {
       alert(err.response?.data?.message || 'Erro ao criar OP');
@@ -103,111 +124,183 @@ const OrdensProducao = () => {
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'CADASTRADA': return <span className="badge badge-orange">Cadastrada</span>;
-      case 'EM_ANDAMENTO': return <span className="badge badge-blue">Em Andamento</span>;
-      case 'CONCLUIDA': return <span className="badge badge-green">Concluída</span>;
-      default: return <span className="badge">{status}</span>;
+  const columns: ColumnDef<OrdemProducao, any, any>[] = React.useMemo(() => [
+    {
+      accessorKey: 'numero',
+      header: 'Nº',
+      cell: (info) => <Typography fontWeight={600}>{info.getValue()}</Typography>
+    },
+    {
+      id: 'produto',
+      header: 'Produto',
+      cell: (info) => (
+        <Box>
+          <Typography variant="body2">{info.row.original.produtoBaseNome}</Typography>
+          <Typography variant="caption" color="text.secondary">
+            BOM: {info.row.original.fichaTecnicaVersao}
+          </Typography>
+        </Box>
+      )
+    },
+    {
+      accessorKey: 'quantidade',
+      header: 'Quantidade'
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: (info) => {
+        const status = info.getValue() as string;
+        let color: 'default' | 'primary' | 'success' | 'warning' = 'default';
+        let label = status;
+        if (status === 'CADASTRADA') {
+          color = 'warning';
+          label = 'Cadastrada';
+        } else if (status === 'EM_ANDAMENTO') {
+          color = 'primary';
+          label = 'Em Andamento';
+        } else if (status === 'CONCLUIDA') {
+          color = 'success';
+          label = 'Concluída';
+        }
+        return <Chip label={label} color={color} size="small" />;
+      }
+    },
+    {
+      id: 'acoes',
+      header: 'Ações',
+      cell: (info) => {
+        if (info.row.original.status === 'CADASTRADA') {
+          return (
+            <Button
+              variant="contained"
+              size="small"
+              startIcon={<Play size={14} />}
+              onClick={() => handleIniciarProducao(info.row.original.id)}
+              disableElevation
+            >
+              Iniciar Produção
+            </Button>
+          );
+        }
+        return null;
+      }
     }
-  };
+  ], []);
 
   return (
-    <div className="animate-fade-in">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <div>
-          <h1 style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>Ordens de Produção (PCP)</h1>
-          <p style={{ color: 'var(--text-secondary)' }}>Gerencie as OPs e baixe materiais automaticamente.</p>
-        </div>
-      </div>
+    <Box className="animate-fade-in">
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+        <Box>
+          <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
+            Ordens de Produção (PCP)
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            Gerencie as OPs e baixe materiais automaticamente.
+          </Typography>
+        </Box>
+        <Button 
+          variant="contained" 
+          color="primary" 
+          startIcon={<AddIcon />}
+          onClick={() => setIsModalOpen(true)}
+          size="large"
+          disableElevation
+        >
+          Nova OP
+        </Button>
+      </Box>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem' }}>
-        <div className="glass-card">
-          <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Plus size={18} className="text-accent" />
-            Nova OP
-          </h3>
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Número da OP</label>
-              <input type="text" required value={numero} onChange={e => setNumero(e.target.value)} placeholder="OP-001" />
-            </div>
+      <Card variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
+        <Box sx={{ p: 2.5, borderBottom: '1px solid', borderColor: 'divider' }}>
+          <Typography variant="h6">Ordens Cadastradas</Typography>
+        </Box>
+        
+        {loading ? (
+          <Box sx={{ p: 6, display: 'flex', justifyContent: 'center' }}>
+            <CircularProgress />
+          </Box>
+        ) : ordens.length === 0 ? (
+          <Box sx={{ p: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', color: 'text.secondary' }}>
+            <Typography>Nenhuma ordem de produção encontrada.</Typography>
+          </Box>
+        ) : (
+          <DataTable columns={columns} data={ordens} />
+        )}
+      </Card>
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Nova OP" width="500px">
+        <form onSubmit={handleSubmit}>
+          <Stack spacing={3} sx={{ mt: 1 }}>
+            <TextField
+              label="Número da OP"
+              variant="outlined"
+              fullWidth
+              required
+              value={numero}
+              onChange={e => setNumero(e.target.value)}
+              placeholder="OP-001"
+            />
             
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Produto Base</label>
-              <select required value={produtoBaseId} onChange={e => carregarFichas(e.target.value)}>
-                <option value="">Selecione...</option>
-                {produtos.map(p => <option key={p.id} value={p.id}>{p.codigo} - {p.nome}</option>)}
-              </select>
-            </div>
-
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Ficha Técnica (BOM)</label>
-              <select required value={fichaTecnicaId} onChange={e => setFichaTecnicaId(e.target.value)} disabled={!produtoBaseId}>
-                <option value="">Selecione...</option>
-                {fichas.map(f => <option key={f.id} value={f.id}>{f.descricao}</option>)}
-              </select>
-            </div>
-
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Quantidade</label>
-              <input type="number" required min="1" value={quantidade} onChange={e => setQuantidade(e.target.value)} />
-            </div>
-
-            <button type="submit" className="btn-primary" disabled={isSubmitting}>
-              {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : 'Criar OP'}
-            </button>
-          </form>
-        </div>
-
-        <div className="glass-card" style={{ padding: 0, overflow: 'hidden' }}>
-          <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between' }}>
-            <h3>Ordens Cadastradas</h3>
-          </div>
-          
-          {loading ? (
-            <div style={{ padding: '3rem', textAlign: 'center' }}><Loader2 className="animate-spin" size={32} /></div>
-          ) : ordens.length === 0 ? (
-            <div style={{ padding: '4rem 2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-              <Info size={32} style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
-              <p>Nenhuma ordem de produção encontrada.</p>
-            </div>
-          ) : (
-            <table className="premium-table">
-              <thead>
-                <tr>
-                  <th>Nº</th>
-                  <th>Produto</th>
-                  <th>Quantidade</th>
-                  <th>Status</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {ordens.map(op => (
-                  <tr key={op.id}>
-                    <td style={{ fontWeight: 600 }}>{op.numero}</td>
-                    <td>
-                      <div>{op.produtoBaseNome}</div>
-                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>BOM: {op.fichaTecnicaVersao}</div>
-                    </td>
-                    <td>{op.quantidade}</td>
-                    <td>{getStatusBadge(op.status)}</td>
-                    <td>
-                      {op.status === 'CADASTRADA' && (
-                        <button onClick={() => handleIniciarProducao(op.id)} className="btn-primary" style={{ padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem' }}>
-                          <Play size={14} /> Iniciar Produção
-                        </button>
-                      )}
-                    </td>
-                  </tr>
+            <FormControl fullWidth required>
+              <InputLabel id="produto-label">Produto Base</InputLabel>
+              <Select
+                labelId="produto-label"
+                value={produtoBaseId}
+                label="Produto Base"
+                onChange={e => carregarFichas(e.target.value)}
+              >
+                <MenuItem value=""><em>Selecione...</em></MenuItem>
+                {produtos.map(p => (
+                  <MenuItem key={p.id} value={p.id}>{p.codigo} - {p.nome}</MenuItem>
                 ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-      </div>
-    </div>
+              </Select>
+            </FormControl>
+
+            <FormControl fullWidth required disabled={!produtoBaseId}>
+              <InputLabel id="ficha-label">Ficha Técnica (BOM)</InputLabel>
+              <Select
+                labelId="ficha-label"
+                value={fichaTecnicaId}
+                label="Ficha Técnica (BOM)"
+                onChange={e => setFichaTecnicaId(e.target.value)}
+              >
+                <MenuItem value=""><em>Selecione...</em></MenuItem>
+                {fichas.map(f => (
+                  <MenuItem key={f.id} value={f.id}>{f.descricao}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <TextField
+              label="Quantidade"
+              type="number"
+              variant="outlined"
+              fullWidth
+              required
+              inputProps={{ min: 1 }}
+              value={quantidade}
+              onChange={e => setQuantidade(e.target.value)}
+            />
+
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 2 }}>
+              <Button onClick={() => setIsModalOpen(false)} sx={{ mr: 2 }}>Cancelar</Button>
+              <Button 
+                type="submit" 
+                variant="contained" 
+                color="primary"
+                disabled={isSubmitting}
+                startIcon={isSubmitting && <CircularProgress size={20} color="inherit" />}
+                disableElevation
+              >
+                Criar OP
+              </Button>
+            </Box>
+          </Stack>
+        </form>
+      </Modal>
+
+    </Box>
   );
 };
 

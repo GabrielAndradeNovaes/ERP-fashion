@@ -1,7 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import { Package, Plus, Loader2, Info, FileBox } from 'lucide-react';
+import { Loader2, Info } from 'lucide-react';
 import api from '../api/axios';
 import Modal from '../components/Modal';
+import { DataTable } from '../components/DataTable';
+import type { ColumnDef } from '@tanstack/react-table';
+import {
+  Box,
+  Typography,
+  Button,
+  Card,
+  TextField,
+  Stack,
+  Chip,
+  CircularProgress,
+  Tabs,
+  Tab,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Grid
+} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 
 interface ProdutoBase {
   id: string;
@@ -31,7 +58,7 @@ const Produtos = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedProduto, setSelectedProduto] = useState<ProdutoBase | null>(null);
-  const [activeTab, setActiveTab] = useState<'INFO' | 'FICHA' | 'OPERACOES'>('INFO');
+  const [activeTab, setActiveTab] = useState(0);
 
   // Form State (Add Product)
   const [codigo, setCodigo] = useState('');
@@ -103,7 +130,7 @@ const Produtos = () => {
 
   const openEditModal = async (produto: ProdutoBase) => {
     setSelectedProduto(produto);
-    setActiveTab('INFO');
+    setActiveTab(0);
     setIsEditModalOpen(true);
     
     // Auto-create Ficha Se não existir
@@ -117,7 +144,6 @@ const Produtos = () => {
         setSelectedProduto({ ...produto, fichaTecnica: res.data });
       } catch (err) {
         console.error("Ficha já existe ou erro", err);
-        // Refresh product if it was created from another tab
         const prodRes = await api.get(`/catalog/produtos/${produto.id}`);
         setSelectedProduto(prodRes.data);
       }
@@ -129,7 +155,7 @@ const Produtos = () => {
     try {
       const res = await api.get(`/catalog/produtos/${selectedProduto.id}`);
       setSelectedProduto(res.data);
-      fetchInitialData(); // update table
+      fetchInitialData();
     } catch (err) {
       console.error(err);
     }
@@ -172,255 +198,340 @@ const Produtos = () => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
   };
 
-  return (
-    <div className="animate-fade-in">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <div>
-          <h1 style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>Produtos</h1>
-          <p style={{ color: 'var(--text-secondary)' }}>Gerencie os produtos e suas Fichas Técnicas integradas.</p>
-        </div>
-        <button className="btn-primary" onClick={() => setIsAddModalOpen(true)}>
-          <Plus size={18} /> Novo Produto
-        </button>
-      </div>
+  const columns: ColumnDef<ProdutoBase, any, any>[] = React.useMemo(() => [
+    {
+      accessorKey: 'codigo',
+      header: 'Ref',
+      cell: (info) => <Chip label={info.getValue() as string} color="primary" variant="outlined" size="small" />
+    },
+    {
+      accessorKey: 'nome',
+      header: 'Produto',
+      cell: (info) => <Typography fontWeight={500}>{info.getValue() as string}</Typography>
+    },
+    {
+      accessorKey: 'precoVenda',
+      header: 'Preço Venda',
+      cell: (info) => <Typography color="primary" fontWeight={600}>{formatCurrency(info.getValue() as number)}</Typography>
+    },
+    {
+      accessorKey: 'precoCusto',
+      header: 'Custo Produção',
+      cell: (info) => {
+        const val = info.getValue() as number;
+        return <Typography color="warning.main" fontWeight={500}>{val > 0 ? formatCurrency(val) : '-'}</Typography>;
+      }
+    },
+    {
+      id: 'statusFicha',
+      header: 'Status Ficha',
+      cell: (info) => info.row.original.fichaTecnica 
+        ? <Chip label="Preenchida" color="success" size="small" /> 
+        : <Chip label="Pendente" color="default" size="small" />
+    }
+  ], []);
 
-      <div className="glass-card" style={{ padding: 0, overflow: 'hidden' }}>
-        <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between' }}>
-          <h3>Catálogo</h3>
-          <span className="badge badge-green">{produtos.length} Itens</span>
-        </div>
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setActiveTab(newValue);
+  };
+
+  return (
+    <Box className="animate-fade-in">
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+        <Box>
+          <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
+            Produtos
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            Gerencie os produtos e suas Fichas Técnicas integradas.
+          </Typography>
+        </Box>
+        <Button 
+          variant="contained" 
+          color="primary" 
+          startIcon={<AddIcon />}
+          onClick={() => setIsAddModalOpen(true)}
+          size="large"
+          disableElevation
+        >
+          Novo Produto
+        </Button>
+      </Box>
+
+      <Card variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
+        <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="h6">Catálogo</Typography>
+          <Chip label={`${produtos.length} Itens`} color="primary" variant="outlined" />
+        </Box>
         
         {loading ? (
-          <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-            <Loader2 className="animate-spin" size={32} style={{ margin: '0 auto', marginBottom: '1rem' }} />
-          </div>
+          <Box sx={{ p: 6, display: 'flex', justifyContent: 'center' }}>
+            <CircularProgress />
+          </Box>
         ) : error ? (
-          <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--danger)' }}>{error}</div>
+          <Box sx={{ p: 4, textAlign: 'center' }}>
+            <Typography color="error">{error}</Typography>
+          </Box>
         ) : produtos.length === 0 ? (
-          <div style={{ padding: '4rem 2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-            <Info size={32} style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
-            <p>Nenhum produto cadastrado.</p>
-          </div>
+          <Box sx={{ p: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', color: 'text.secondary' }}>
+            <Info size={48} style={{ marginBottom: '16px', opacity: 0.5 }} />
+            <Typography>Nenhum produto cadastrado.</Typography>
+          </Box>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table className="premium-table">
-              <thead>
-                <tr>
-                  <th>Ref</th>
-                  <th>Produto</th>
-                  <th>Preço Venda</th>
-                  <th>Custo Produção</th>
-                  <th>Status Ficha</th>
-                </tr>
-              </thead>
-              <tbody>
-                {produtos.map(p => (
-                  <tr key={p.id} onClick={() => openEditModal(p)} style={{ cursor: 'pointer' }}>
-                    <td><span className="badge badge-orange">{p.codigo}</span></td>
-                    <td style={{ fontWeight: 500 }}>{p.nome}</td>
-                    <td style={{ color: 'var(--accent-primary)', fontWeight: 500 }}>{formatCurrency(p.precoVenda)}</td>
-                    <td style={{ color: 'var(--warning)', fontWeight: 500 }}>
-                      {p.precoCusto > 0 ? formatCurrency(p.precoCusto) : '-'}
-                    </td>
-                    <td>
-                      {p.fichaTecnica ? <span className="badge badge-green">Preenchida</span> : <span className="badge">Pendente</span>}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <Box sx={{ cursor: 'pointer', '& tbody tr:hover': { backgroundColor: 'action.hover' } }}>
+            <DataTable 
+              columns={columns} 
+              data={produtos} 
+              onRowClick={(row) => openEditModal(row.original)} 
+            />
+          </Box>
         )}
-      </div>
+      </Card>
 
       {/* Modal Adicionar Produto */}
       <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} title="Novo Produto" width="500px">
-        <form onSubmit={handleAddProduto} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Código (Referência)</label>
-            <input type="text" required value={codigo} onChange={(e) => setCodigo(e.target.value)} placeholder="Ex: REF-100" />
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Nome do Produto</label>
-            <input type="text" required value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex: Calcinha Algodão" />
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Preço de Venda (R$)</label>
-            <input type="number" step="0.01" min="0" required value={precoVenda} onChange={(e) => setPrecoVenda(e.target.value)} />
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Descrição (Opcional)</label>
-            <textarea rows={2} value={descricao} onChange={(e) => setDescricao(e.target.value)} />
-          </div>
-          <button type="submit" className="btn-primary" disabled={isSubmitting} style={{ marginTop: '0.5rem' }}>
-            {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : 'Salvar Produto'}
-          </button>
+        <form onSubmit={handleAddProduto}>
+          <Stack spacing={3} sx={{ mt: 1 }}>
+            <TextField
+              label="Código (Referência)"
+              variant="outlined"
+              fullWidth
+              required
+              value={codigo}
+              onChange={(e) => setCodigo(e.target.value)}
+              placeholder="Ex: REF-100"
+            />
+            <TextField
+              label="Nome do Produto"
+              variant="outlined"
+              fullWidth
+              required
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              placeholder="Ex: Calcinha Algodão"
+            />
+            <TextField
+              label="Preço de Venda (R$)"
+              type="number"
+              variant="outlined"
+              fullWidth
+              required
+              inputProps={{ step: "0.01", min: "0" }}
+              value={precoVenda}
+              onChange={(e) => setPrecoVenda(e.target.value)}
+            />
+            <TextField
+              label="Descrição (Opcional)"
+              variant="outlined"
+              fullWidth
+              multiline
+              rows={2}
+              value={descricao}
+              onChange={(e) => setDescricao(e.target.value)}
+            />
+            
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 2 }}>
+              <Button onClick={() => setIsAddModalOpen(false)} sx={{ mr: 2 }}>Cancelar</Button>
+              <Button 
+                type="submit" 
+                variant="contained" 
+                color="primary"
+                disabled={isSubmitting}
+                startIcon={isSubmitting && <CircularProgress size={20} color="inherit" />}
+                disableElevation
+              >
+                Salvar Produto
+              </Button>
+            </Box>
+          </Stack>
         </form>
       </Modal>
 
       {/* Modal Editar Produto / Ficha Técnica */}
       <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} title={`Editar: ${selectedProduto?.nome}`} width="800px">
         {selectedProduto && (
-          <div>
-            <div style={{ display: 'flex', gap: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem', marginBottom: '1.5rem' }}>
-              <button 
-                onClick={() => setActiveTab('INFO')}
-                style={{
-                  background: 'none', border: 'none', padding: '0.5rem 1rem', fontSize: '1rem', cursor: 'pointer',
-                  fontWeight: activeTab === 'INFO' ? 600 : 400,
-                  color: activeTab === 'INFO' ? 'var(--accent-primary)' : 'var(--text-secondary)',
-                  borderBottom: activeTab === 'INFO' ? '2px solid var(--accent-primary)' : 'none'
-                }}
-              >
-                Informações
-              </button>
-              <button 
-                onClick={() => setActiveTab('FICHA')}
-                style={{
-                  background: 'none', border: 'none', padding: '0.5rem 1rem', fontSize: '1rem', cursor: 'pointer',
-                  fontWeight: activeTab === 'FICHA' ? 600 : 400,
-                  color: activeTab === 'FICHA' ? 'var(--accent-primary)' : 'var(--text-secondary)',
-                  borderBottom: activeTab === 'FICHA' ? '2px solid var(--accent-primary)' : 'none'
-                }}
-              >
-                Materiais (BOM)
-              </button>
-              <button 
-                onClick={() => setActiveTab('OPERACOES')}
-                style={{
-                  background: 'none', border: 'none', padding: '0.5rem 1rem', fontSize: '1rem', cursor: 'pointer',
-                  fontWeight: activeTab === 'OPERACOES' ? 600 : 400,
-                  color: activeTab === 'OPERACOES' ? 'var(--accent-primary)' : 'var(--text-secondary)',
-                  borderBottom: activeTab === 'OPERACOES' ? '2px solid var(--accent-primary)' : 'none'
-                }}
-              >
-                Operações de Costura
-              </button>
-            </div>
+          <Box>
+            <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+              <Tabs value={activeTab} onChange={handleTabChange} aria-label="Abas do produto">
+                <Tab label="Informações" />
+                <Tab label="Materiais (BOM)" />
+                <Tab label="Operações de Costura" />
+              </Tabs>
+            </Box>
 
-            {activeTab === 'INFO' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <p><strong>Ref:</strong> {selectedProduto.codigo}</p>
-                <p><strong>Descrição:</strong> {selectedProduto.descricao}</p>
-                <p><strong>Preço Venda:</strong> {formatCurrency(selectedProduto.precoVenda)}</p>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>A edição completa das informações do produto será disponibilizada em breve.</p>
-              </div>
+            {/* TAB INFO */}
+            {activeTab === 0 && (
+              <Stack spacing={2}>
+                <Typography><strong>Ref:</strong> {selectedProduto.codigo}</Typography>
+                <Typography><strong>Descrição:</strong> {selectedProduto.descricao}</Typography>
+                <Typography><strong>Preço Venda:</strong> {formatCurrency(selectedProduto.precoVenda)}</Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+                  A edição completa das informações do produto será disponibilizada em breve.
+                </Typography>
+              </Stack>
             )}
 
-            {activeTab === 'FICHA' && selectedProduto.fichaTecnica && (
-              <div>
-                <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem' }}>
-                  <div style={{ flex: 1, padding: '1rem', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)' }}>
-                    <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Custo Total Materiais</span>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 600, color: 'var(--success)' }}>
-                      {formatCurrency(selectedProduto.fichaTecnica.custoTotalMateriais)}
-                    </div>
-                  </div>
-                </div>
+            {/* TAB MATERIAIS */}
+            {activeTab === 1 && selectedProduto.fichaTecnica && (
+              <Box>
+                <Card variant="outlined" sx={{ p: 2, mb: 3, bgcolor: 'action.hover' }}>
+                  <Typography variant="body2" color="text.secondary">Custo Total Materiais</Typography>
+                  <Typography variant="h5" color="success.main" fontWeight="bold">
+                    {formatCurrency(selectedProduto.fichaTecnica.custoTotalMateriais)}
+                  </Typography>
+                </Card>
 
-                <form onSubmit={handleAddMaterial} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', marginBottom: '1.5rem' }}>
-                  <div style={{ flex: 1 }}>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Material</label>
-                    <select value={selectedMaterialId} onChange={e => setSelectedMaterialId(e.target.value)} required>
-                      <option value="">Selecione...</option>
-                      {estoque.map(m => (
-                        <option key={m.id} value={m.id}>{m.codigo} - {m.nome}</option>
+                <form onSubmit={handleAddMaterial}>
+                  <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
+                    <FormControl fullWidth required>
+                      <InputLabel id="material-label">Material</InputLabel>
+                      <Select
+                        labelId="material-label"
+                        value={selectedMaterialId}
+                        label="Material"
+                        onChange={e => setSelectedMaterialId(e.target.value)}
+                      >
+                        <MenuItem value=""><em>Selecione...</em></MenuItem>
+                        {estoque.map(m => (
+                          <MenuItem key={m.id} value={m.id}>{m.codigo} - {m.nome}</MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                    <TextField
+                      label="Qtd Gasta"
+                      type="number"
+                      required
+                      inputProps={{ step: "0.001", min: "0" }}
+                      value={quantidadeMaterial}
+                      onChange={e => setQuantidadeMaterial(e.target.value)}
+                      placeholder="0.120"
+                      sx={{ width: 150 }}
+                    />
+                    <Button type="submit" variant="contained" disableElevation sx={{ height: 56 }}>
+                      Incluir
+                    </Button>
+                  </Stack>
+                </form>
+
+                <TableContainer component={Paper} variant="outlined">
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Material</TableCell>
+                        <TableCell align="right">Qtd</TableCell>
+                        <TableCell>Un</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {selectedProduto.fichaTecnica.materiais?.map((m: any) => (
+                        <TableRow key={m.id}>
+                          <TableCell>{m.materialNome}</TableCell>
+                          <TableCell align="right" sx={{ fontWeight: 600 }}>{m.quantidade}</TableCell>
+                          <TableCell color="text.secondary">{m.unidadeMedida}</TableCell>
+                        </TableRow>
                       ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Qtd Gasta</label>
-                    <input type="number" step="0.001" min="0" required value={quantidadeMaterial} onChange={e => setQuantidadeMaterial(e.target.value)} placeholder="0.120" style={{ width: '120px' }} />
-                  </div>
-                  <button type="submit" className="btn-primary" disabled={isSubmitting}>Incluir</button>
-                </form>
-
-                <table className="premium-table">
-                  <thead><tr><th>Material</th><th>Qtd</th><th>Un</th></tr></thead>
-                  <tbody>
-                    {selectedProduto.fichaTecnica.materiais?.map((m: any) => (
-                      <tr key={m.id}>
-                        <td>{m.materialNome}</td>
-                        <td style={{ fontWeight: 600 }}>{m.quantidade}</td>
-                        <td style={{ color: 'var(--text-secondary)' }}>{m.unidadeMedida}</td>
-                      </tr>
-                    ))}
-                    {(!selectedProduto.fichaTecnica.materiais || selectedProduto.fichaTecnica.materiais.length === 0) && (
-                      <tr><td colSpan={3} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>Sem materiais.</td></tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                      {(!selectedProduto.fichaTecnica.materiais || selectedProduto.fichaTecnica.materiais.length === 0) && (
+                        <TableRow>
+                          <TableCell colSpan={3} align="center" sx={{ py: 3, color: 'text.secondary' }}>
+                            Sem materiais.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Box>
             )}
 
-            {activeTab === 'OPERACOES' && selectedProduto.fichaTecnica && (
-              <div>
-                 <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem' }}>
-                  <div style={{ flex: 1, padding: '1rem', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)' }}>
-                    <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Tempo TPP Total</span>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 600, color: 'var(--warning)' }}>
-                      {selectedProduto.fichaTecnica.tempoPadraoTotalCentesimal || 0} <span style={{ fontSize: '1rem' }}>min</span>
-                    </div>
-                  </div>
-                </div>
+            {/* TAB OPERAÇÕES */}
+            {activeTab === 2 && selectedProduto.fichaTecnica && (
+              <Box>
+                <Card variant="outlined" sx={{ p: 2, mb: 3, bgcolor: 'action.hover' }}>
+                  <Typography variant="body2" color="text.secondary">Tempo TPP Total</Typography>
+                  <Typography variant="h5" color="warning.main" fontWeight="bold">
+                    {selectedProduto.fichaTecnica.tempoPadraoTotalCentesimal || 0} <Typography component="span" variant="body1">min</Typography>
+                  </Typography>
+                </Card>
 
-                <form onSubmit={handleAddOperacao} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.5rem', padding: '1rem', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-md)' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.85rem' }}>Operação</label>
-                      <input type="text" value={opNome} onChange={e => setOpNome(e.target.value)} required />
-                    </div>
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.85rem' }}>Máquina</label>
-                      <input type="text" value={opMaquina} onChange={e => setOpMaquina(e.target.value)} />
-                    </div>
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '0.5rem', alignItems: 'flex-end' }}>
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.85rem' }}>Ordem</label>
-                      <input type="number" required value={opOrdem} onChange={e => setOpOrdem(e.target.value)} />
-                    </div>
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.85rem' }}>Folhas</label>
-                      <input type="number" required value={opFolhas} onChange={e => setOpFolhas(e.target.value)} />
-                    </div>
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.85rem' }}>Paradas</label>
-                      <input type="number" required value={opParadas} onChange={e => setOpParadas(e.target.value)} />
-                    </div>
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '0.25rem', fontSize: '0.85rem' }}>Comp.</label>
-                      <select value={opComprimento} onChange={e => setOpComprimento(e.target.value)}>
-                        <option value="DE_0_A_60">0-60</option>
-                        <option value="DE_61_A_90">61-90</option>
-                      </select>
-                    </div>
-                    <div>
-                      <button type="submit" className="btn-primary" disabled={isSubmitting} style={{ width: '100%' }}>+</button>
-                    </div>
-                  </div>
-                </form>
+                <Card variant="outlined" sx={{ p: 2, mb: 3 }}>
+                  <form onSubmit={handleAddOperacao}>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} sm={6}>
+                        <TextField
+                          label="Operação"
+                          fullWidth
+                          required
+                          size="small"
+                          value={opNome}
+                          onChange={e => setOpNome(e.target.value)}
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <TextField
+                          label="Máquina"
+                          fullWidth
+                          size="small"
+                          value={opMaquina}
+                          onChange={e => setOpMaquina(e.target.value)}
+                        />
+                      </Grid>
+                      
+                      <Grid item xs={6} sm={2}>
+                        <TextField label="Ordem" type="number" required size="small" value={opOrdem} onChange={e => setOpOrdem(e.target.value)} fullWidth />
+                      </Grid>
+                      <Grid item xs={6} sm={2}>
+                        <TextField label="Folhas" type="number" required size="small" value={opFolhas} onChange={e => setOpFolhas(e.target.value)} fullWidth />
+                      </Grid>
+                      <Grid item xs={6} sm={3}>
+                        <TextField label="Paradas" type="number" required size="small" value={opParadas} onChange={e => setOpParadas(e.target.value)} fullWidth />
+                      </Grid>
+                      <Grid item xs={6} sm={3}>
+                        <FormControl fullWidth size="small">
+                          <InputLabel>Comp.</InputLabel>
+                          <Select value={opComprimento} label="Comp." onChange={e => setOpComprimento(e.target.value)}>
+                            <MenuItem value="DE_0_A_60">0-60</MenuItem>
+                            <MenuItem value="DE_61_A_90">61-90</MenuItem>
+                          </Select>
+                        </FormControl>
+                      </Grid>
+                      <Grid item xs={12} sm={2}>
+                        <Button type="submit" variant="contained" disabled={isSubmitting} fullWidth disableElevation sx={{ height: 40 }}>
+                          +
+                        </Button>
+                      </Grid>
+                    </Grid>
+                  </form>
+                </Card>
 
-                <table className="premium-table">
-                  <thead><tr><th>Ordem</th><th>Op</th><th>Máq</th><th>Tempo</th></tr></thead>
-                  <tbody>
-                    {selectedProduto.fichaTecnica.operacoes?.sort((a:any, b:any) => a.ordemExecucao - b.ordemExecucao).map((op: any) => (
-                      <tr key={op.id}>
-                        <td>{op.ordemExecucao}</td>
-                        <td style={{ fontWeight: 500 }}>{op.nome}</td>
-                        <td style={{ color: 'var(--text-secondary)' }}>{op.maquina}</td>
-                        <td style={{ fontWeight: 600, color: 'var(--warning)' }}>{op.tempoCalculadoCentesimal}m</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                <TableContainer component={Paper} variant="outlined">
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Ordem</TableCell>
+                        <TableCell>Op</TableCell>
+                        <TableCell>Máq</TableCell>
+                        <TableCell align="right">Tempo</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {selectedProduto.fichaTecnica.operacoes?.sort((a:any, b:any) => a.ordemExecucao - b.ordemExecucao).map((op: any) => (
+                        <TableRow key={op.id}>
+                          <TableCell>{op.ordemExecucao}</TableCell>
+                          <TableCell sx={{ fontWeight: 500 }}>{op.nome}</TableCell>
+                          <TableCell color="text.secondary">{op.maquina}</TableCell>
+                          <TableCell align="right" sx={{ fontWeight: 600, color: 'warning.main' }}>{op.tempoCalculadoCentesimal}m</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Box>
             )}
-          </div>
+          </Box>
         )}
       </Modal>
 
-    </div>
+    </Box>
   );
 };
 

@@ -1,6 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Loader2, Info } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Trash2, Loader2, Plus } from 'lucide-react';
 import api from '../api/axios';
+import { DataTable } from '../components/DataTable';
+import type { ColumnDef } from '@tanstack/react-table';
+import {
+  Box,
+  Typography,
+  Button,
+  Card,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Stack,
+  Chip,
+  CircularProgress,
+  Grid
+} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 
 interface TabelaTempo {
   id: string;
@@ -63,7 +81,7 @@ const TabelaTempos = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Deseja realmente remover este tempo?')) return;
+    if (!window.confirm('Deseja realmente remover este tempo?')) return;
     try {
       await api.delete(`/production/tempos-padrao/${id}`);
       fetchTempos();
@@ -80,139 +98,170 @@ const TabelaTempos = () => {
     return `${minutes}m ${seconds}s`;
   };
 
-  return (
-    <div className="animate-fade-in">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <div>
-          <h1 style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>Gestão de Tempos (TPP)</h1>
-          <p style={{ color: 'var(--text-secondary)' }}>Cadastre a matriz de tempos centesimais para operações.</p>
-        </div>
-      </div>
+  const columns = useMemo<ColumnDef<TabelaTempo, any, any>[]>(() => [
+    {
+      accessorKey: 'indice',
+      header: 'Índice',
+      cell: (info) => <Chip label={`Idx ${info.getValue()}`} color="primary" variant="outlined" size="small" />
+    },
+    {
+      accessorKey: 'grauDificuldade',
+      header: 'Dificuldade',
+      cell: (info) => <Typography>{(info.getValue() as string).replace('_', ' ')}</Typography>
+    },
+    {
+      accessorKey: 'faixaComprimento',
+      header: 'Comprimento',
+      cell: (info) => <Typography>{(info.getValue() as string).replace(/_/g, ' ')}</Typography>
+    },
+    {
+      accessorKey: 'tempoCentesimal',
+      header: 'Centesimal',
+      cell: (info) => <Typography color="primary" fontWeight="bold">{(info.getValue() as number).toFixed(2)}</Typography>
+    },
+    {
+      id: 'formatoLeitura',
+      header: 'Formato Leitura',
+      cell: (info) => <Typography color="text.secondary">{formatTime(info.row.original.tempoCentesimal)}</Typography>
+    },
+    {
+      id: 'acoes',
+      header: 'Ações',
+      cell: (info) => (
+        <Button 
+          variant="outlined" 
+          color="error" 
+          size="small" 
+          onClick={() => handleDelete(info.row.original.id)}
+          sx={{ minWidth: 'auto', p: 1 }}
+        >
+          <Trash2 size={16} />
+        </Button>
+      )
+    }
+  ], []);
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem' }}>
+  return (
+    <Box className="animate-fade-in">
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
+          Gestão de Tempos (TPP)
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Cadastre a matriz de tempos centesimais para operações.
+        </Typography>
+      </Box>
+
+      <Grid container spacing={3}>
         
         {/* Formulário */}
-        <div className="glass-card">
-          <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Plus size={18} className="text-accent" />
-            Novo Registro
-          </h3>
-          
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                Índice (Folhas + Paradas)
-              </label>
-              <input 
-                type="number" 
-                min="0" 
-                required 
-                value={indice} 
-                onChange={(e) => setIndice(e.target.value === '' ? '' : Number(e.target.value))} 
-                placeholder="Ex: 3"
-              />
-            </div>
+        <Grid item xs={12} md={4}>
+          <Card variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
+            <Typography variant="h6" sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
+              <AddIcon color="primary" /> Novo Registro
+            </Typography>
             
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Grau de Dificuldade</label>
-              <select value={grauDificuldade} onChange={e => setGrauDificuldade(e.target.value)}>
-                <option value="MUITO_FACIL">Muito Fácil</option>
-                <option value="FACIL">Fácil</option>
-                <option value="MEDIO">Médio</option>
-                <option value="MEDIO_DIFICIL">Médio-Difícil</option>
-                <option value="DIFICIL">Difícil</option>
-              </select>
-            </div>
+            <form onSubmit={handleSubmit}>
+              <Stack spacing={2.5}>
+                <TextField
+                  label="Índice (Folhas + Paradas)"
+                  type="number"
+                  variant="outlined"
+                  fullWidth
+                  required
+                  inputProps={{ min: "0" }}
+                  value={indice}
+                  onChange={(e) => setIndice(e.target.value === '' ? '' : Number(e.target.value))}
+                  placeholder="Ex: 3"
+                />
+                
+                <FormControl fullWidth required>
+                  <InputLabel id="dificuldade-label">Grau de Dificuldade</InputLabel>
+                  <Select
+                    labelId="dificuldade-label"
+                    value={grauDificuldade}
+                    label="Grau de Dificuldade"
+                    onChange={e => setGrauDificuldade(e.target.value)}
+                  >
+                    <MenuItem value="MUITO_FACIL">Muito Fácil</MenuItem>
+                    <MenuItem value="FACIL">Fácil</MenuItem>
+                    <MenuItem value="MEDIO">Médio</MenuItem>
+                    <MenuItem value="MEDIO_DIFICIL">Médio-Difícil</MenuItem>
+                    <MenuItem value="DIFICIL">Difícil</MenuItem>
+                  </Select>
+                </FormControl>
 
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Comprimento da Costura</label>
-              <select value={faixaComprimento} onChange={e => setFaixaComprimento(e.target.value)}>
-                <option value="DE_0_A_60">0 a 60 cm</option>
-                <option value="DE_61_A_90">61 a 90 cm</option>
-                <option value="ACIMA_DE_91">Acima de 91 cm</option>
-              </select>
-            </div>
+                <FormControl fullWidth required>
+                  <InputLabel id="comprimento-label">Comprimento da Costura</InputLabel>
+                  <Select
+                    labelId="comprimento-label"
+                    value={faixaComprimento}
+                    label="Comprimento da Costura"
+                    onChange={e => setFaixaComprimento(e.target.value)}
+                  >
+                    <MenuItem value="DE_0_A_60">0 a 60 cm</MenuItem>
+                    <MenuItem value="DE_61_A_90">61 a 90 cm</MenuItem>
+                    <MenuItem value="ACIMA_DE_91">Acima de 91 cm</MenuItem>
+                  </Select>
+                </FormControl>
 
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                Tempo Centesimal (Minutos)
-              </label>
-              <input 
-                type="number" 
-                step="0.01"
-                min="0"
-                required 
-                value={tempo} 
-                onChange={(e) => setTempo(e.target.value)} 
-                placeholder="Ex: 1.50 (1m 30s)"
-              />
-            </div>
+                <TextField
+                  label="Tempo Centesimal (Minutos)"
+                  type="number"
+                  variant="outlined"
+                  fullWidth
+                  required
+                  inputProps={{ step: "0.01", min: "0" }}
+                  value={tempo}
+                  onChange={(e) => setTempo(e.target.value)}
+                  placeholder="Ex: 1.50 (1m 30s)"
+                />
 
-            <button type="submit" className="btn-primary" disabled={isSubmitting} style={{ marginTop: '0.5rem' }}>
-              {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : 'Cadastrar Tempo'}
-            </button>
-          </form>
-        </div>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  size="large"
+                  disabled={isSubmitting}
+                  startIcon={isSubmitting && <CircularProgress size={20} color="inherit" />}
+                  disableElevation
+                  fullWidth
+                >
+                  Cadastrar Tempo
+                </Button>
+              </Stack>
+            </form>
+          </Card>
+        </Grid>
 
         {/* Tabela */}
-        <div className="glass-card" style={{ padding: 0, overflow: 'hidden' }}>
-          <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between' }}>
-            <h3>Matriz Cadastrada</h3>
-            <span className="badge badge-blue">{tempos.length} Registros</span>
-          </div>
-          
-          {loading ? (
-            <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-              <Loader2 className="animate-spin" size={32} style={{ margin: '0 auto', marginBottom: '1rem' }} />
-              Carregando dados...
-            </div>
-          ) : error ? (
-            <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--danger)' }}>{error}</div>
-          ) : tempos.length === 0 ? (
-            <div style={{ padding: '4rem 2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-              <Info size={32} style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
-              <p>Nenhum tempo padrão cadastrado.</p>
-              <p style={{ fontSize: '0.9rem', marginTop: '0.5rem' }}>Utilize o formulário ao lado para iniciar a matriz.</p>
-            </div>
-          ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table className="premium-table">
-                <thead>
-                  <tr>
-                    <th>Índice</th>
-                    <th>Dificuldade</th>
-                    <th>Comprimento</th>
-                    <th>Centesimal</th>
-                    <th>Formato Leitura</th>
-                    <th>Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tempos.map(t => (
-                    <tr key={t.id}>
-                      <td><span className="badge badge-blue">Idx {t.indice}</span></td>
-                      <td>{t.grauDificuldade.replace('_', ' ')}</td>
-                      <td>{t.faixaComprimento.replace(/_/g, ' ')}</td>
-                      <td style={{ fontWeight: 600 }} className="text-accent">{t.tempoCentesimal.toFixed(2)}</td>
-                      <td style={{ color: 'var(--text-secondary)' }}>{formatTime(t.tempoCentesimal)}</td>
-                      <td>
-                        <button 
-                          onClick={() => handleDelete(t.id)} 
-                          className="btn-danger"
-                          style={{ padding: '0.4rem', borderRadius: 'var(--radius-sm)' }}
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+        <Grid item xs={12} md={8}>
+          <Card variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
+            <Box sx={{ p: 2.5, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography variant="h6">Matriz Cadastrada</Typography>
+              <Chip label={`${tempos.length} Registros`} color="primary" size="small" />
+            </Box>
+            
+            {loading ? (
+              <Box sx={{ p: 6, display: 'flex', justifyContent: 'center' }}>
+                <CircularProgress />
+              </Box>
+            ) : error ? (
+              <Box sx={{ p: 4, textAlign: 'center' }}>
+                <Typography color="error">{error}</Typography>
+              </Box>
+            ) : tempos.length === 0 ? (
+              <Box sx={{ p: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', color: 'text.secondary' }}>
+                <Typography gutterBottom>Nenhum tempo padrão cadastrado.</Typography>
+                <Typography variant="caption">Utilize o formulário ao lado para iniciar a matriz.</Typography>
+              </Box>
+            ) : (
+              <DataTable columns={columns} data={tempos} />
+            )}
+          </Card>
+        </Grid>
+      </Grid>
+    </Box>
   );
 };
 
