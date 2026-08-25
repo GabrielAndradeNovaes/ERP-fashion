@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Trash2, Loader2, Plus } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import api from '../api/axios';
 import { DataTable } from '../components/DataTable';
 import type { ColumnDef } from '@tanstack/react-table';
@@ -98,7 +98,7 @@ const TabelaTempos = () => {
     return `${minutes}m ${seconds}s`;
   };
 
-  const columns = useMemo<ColumnDef<TabelaTempo, any, any>[]>(() => [
+  const columns = useMemo<ColumnDef<any, any, any>[]>(() => [
     {
       accessorKey: 'indice',
       header: 'Índice',
@@ -117,7 +117,7 @@ const TabelaTempos = () => {
     {
       accessorKey: 'tempoCentesimal',
       header: 'Centesimal',
-      cell: (info) => <Typography color="primary" fontWeight="bold">{(info.getValue() as number).toFixed(2)}</Typography>
+      cell: (info) => <Typography color="primary" sx={{ fontWeight: 'bold' }}>{(info.getValue() as number).toFixed(2)}</Typography>
     },
     {
       id: 'formatoLeitura',
@@ -144,7 +144,7 @@ const TabelaTempos = () => {
   return (
     <Box className="animate-fade-in">
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
+        <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 'bold' }}>
           Gestão de Tempos (TPP)
         </Typography>
         <Typography variant="body1" color="text.secondary">
@@ -155,7 +155,7 @@ const TabelaTempos = () => {
       <Grid container spacing={3}>
         
         {/* Formulário */}
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Card variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
             <Typography variant="h6" sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
               <AddIcon color="primary" /> Novo Registro
@@ -169,7 +169,7 @@ const TabelaTempos = () => {
                   variant="outlined"
                   fullWidth
                   required
-                  inputProps={{ min: "0" }}
+                  slotProps={{ htmlInput: { min: "0" } }}
                   value={indice}
                   onChange={(e) => setIndice(e.target.value === '' ? '' : Number(e.target.value))}
                   placeholder="Ex: 3"
@@ -211,7 +211,7 @@ const TabelaTempos = () => {
                   variant="outlined"
                   fullWidth
                   required
-                  inputProps={{ step: "0.01", min: "0" }}
+                  slotProps={{ htmlInput: { step: "0.01", min: "0" } }}
                   value={tempo}
                   onChange={(e) => setTempo(e.target.value)}
                   placeholder="Ex: 1.50 (1m 30s)"
@@ -235,7 +235,7 @@ const TabelaTempos = () => {
         </Grid>
 
         {/* Tabela */}
-        <Grid item xs={12} md={8}>
+        <Grid size={{ xs: 12, md: 8 }}>
           <Card variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
             <Box sx={{ p: 2.5, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Typography variant="h6">Matriz Cadastrada</Typography>

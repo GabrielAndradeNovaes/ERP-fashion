@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { type ReactNode } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -21,12 +21,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, width =
       open={isOpen} 
       onClose={onClose}
       fullWidth
-      maxWidth={false}
-      PaperProps={{
-        sx: {
-          width: width,
-          maxWidth: '90vw',
-          borderRadius: 2,
+      slotProps={{
+        paper: {
+          sx: {
+            width: width,
+            maxWidth: '90vw',
+            borderRadius: 2,
+          }
         }
       }}
     >

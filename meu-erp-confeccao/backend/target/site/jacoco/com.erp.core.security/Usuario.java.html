@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Usuario.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.erp.core.security</a> &gt; <span class="el_source">Usuario.java</span></div><h1>Usuario.java</h1><pre class="source lang-java linenums">package com.erp.core.security;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import java.util.UUID;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = &quot;usuarios&quot;, schema = &quot;master&quot;)
+<span class="fc" id="L14">public class Usuario {</span>
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @Column(name = &quot;tenant_id&quot;, nullable = false)
+    private String tenantId;
+
+    @Column(nullable = false)
+    private String nome;
+
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    @Column(nullable = false)
+    private String senha;
+
+    @Column(nullable = false)
+    private String role;
+
+<span class="fc" id="L35">    @Column(nullable = false)</span>
+<span class="fc" id="L36">    private Boolean ativo = true;</span>
+
+    @Column(name = &quot;criado_em&quot;)
+    private LocalDateTime criadoEm;
+
+<span class="nc" id="L41">    public UUID getId() { return id; }</span>
+<span class="fc" id="L42">    public void setId(UUID id) { this.id = id; }</span>
+    
+<span class="fc" id="L44">    public String getTenantId() { return tenantId; }</span>
+<span class="fc" id="L45">    public void setTenantId(String tenantId) { this.tenantId = tenantId; }</span>
+    
+<span class="fc" id="L47">    public String getNome() { return nome; }</span>
+<span class="fc" id="L48">    public void setNome(String nome) { this.nome = nome; }</span>
+    
+<span class="fc" id="L50">    public String getEmail() { return email; }</span>
+<span class="fc" id="L51">    public void setEmail(String email) { this.email = email; }</span>
+    
+<span class="nc" id="L53">    public String getSenha() { return senha; }</span>
+<span class="fc" id="L54">    public void setSenha(String senha) { this.senha = senha; }</span>
+    
+<span class="fc" id="L56">    public String getRole() { return role; }</span>
+<span class="fc" id="L57">    public void setRole(String role) { this.role = role; }</span>
+    
+<span class="nc" id="L59">    public Boolean getAtivo() { return ativo; }</span>
+<span class="nc" id="L60">    public void setAtivo(Boolean ativo) { this.ativo = ativo; }</span>
+    
+<span class="nc" id="L62">    public LocalDateTime getCriadoEm() { return criadoEm; }</span>
+<span class="nc" id="L63">    public void setCriadoEm(LocalDateTime criadoEm) { this.criadoEm = criadoEm; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

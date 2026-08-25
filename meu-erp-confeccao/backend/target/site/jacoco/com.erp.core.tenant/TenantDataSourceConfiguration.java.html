@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TenantDataSourceConfiguration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.erp.core.tenant</a> &gt; <span class="el_source">TenantDataSourceConfiguration.java</span></div><h1>TenantDataSourceConfiguration.java</h1><pre class="source lang-java linenums">package com.erp.core.tenant;
+
+import com.zaxxer.hikari.HikariDataSource;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import javax.sql.DataSource;
+import java.util.HashMap;
+import java.util.Map;
+
+@Configuration
+public class TenantDataSourceConfiguration implements WebMvcConfigurer {
+
+    @Value(&quot;${spring.datasource.url}&quot;)
+    private String url;
+
+    @Value(&quot;${spring.datasource.username}&quot;)
+    private String username;
+
+    @Value(&quot;${spring.datasource.password}&quot;)
+    private String password;
+
+    @Value(&quot;${spring.datasource.driver-class-name}&quot;)
+    private String driverClassName;
+
+    private final TenantInterceptor tenantInterceptor;
+
+<span class="nc" id="L33">    public TenantDataSourceConfiguration(TenantInterceptor tenantInterceptor) {</span>
+<span class="nc" id="L34">        this.tenantInterceptor = tenantInterceptor;</span>
+<span class="nc" id="L35">    }</span>
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+<span class="nc" id="L39">        registry.addInterceptor(tenantInterceptor);</span>
+<span class="nc" id="L40">    }</span>
+
+    @Bean
+    @Primary
+    public DataSource dataSource() {
+        // Configurando o datasource do schema MASTER
+<span class="nc" id="L46">        DataSource masterDataSource = createDataSource(&quot;master&quot;);</span>
+
+<span class="nc" id="L48">        TenantRoutingDataSource customDataSource = new TenantRoutingDataSource(</span>
+            masterDataSource, url, username, password, driverClassName
+        );
+        
+<span class="nc" id="L52">        Map&lt;Object, Object&gt; targetDataSources = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L53">        targetDataSources.put(TenantContext.MASTER_TENANT, masterDataSource);</span>
+
+<span class="nc" id="L55">        customDataSource.setTargetDataSources(targetDataSources);</span>
+<span class="nc" id="L56">        customDataSource.setDefaultTargetDataSource(masterDataSource);</span>
+<span class="nc" id="L57">        customDataSource.afterPropertiesSet();</span>
+
+<span class="nc" id="L59">        return customDataSource;</span>
+    }
+
+    private DataSource createDataSource(String schema) {
+<span class="nc" id="L63">        HikariDataSource dataSource = new HikariDataSource();</span>
+<span class="nc" id="L64">        dataSource.setJdbcUrl(url);</span>
+<span class="nc" id="L65">        dataSource.setUsername(username);</span>
+<span class="nc" id="L66">        dataSource.setPassword(password);</span>
+<span class="nc" id="L67">        dataSource.setDriverClassName(driverClassName);</span>
+        // Utilizando currentSchema do PostgreSQL
+<span class="nc" id="L69">        dataSource.setSchema(schema);</span>
+<span class="nc" id="L70">        return dataSource;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

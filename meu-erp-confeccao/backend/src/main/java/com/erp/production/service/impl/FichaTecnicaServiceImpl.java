@@ -146,6 +146,62 @@ public class FichaTecnicaServiceImpl implements FichaTecnicaService {
         return mapToResponse(saved);
     }
 
+    @Override
+    @Transactional
+    public FichaTecnicaResponse addMaterial(UUID fichaTecnicaId, com.erp.production.dto.FichaTecnicaMaterialRequest request) {
+        FichaTecnica fichaTecnica = fichaTecnicaRepository.findById(fichaTecnicaId)
+                .orElseThrow(() -> new IllegalArgumentException("Ficha Técnica não encontrada com ID: " + fichaTecnicaId));
+
+        Material material = materialRepository.findById(request.materialId())
+                .orElseThrow(() -> new IllegalArgumentException("Material não encontrado com ID: " + request.materialId()));
+
+        FichaTecnicaMaterial fctMaterial = new FichaTecnicaMaterial();
+        fctMaterial.setMaterial(material);
+        fctMaterial.setQuantidade(request.quantidade());
+
+        fichaTecnica.addMaterial(fctMaterial);
+        
+        FichaTecnica saved = fichaTecnicaRepository.save(fichaTecnica);
+        
+        // Atualizar precoCusto do ProdutoBase
+        atualizarPrecoCustoProdutoBase(saved);
+
+        return mapToResponse(saved);
+    }
+
+    @Override
+    @Transactional
+    public FichaTecnicaResponse removeMaterial(UUID fichaTecnicaId, UUID materialId) {
+        FichaTecnica fichaTecnica = fichaTecnicaRepository.findById(fichaTecnicaId)
+                .orElseThrow(() -> new IllegalArgumentException("Ficha Técnica não encontrada com ID: " + fichaTecnicaId));
+
+        FichaTecnicaMaterial materialToRemove = fichaTecnica.getMateriais().stream()
+                .filter(m -> m.getId().equals(materialId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Material não encontrado na Ficha Técnica"));
+
+        fichaTecnica.removeMaterial(materialToRemove);
+        FichaTecnica saved = fichaTecnicaRepository.save(fichaTecnica);
+        
+        // Atualizar precoCusto do ProdutoBase
+        atualizarPrecoCustoProdutoBase(saved);
+
+        return mapToResponse(saved);
+    }
+
+    private void atualizarPrecoCustoProdutoBase(FichaTecnica ficha) {
+        ProdutoBase produto = ficha.getProdutoBase();
+        BigDecimal custoTotal = BigDecimal.ZERO;
+        if (ficha.getMateriais() != null) {
+            for (FichaTecnicaMaterial mat : ficha.getMateriais()) {
+                BigDecimal custoUnit = mat.getMaterial().getCustoUnitario() != null ? mat.getMaterial().getCustoUnitario() : BigDecimal.ZERO;
+                custoTotal = custoTotal.add(mat.getQuantidade().multiply(custoUnit));
+            }
+        }
+        produto.setPrecoCusto(custoTotal);
+        produtoBaseRepository.save(produto);
+    }
+
     private FichaTecnicaResponse mapToResponse(FichaTecnica fichaTecnica) {
         List<FichaTecnicaMaterialResponse> materiais = new ArrayList<>();
         BigDecimal custoTotalMateriais = BigDecimal.ZERO;

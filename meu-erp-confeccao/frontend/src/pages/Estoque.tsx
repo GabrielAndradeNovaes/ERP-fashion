@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Loader2, Info } from 'lucide-react';
+
 import api from '../api/axios';
 import Modal from '../components/Modal';
 import { DataTable } from '../components/DataTable';
@@ -163,7 +163,7 @@ const Estoque = () => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
   };
 
-  const columnsMateriais: ColumnDef<Material, any, any>[] = React.useMemo(() => [
+  const columnsMateriais: ColumnDef<any, any, any>[] = React.useMemo(() => [
     {
       accessorKey: 'codigo',
       header: 'Código',
@@ -172,7 +172,7 @@ const Estoque = () => {
     {
       accessorKey: 'nome',
       header: 'Material',
-      cell: (info) => <Typography fontWeight={500}>{info.getValue() as string}</Typography>
+      cell: (info) => <Typography sx={{ fontWeight: 500 }}>{info.getValue() as string}</Typography>
     },
     {
       accessorKey: 'unidadeMedida',
@@ -182,12 +182,12 @@ const Estoque = () => {
     {
       accessorKey: 'quantidadeAtual',
       header: 'Qtd Atual',
-      cell: (info) => <Typography color="primary" fontWeight={600}>{info.getValue() as number || 0}</Typography>
+      cell: (info) => <Typography color="primary" sx={{ fontWeight: 600 }}>{info.getValue() as number || 0}</Typography>
     },
     {
       accessorKey: 'custoUnitario',
       header: 'Custo Unitário',
-      cell: (info) => <Typography color="success.main" fontWeight={600}>{formatCurrency(info.getValue() as number)}</Typography>
+      cell: (info) => <Typography color="success.main" sx={{ fontWeight: 600 }}>{formatCurrency(info.getValue() as number)}</Typography>
     }
   ], []);
 
@@ -203,7 +203,7 @@ const Estoque = () => {
     {
       id: 'produto',
       header: 'Produto Base',
-      cell: (info) => <Typography fontWeight={500}>{info.row.original.produtoBaseCodigo} - {info.row.original.produtoBaseNome}</Typography>
+      cell: (info) => <Typography sx={{ fontWeight: 500 }}>{info.row.original.produtoBaseCodigo} - {info.row.original.produtoBaseNome}</Typography>
     },
     {
       id: 'sku',
@@ -223,7 +223,7 @@ const Estoque = () => {
     {
       accessorKey: 'quantidadeAtual',
       header: 'Qtd Atual',
-      cell: (info) => <Typography color="primary" fontWeight={600}>{info.getValue() || 0}</Typography>
+      cell: (info) => <Typography color="primary" sx={{ fontWeight: 600 }}>{info.getValue() || 0}</Typography>
     }
   ], []);
 
@@ -231,7 +231,7 @@ const Estoque = () => {
     <Box className="animate-fade-in">
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
         <Box>
-          <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
+          <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 'bold' }}>
             Estoque
           </Typography>
           <Typography variant="body1" color="text.secondary">
@@ -263,7 +263,7 @@ const Estoque = () => {
       </Box>
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-        <Tabs value={activeTab} onChange={(e, val) => setActiveTab(val)}>
+        <Tabs value={activeTab} onChange={(_, val) => setActiveTab(val)}>
           <Tab label="Matéria-Prima" />
           <Tab label="Produto Acabado (SKUs)" />
         </Tabs>
@@ -320,7 +320,7 @@ const Estoque = () => {
               placeholder="Ex: Tecido Malha"
             />
             <Grid container spacing={2}>
-              <Grid item xs={6}>
+              <Grid size={6}>
                 <FormControl fullWidth>
                   <InputLabel id="medida-label">Medida</InputLabel>
                   <Select
@@ -336,14 +336,14 @@ const Estoque = () => {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={6}>
+              <Grid size={6}>
                 <TextField
                   label="Custo (R$)"
                   type="number"
                   variant="outlined"
                   fullWidth
                   required
-                  inputProps={{ step: "0.01", min: "0" }}
+                  slotProps={{ htmlInput: { step: "0.01", min: "0" } }}
                   value={custoUnitario}
                   onChange={(e) => setCustoUnitario(e.target.value)}
                 />
@@ -433,9 +433,11 @@ const Estoque = () => {
               variant="outlined"
               fullWidth
               required
-              inputProps={{ 
-                step: activeTab === 0 ? "0.001" : "1",
-                min: "0.001"
+              slotProps={{ 
+                htmlInput: {
+                  step: activeTab === 0 ? "0.001" : "1",
+                  min: "0.001"
+                }
               }}
               value={movQtd}
               onChange={(e) => setMovQtd(e.target.value)}

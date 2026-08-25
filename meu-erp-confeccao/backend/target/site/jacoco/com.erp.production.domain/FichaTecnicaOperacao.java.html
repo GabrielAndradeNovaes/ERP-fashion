@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FichaTecnicaOperacao.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.erp.production.domain</a> &gt; <span class="el_source">FichaTecnicaOperacao.java</span></div><h1>FichaTecnicaOperacao.java</h1><pre class="source lang-java linenums">package com.erp.production.domain;
+
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+import java.util.UUID;
+
+@Entity
+@Table(name = &quot;fichas_tecnicas_operacoes&quot;)
+<span class="fc" id="L9">public class FichaTecnicaOperacao {</span>
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = &quot;ficha_tecnica_id&quot;, nullable = false)
+    private FichaTecnica fichaTecnica;
+
+    @Column(nullable = false, length = 100)
+    private String nome;
+
+    @Column(length = 50)
+    private String maquina;
+
+    @Column(name = &quot;ordem_execucao&quot;, nullable = false)
+    private Integer ordemExecucao;
+
+    @Column(name = &quot;quantidade_folhas&quot;, nullable = false)
+    private Integer quantidadeFolhas;
+
+    @Column(name = &quot;quantidade_paradas&quot;, nullable = false)
+    private Integer quantidadeParadas;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = &quot;grau_dificuldade&quot;, nullable = false, length = 30)
+    private GrauDificuldade grauDificuldade;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = &quot;faixa_comprimento&quot;, nullable = false, length = 30)
+    private FaixaComprimentoCostura faixaComprimento;
+
+    @Column(name = &quot;tempo_calculado_centesimal&quot;, nullable = false, precision = 10, scale = 2)
+    private BigDecimal tempoCalculadoCentesimal;
+
+<span class="fc" id="L45">    public UUID getId() { return id; }</span>
+<span class="fc" id="L46">    public void setId(UUID id) { this.id = id; }</span>
+<span class="fc" id="L47">    public FichaTecnica getFichaTecnica() { return fichaTecnica; }</span>
+<span class="fc" id="L48">    public void setFichaTecnica(FichaTecnica fichaTecnica) { this.fichaTecnica = fichaTecnica; }</span>
+<span class="fc" id="L49">    public String getNome() { return nome; }</span>
+<span class="fc" id="L50">    public void setNome(String nome) { this.nome = nome; }</span>
+<span class="fc" id="L51">    public String getMaquina() { return maquina; }</span>
+<span class="fc" id="L52">    public void setMaquina(String maquina) { this.maquina = maquina; }</span>
+<span class="fc" id="L53">    public Integer getOrdemExecucao() { return ordemExecucao; }</span>
+<span class="fc" id="L54">    public void setOrdemExecucao(Integer ordemExecucao) { this.ordemExecucao = ordemExecucao; }</span>
+<span class="fc" id="L55">    public Integer getQuantidadeFolhas() { return quantidadeFolhas; }</span>
+<span class="fc" id="L56">    public void setQuantidadeFolhas(Integer quantidadeFolhas) { this.quantidadeFolhas = quantidadeFolhas; }</span>
+<span class="fc" id="L57">    public Integer getQuantidadeParadas() { return quantidadeParadas; }</span>
+<span class="fc" id="L58">    public void setQuantidadeParadas(Integer quantidadeParadas) { this.quantidadeParadas = quantidadeParadas; }</span>
+<span class="fc" id="L59">    public GrauDificuldade getGrauDificuldade() { return grauDificuldade; }</span>
+<span class="fc" id="L60">    public void setGrauDificuldade(GrauDificuldade grauDificuldade) { this.grauDificuldade = grauDificuldade; }</span>
+<span class="fc" id="L61">    public FaixaComprimentoCostura getFaixaComprimento() { return faixaComprimento; }</span>
+<span class="fc" id="L62">    public void setFaixaComprimento(FaixaComprimentoCostura faixaComprimento) { this.faixaComprimento = faixaComprimento; }</span>
+<span class="fc" id="L63">    public BigDecimal getTempoCalculadoCentesimal() { return tempoCalculadoCentesimal; }</span>
+<span class="fc" id="L64">    public void setTempoCalculadoCentesimal(BigDecimal tempoCalculadoCentesimal) { this.tempoCalculadoCentesimal = tempoCalculadoCentesimal; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Loader2, Info } from 'lucide-react';
+import { Info } from 'lucide-react';
 import api from '../api/axios';
 import Modal from './Modal';
 import type { ColumnDef } from '@tanstack/react-table';
@@ -111,7 +111,7 @@ const CrudPage: React.FC<CrudPageProps> = ({ title, description, endpoint, colum
       id: 'actions',
       header: 'Ações',
       cell: (info) => (
-        <Stack direction="row" spacing={1} justifyContent="center">
+        <Stack direction="row" spacing={1} sx={{ justifyContent: 'center' }}>
           <Tooltip title="Editar">
             <IconButton size="small" color="primary" onClick={() => handleEdit(info.row.original)}>
               <EditIcon fontSize="small" />
@@ -133,7 +133,7 @@ const CrudPage: React.FC<CrudPageProps> = ({ title, description, endpoint, colum
     <Box className="animate-fade-in">
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
         <Box>
-          <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
+          <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 'bold' }}>
             {title}
           </Typography>
           <Typography variant="body1" color="text.secondary">
@@ -160,12 +160,14 @@ const CrudPage: React.FC<CrudPageProps> = ({ title, description, endpoint, colum
             size="small"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon color="action" />
-                </InputAdornment>
-              ),
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon color="action" />
+                  </InputAdornment>
+                ),
+              }
             }}
             sx={{ width: 300 }}
           />

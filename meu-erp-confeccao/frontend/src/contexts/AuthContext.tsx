@@ -31,7 +31,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (storedToken && storedUser) {
       setToken(storedToken);
       setUser(JSON.parse(storedUser));
-      api.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
     }
     setLoading(false);
   }, []);
@@ -41,7 +40,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('@FashionERP:user', JSON.stringify(newUser));
     setToken(newToken);
     setUser(newUser);
-    api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
   };
 
   const logout = () => {
@@ -49,7 +47,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('@FashionERP:user');
     setToken(null);
     setUser(null);
-    delete api.defaults.headers.common['Authorization'];
   };
 
   if (loading) return null; // Ou um loading spinner global

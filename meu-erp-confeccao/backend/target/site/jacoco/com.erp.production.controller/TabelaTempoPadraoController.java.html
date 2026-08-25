@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TabelaTempoPadraoController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.erp.production.controller</a> &gt; <span class="el_source">TabelaTempoPadraoController.java</span></div><h1>TabelaTempoPadraoController.java</h1><pre class="source lang-java linenums">package com.erp.production.controller;
+
+import com.erp.production.dto.TabelaTempoPadraoRequest;
+import com.erp.production.dto.TabelaTempoPadraoResponse;
+import com.erp.production.service.TabelaTempoPadraoService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
+
+@RestController
+@RequestMapping(&quot;/api/production/tempos-padrao&quot;)
+public class TabelaTempoPadraoController {
+
+    private final TabelaTempoPadraoService service;
+
+<span class="nc" id="L19">    public TabelaTempoPadraoController(TabelaTempoPadraoService service) {</span>
+<span class="nc" id="L20">        this.service = service;</span>
+<span class="nc" id="L21">    }</span>
+
+    @PostMapping
+    public ResponseEntity&lt;TabelaTempoPadraoResponse&gt; create(@RequestBody TabelaTempoPadraoRequest request) {
+<span class="nc" id="L25">        return new ResponseEntity&lt;&gt;(service.create(request), HttpStatus.CREATED);</span>
+    }
+
+    @PutMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;TabelaTempoPadraoResponse&gt; update(@PathVariable UUID id, @RequestBody TabelaTempoPadraoRequest request) {
+<span class="nc" id="L30">        return ResponseEntity.ok(service.update(id, request));</span>
+    }
+
+    @GetMapping
+    public ResponseEntity&lt;List&lt;TabelaTempoPadraoResponse&gt;&gt; getAll() {
+<span class="nc" id="L35">        return ResponseEntity.ok(service.getAll());</span>
+    }
+
+    @DeleteMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;Void&gt; delete(@PathVariable UUID id) {
+<span class="nc" id="L40">        service.delete(id);</span>
+<span class="nc" id="L41">        return ResponseEntity.noContent().build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

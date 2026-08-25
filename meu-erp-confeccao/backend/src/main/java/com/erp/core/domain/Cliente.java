@@ -2,9 +2,6 @@ package com.erp.core.domain;
 
 import jakarta.persistence.*;
 import java.util.UUID;
-import org.hibernate.annotations.Filter;
-import org.hibernate.annotations.FilterDef;
-import org.hibernate.annotations.ParamDef;
 import org.hibernate.annotations.SQLDelete;
 
 @Entity

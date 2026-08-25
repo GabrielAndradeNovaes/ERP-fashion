@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrdemProducaoController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.erp.production.controller</a> &gt; <span class="el_source">OrdemProducaoController.java</span></div><h1>OrdemProducaoController.java</h1><pre class="source lang-java linenums">package com.erp.production.controller;
+
+import com.erp.production.dto.OrdemProducaoRequest;
+import com.erp.production.dto.OrdemProducaoResponse;
+import com.erp.production.service.OrdemProducaoService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
+
+@RestController
+@RequestMapping(&quot;/api/production/ordens&quot;)
+@CrossOrigin(origins = &quot;*&quot;) // Para desenvolvimento local
+public class OrdemProducaoController {
+
+    private final OrdemProducaoService ordemProducaoService;
+
+<span class="nc" id="L19">    public OrdemProducaoController(OrdemProducaoService ordemProducaoService) {</span>
+<span class="nc" id="L20">        this.ordemProducaoService = ordemProducaoService;</span>
+<span class="nc" id="L21">    }</span>
+
+    @PostMapping
+    public ResponseEntity&lt;OrdemProducaoResponse&gt; criar(@RequestBody OrdemProducaoRequest request) {
+<span class="nc" id="L25">        return ResponseEntity.ok(ordemProducaoService.criarOrdemProducao(request));</span>
+    }
+
+    @GetMapping
+    public ResponseEntity&lt;List&lt;OrdemProducaoResponse&gt;&gt; listarTodas() {
+<span class="nc" id="L30">        return ResponseEntity.ok(ordemProducaoService.listarTodas());</span>
+    }
+
+    @PutMapping(&quot;/{id}/iniciar&quot;)
+    public ResponseEntity&lt;OrdemProducaoResponse&gt; iniciarProducao(@PathVariable UUID id) {
+<span class="nc" id="L35">        return ResponseEntity.ok(ordemProducaoService.iniciarProducao(id));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

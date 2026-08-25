@@ -46,7 +46,7 @@ const Login = () => {
           <Box sx={{ bgcolor: 'primary.main', p: 2, borderRadius: 2, color: 'white', mb: 2 }}>
             <Scissors size={32} />
           </Box>
-          <Typography variant="h5" fontWeight="bold">Fashion ERP</Typography>
+          <Typography variant="h5" sx={{ fontWeight: 'bold' }}>Fashion ERP</Typography>
           <Typography variant="body2" color="text.secondary">Faça login para continuar</Typography>
         </Box>
 

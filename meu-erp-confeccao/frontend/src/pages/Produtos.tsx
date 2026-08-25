@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Loader2, Info } from 'lucide-react';
+import { Info } from 'lucide-react';
 import api from '../api/axios';
 import Modal from '../components/Modal';
 import { DataTable } from '../components/DataTable';
@@ -76,7 +76,7 @@ const Produtos = () => {
   const [opOrdem, setOpOrdem] = useState('1');
   const [opFolhas, setOpFolhas] = useState('2');
   const [opParadas, setOpParadas] = useState('1');
-  const [opDificuldade, setOpDificuldade] = useState('MEDIO');
+  const [opDificuldade] = useState('MEDIO');
   const [opComprimento, setOpComprimento] = useState('DE_0_A_60');
 
   const fetchInitialData = async () => {
@@ -190,7 +190,23 @@ const Produtos = () => {
 
   const handleAddMaterial = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert('Função de adicionar material (endpoint) precisa ser desenvolvida no backend.');
+    if (!selectedProduto?.fichaTecnica || !selectedMaterialId || !quantidadeMaterial) return;
+
+    try {
+      setIsSubmitting(true);
+      await api.post(`/production/fichas-tecnicas/${selectedProduto.fichaTecnica.id}/materiais`, {
+        materialId: selectedMaterialId,
+        quantidade: parseFloat(quantidadeMaterial)
+      });
+      
+      setSelectedMaterialId('');
+      setQuantidadeMaterial('');
+      await refreshSelectedProduto();
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Erro ao adicionar material.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const formatCurrency = (value: number) => {
@@ -198,7 +214,7 @@ const Produtos = () => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
   };
 
-  const columns: ColumnDef<ProdutoBase, any, any>[] = React.useMemo(() => [
+  const columns: ColumnDef<any, any, any>[] = React.useMemo(() => [
     {
       accessorKey: 'codigo',
       header: 'Ref',
@@ -207,19 +223,19 @@ const Produtos = () => {
     {
       accessorKey: 'nome',
       header: 'Produto',
-      cell: (info) => <Typography fontWeight={500}>{info.getValue() as string}</Typography>
+      cell: (info) => <Typography sx={{ fontWeight: 500 }}>{info.getValue() as string}</Typography>
     },
     {
       accessorKey: 'precoVenda',
       header: 'Preço Venda',
-      cell: (info) => <Typography color="primary" fontWeight={600}>{formatCurrency(info.getValue() as number)}</Typography>
+      cell: (info) => <Typography color="primary" sx={{ fontWeight: 600 }}>{formatCurrency(info.getValue() as number)}</Typography>
     },
     {
       accessorKey: 'precoCusto',
       header: 'Custo Produção',
       cell: (info) => {
         const val = info.getValue() as number;
-        return <Typography color="warning.main" fontWeight={500}>{val > 0 ? formatCurrency(val) : '-'}</Typography>;
+        return <Typography color="warning.main" sx={{ fontWeight: 500 }}>{val > 0 ? formatCurrency(val) : '-'}</Typography>;
       }
     },
     {
@@ -231,37 +247,45 @@ const Produtos = () => {
     }
   ], []);
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
   };
 
   return (
-    <Box className="animate-fade-in">
+    <Box className="animate-fade-in-up">
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
         <Box>
-          <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
-            Produtos
+          <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>
+            Produtos e <span className="text-gradient">Fichas Técnicas</span>
           </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Gerencie os produtos e suas Fichas Técnicas integradas.
+          <Typography variant="body1" sx={{ color: 'var(--text-secondary)' }}>
+            Gerencie os produtos e suas estruturas (BOM e Operações).
           </Typography>
         </Box>
         <Button 
           variant="contained" 
-          color="primary" 
           startIcon={<AddIcon />}
           onClick={() => setIsAddModalOpen(true)}
           size="large"
-          disableElevation
+          sx={{
+            background: 'var(--accent-gradient)',
+            borderRadius: 'var(--radius-md)',
+            textTransform: 'none',
+            fontWeight: 600,
+            boxShadow: '0 4px 14px 0 rgba(99, 102, 241, 0.39)',
+            '&:hover': {
+              boxShadow: '0 6px 20px rgba(99, 102, 241, 0.23)'
+            }
+          }}
         >
           Novo Produto
         </Button>
       </Box>
 
-      <Card variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
-        <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h6">Catálogo</Typography>
-          <Chip label={`${produtos.length} Itens`} color="primary" variant="outlined" />
+      <div className="premium-card">
+        <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="h6" sx={{ fontWeight: 600, color: 'var(--text-primary)' }}>Catálogo</Typography>
+          <Chip label={`${produtos.length} Itens`} sx={{ bgcolor: 'rgba(99, 102, 241, 0.1)', color: 'var(--accent-primary)', fontWeight: 600 }} size="small" />
         </Box>
         
         {loading ? (
@@ -278,7 +302,12 @@ const Produtos = () => {
             <Typography>Nenhum produto cadastrado.</Typography>
           </Box>
         ) : (
-          <Box sx={{ cursor: 'pointer', '& tbody tr:hover': { backgroundColor: 'action.hover' } }}>
+          <Box sx={{ 
+            cursor: 'pointer', 
+            '& th': { bgcolor: 'transparent', color: 'var(--text-secondary)', fontWeight: 600 },
+            '& td': { borderColor: 'var(--border-color)', color: 'var(--text-primary)' },
+            '& tbody tr:hover': { backgroundColor: 'rgba(255,255,255,0.02)' } 
+          }}>
             <DataTable 
               columns={columns} 
               data={produtos} 
@@ -286,11 +315,12 @@ const Produtos = () => {
             />
           </Box>
         )}
-      </Card>
+      </div>
 
       {/* Modal Adicionar Produto */}
       <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} title="Novo Produto" width="500px">
-        <form onSubmit={handleAddProduto}>
+        <div className="glass-panel" style={{ padding: '24px', background: 'var(--bg-card)', border: 'none', boxShadow: 'none' }}>
+          <form onSubmit={handleAddProduto}>
           <Stack spacing={3} sx={{ mt: 1 }}>
             <TextField
               label="Código (Referência)"
@@ -316,7 +346,7 @@ const Produtos = () => {
               variant="outlined"
               fullWidth
               required
-              inputProps={{ step: "0.01", min: "0" }}
+              slotProps={{ htmlInput: { step: "0.01", min: "0" } }}
               value={precoVenda}
               onChange={(e) => setPrecoVenda(e.target.value)}
             />
@@ -330,14 +360,14 @@ const Produtos = () => {
               onChange={(e) => setDescricao(e.target.value)}
             />
             
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 2 }}>
-              <Button onClick={() => setIsAddModalOpen(false)} sx={{ mr: 2 }}>Cancelar</Button>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 2, gap: 2 }}>
+              <Button onClick={() => setIsAddModalOpen(false)} sx={{ color: 'var(--text-secondary)' }}>Cancelar</Button>
               <Button 
                 type="submit" 
                 variant="contained" 
-                color="primary"
                 disabled={isSubmitting}
                 startIcon={isSubmitting && <CircularProgress size={20} color="inherit" />}
+                sx={{ bgcolor: 'var(--accent-primary)', '&:hover': { bgcolor: 'var(--accent-hover)' } }}
                 disableElevation
               >
                 Salvar Produto
@@ -345,15 +375,25 @@ const Produtos = () => {
             </Box>
           </Stack>
         </form>
+        </div>
       </Modal>
 
       {/* Modal Editar Produto / Ficha Técnica */}
-      <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} title={`Editar: ${selectedProduto?.nome}`} width="800px">
+      <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} title={`Ficha Técnica: ${selectedProduto?.nome}`} width="850px">
         {selectedProduto && (
-          <Box>
-            <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-              <Tabs value={activeTab} onChange={handleTabChange} aria-label="Abas do produto">
-                <Tab label="Informações" />
+          <div className="glass-panel" style={{ padding: '24px', background: 'var(--bg-card)', border: 'none', boxShadow: 'none' }}>
+            <Box sx={{ borderBottom: 1, borderColor: 'var(--border-color)', mb: 3 }}>
+              <Tabs 
+                value={activeTab} 
+                onChange={handleTabChange} 
+                aria-label="Abas do produto"
+                sx={{
+                  '& .MuiTab-root': { color: 'var(--text-secondary)', fontWeight: 600, textTransform: 'none' },
+                  '& .Mui-selected': { color: 'var(--accent-primary) !important' },
+                  '& .MuiTabs-indicator': { backgroundColor: 'var(--accent-primary)' }
+                }}
+              >
+                <Tab label="Informações Gerais" />
                 <Tab label="Materiais (BOM)" />
                 <Tab label="Operações de Costura" />
               </Tabs>
@@ -373,22 +413,22 @@ const Produtos = () => {
 
             {/* TAB MATERIAIS */}
             {activeTab === 1 && selectedProduto.fichaTecnica && (
-              <Box>
-                <Card variant="outlined" sx={{ p: 2, mb: 3, bgcolor: 'action.hover' }}>
-                  <Typography variant="body2" color="text.secondary">Custo Total Materiais</Typography>
-                  <Typography variant="h5" color="success.main" fontWeight="bold">
+              <Box className="animate-fade-in-up">
+                <Card variant="outlined" sx={{ p: 3, mb: 3, bgcolor: 'rgba(99, 102, 241, 0.05)', borderColor: 'rgba(99, 102, 241, 0.2)', borderRadius: 'var(--radius-md)' }}>
+                  <Typography variant="body2" sx={{ color: 'var(--accent-primary)', fontWeight: 600, mb: 0.5 }}>Custo Total Materiais</Typography>
+                  <Typography variant="h4" sx={{ color: 'var(--text-primary)', fontWeight: 800 }}>
                     {formatCurrency(selectedProduto.fichaTecnica.custoTotalMateriais)}
                   </Typography>
                 </Card>
 
                 <form onSubmit={handleAddMaterial}>
-                  <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
+                  <Stack direction="row" spacing={2} sx={{ mb: 3, alignItems: 'center' }}>
                     <FormControl fullWidth required>
-                      <InputLabel id="material-label">Material</InputLabel>
+                      <InputLabel id="material-label">Adicionar Material</InputLabel>
                       <Select
                         labelId="material-label"
                         value={selectedMaterialId}
-                        label="Material"
+                        label="Adicionar Material"
                         onChange={e => setSelectedMaterialId(e.target.value)}
                       >
                         <MenuItem value=""><em>Selecione...</em></MenuItem>
@@ -401,33 +441,39 @@ const Produtos = () => {
                       label="Qtd Gasta"
                       type="number"
                       required
-                      inputProps={{ step: "0.001", min: "0" }}
+                      slotProps={{ htmlInput: { step: "0.001", min: "0" } }}
                       value={quantidadeMaterial}
                       onChange={e => setQuantidadeMaterial(e.target.value)}
                       placeholder="0.120"
                       sx={{ width: 150 }}
                     />
-                    <Button type="submit" variant="contained" disableElevation sx={{ height: 56 }}>
-                      Incluir
+                    <Button 
+                      type="submit" 
+                      variant="contained" 
+                      disableElevation 
+                      disabled={isSubmitting}
+                      sx={{ height: 56, bgcolor: 'var(--accent-primary)', '&:hover': { bgcolor: 'var(--accent-hover)' } }}
+                    >
+                      {isSubmitting ? '...' : 'Incluir'}
                     </Button>
                   </Stack>
                 </form>
 
-                <TableContainer component={Paper} variant="outlined">
+                <TableContainer sx={{ border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', bgcolor: 'transparent' }}>
                   <Table size="small">
-                    <TableHead>
+                    <TableHead sx={{ bgcolor: 'rgba(255,255,255,0.02)' }}>
                       <TableRow>
-                        <TableCell>Material</TableCell>
-                        <TableCell align="right">Qtd</TableCell>
-                        <TableCell>Un</TableCell>
+                        <TableCell sx={{ color: 'var(--text-secondary)', fontWeight: 600, borderColor: 'var(--border-color)' }}>Material</TableCell>
+                        <TableCell align="right" sx={{ color: 'var(--text-secondary)', fontWeight: 600, borderColor: 'var(--border-color)' }}>Quantidade</TableCell>
+                        <TableCell sx={{ color: 'var(--text-secondary)', fontWeight: 600, borderColor: 'var(--border-color)' }}>Unidade</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {selectedProduto.fichaTecnica.materiais?.map((m: any) => (
-                        <TableRow key={m.id}>
-                          <TableCell>{m.materialNome}</TableCell>
-                          <TableCell align="right" sx={{ fontWeight: 600 }}>{m.quantidade}</TableCell>
-                          <TableCell color="text.secondary">{m.unidadeMedida}</TableCell>
+                        <TableRow key={m.id} sx={{ '&:hover': { bgcolor: 'rgba(255,255,255,0.02)' } }}>
+                          <TableCell sx={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>{m.materialNome}</TableCell>
+                          <TableCell align="right" sx={{ fontWeight: 600, borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>{m.quantidade}</TableCell>
+                          <TableCell sx={{ color: 'var(--text-muted)', borderColor: 'var(--border-color)' }}>{m.unidadeMedida}</TableCell>
                         </TableRow>
                       ))}
                       {(!selectedProduto.fichaTecnica.materiais || selectedProduto.fichaTecnica.materiais.length === 0) && (
@@ -445,47 +491,34 @@ const Produtos = () => {
 
             {/* TAB OPERAÇÕES */}
             {activeTab === 2 && selectedProduto.fichaTecnica && (
-              <Box>
-                <Card variant="outlined" sx={{ p: 2, mb: 3, bgcolor: 'action.hover' }}>
-                  <Typography variant="body2" color="text.secondary">Tempo TPP Total</Typography>
-                  <Typography variant="h5" color="warning.main" fontWeight="bold">
-                    {selectedProduto.fichaTecnica.tempoPadraoTotalCentesimal || 0} <Typography component="span" variant="body1">min</Typography>
+              <Box className="animate-fade-in-up">
+                <Card variant="outlined" sx={{ p: 3, mb: 3, bgcolor: 'rgba(245, 158, 11, 0.05)', borderColor: 'rgba(245, 158, 11, 0.2)', borderRadius: 'var(--radius-md)' }}>
+                  <Typography variant="body2" sx={{ color: 'var(--warning)', fontWeight: 600, mb: 0.5 }}>Tempo Padrão (TPP) Total</Typography>
+                  <Typography variant="h4" sx={{ color: 'var(--text-primary)', fontWeight: 800 }}>
+                    {selectedProduto.fichaTecnica.tempoPadraoTotalCentesimal || 0} <Typography component="span" variant="h6" sx={{ color: 'var(--text-muted)' }}>min centesimal</Typography>
                   </Typography>
                 </Card>
 
-                <Card variant="outlined" sx={{ p: 2, mb: 3 }}>
+                <div className="premium-card" style={{ padding: '16px', marginBottom: '24px' }}>
                   <form onSubmit={handleAddOperacao}>
                     <Grid container spacing={2}>
-                      <Grid item xs={12} sm={6}>
-                        <TextField
-                          label="Operação"
-                          fullWidth
-                          required
-                          size="small"
-                          value={opNome}
-                          onChange={e => setOpNome(e.target.value)}
-                        />
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <TextField label="Nome da Operação" fullWidth required size="small" value={opNome} onChange={e => setOpNome(e.target.value)} />
                       </Grid>
-                      <Grid item xs={12} sm={6}>
-                        <TextField
-                          label="Máquina"
-                          fullWidth
-                          size="small"
-                          value={opMaquina}
-                          onChange={e => setOpMaquina(e.target.value)}
-                        />
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <TextField label="Máquina" fullWidth size="small" value={opMaquina} onChange={e => setOpMaquina(e.target.value)} />
                       </Grid>
                       
-                      <Grid item xs={6} sm={2}>
+                      <Grid size={{ xs: 6, sm: 2 }}>
                         <TextField label="Ordem" type="number" required size="small" value={opOrdem} onChange={e => setOpOrdem(e.target.value)} fullWidth />
                       </Grid>
-                      <Grid item xs={6} sm={2}>
+                      <Grid size={{ xs: 6, sm: 2 }}>
                         <TextField label="Folhas" type="number" required size="small" value={opFolhas} onChange={e => setOpFolhas(e.target.value)} fullWidth />
                       </Grid>
-                      <Grid item xs={6} sm={3}>
+                      <Grid size={{ xs: 6, sm: 3 }}>
                         <TextField label="Paradas" type="number" required size="small" value={opParadas} onChange={e => setOpParadas(e.target.value)} fullWidth />
                       </Grid>
-                      <Grid item xs={6} sm={3}>
+                      <Grid size={{ xs: 6, sm: 3 }}>
                         <FormControl fullWidth size="small">
                           <InputLabel>Comp.</InputLabel>
                           <Select value={opComprimento} label="Comp." onChange={e => setOpComprimento(e.target.value)}>
@@ -494,32 +527,39 @@ const Produtos = () => {
                           </Select>
                         </FormControl>
                       </Grid>
-                      <Grid item xs={12} sm={2}>
-                        <Button type="submit" variant="contained" disabled={isSubmitting} fullWidth disableElevation sx={{ height: 40 }}>
-                          +
+                      <Grid size={{ xs: 12, sm: 2 }}>
+                        <Button 
+                          type="submit" 
+                          variant="contained" 
+                          disabled={isSubmitting} 
+                          fullWidth 
+                          disableElevation 
+                          sx={{ height: 40, bgcolor: 'var(--accent-primary)', '&:hover': { bgcolor: 'var(--accent-hover)' } }}
+                        >
+                          {isSubmitting ? '...' : '+ Operação'}
                         </Button>
                       </Grid>
                     </Grid>
                   </form>
-                </Card>
+                </div>
 
-                <TableContainer component={Paper} variant="outlined">
+                <TableContainer sx={{ border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', bgcolor: 'transparent' }}>
                   <Table size="small">
-                    <TableHead>
+                    <TableHead sx={{ bgcolor: 'rgba(255,255,255,0.02)' }}>
                       <TableRow>
-                        <TableCell>Ordem</TableCell>
-                        <TableCell>Op</TableCell>
-                        <TableCell>Máq</TableCell>
-                        <TableCell align="right">Tempo</TableCell>
+                        <TableCell sx={{ color: 'var(--text-secondary)', fontWeight: 600, borderColor: 'var(--border-color)' }}>Ordem</TableCell>
+                        <TableCell sx={{ color: 'var(--text-secondary)', fontWeight: 600, borderColor: 'var(--border-color)' }}>Operação</TableCell>
+                        <TableCell sx={{ color: 'var(--text-secondary)', fontWeight: 600, borderColor: 'var(--border-color)' }}>Máquina</TableCell>
+                        <TableCell align="right" sx={{ color: 'var(--text-secondary)', fontWeight: 600, borderColor: 'var(--border-color)' }}>Tempo Padrão</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {selectedProduto.fichaTecnica.operacoes?.sort((a:any, b:any) => a.ordemExecucao - b.ordemExecucao).map((op: any) => (
-                        <TableRow key={op.id}>
-                          <TableCell>{op.ordemExecucao}</TableCell>
-                          <TableCell sx={{ fontWeight: 500 }}>{op.nome}</TableCell>
-                          <TableCell color="text.secondary">{op.maquina}</TableCell>
-                          <TableCell align="right" sx={{ fontWeight: 600, color: 'warning.main' }}>{op.tempoCalculadoCentesimal}m</TableCell>
+                        <TableRow key={op.id} sx={{ '&:hover': { bgcolor: 'rgba(255,255,255,0.02)' } }}>
+                          <TableCell sx={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>{op.ordemExecucao}</TableCell>
+                          <TableCell sx={{ fontWeight: 500, borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>{op.nome}</TableCell>
+                          <TableCell sx={{ color: 'var(--text-muted)', borderColor: 'var(--border-color)' }}>{op.maquina}</TableCell>
+                          <TableCell align="right" sx={{ fontWeight: 700, color: 'var(--warning)', borderColor: 'var(--border-color)' }}>{op.tempoCalculadoCentesimal}m</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -527,7 +567,7 @@ const Produtos = () => {
                 </TableContainer>
               </Box>
             )}
-          </Box>
+          </div>
         )}
       </Modal>
 

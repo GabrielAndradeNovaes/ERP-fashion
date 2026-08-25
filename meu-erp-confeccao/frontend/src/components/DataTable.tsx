@@ -1,8 +1,6 @@
-import React from 'react';
 import {
   useTable,
   stockFeatures,
-  FlexRender,
 } from '@tanstack/react-table';
 import type { ColumnDef, RowData } from '@tanstack/react-table';
 import {
@@ -18,11 +16,13 @@ import {
 interface DataTableProps<TData extends RowData> {
   columns: ColumnDef<any, TData, any>[];
   data: TData[];
+  onRowClick?: (row: any) => void;
 }
 
 export function DataTable<TData extends RowData>({
   columns,
   data,
+  onRowClick
 }: DataTableProps<TData>) {
   const table = useTable({
     data,
@@ -51,7 +51,8 @@ export function DataTable<TData extends RowData>({
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
-                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                sx={{ '&:last-child td, &:last-child th': { border: 0 }, cursor: onRowClick ? 'pointer' : 'default' }}
+                onClick={() => onRowClick && onRowClick(row)}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>

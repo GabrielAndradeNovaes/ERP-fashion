@@ -68,3 +68,25 @@ curl.exe -X POST "http://localhost:8088/api/catalog/produtos" -H "Content-Type: 
 ```bash
 curl.exe -X GET "http://localhost:8088/api/catalog/produtos" -H "X-TenantID: tenant_1"
 ```
+
+## 3. Testes Unitários e Cobertura (JaCoCo)
+
+O projeto está configurado para gerar relatórios visuais de cobertura de código usando o JaCoCo. O relatório permite visualizar exatamente quais linhas de código foram testadas e quais não foram.
+
+### 3.1. Como executar os testes
+
+Como o projeto está rodando em Docker, você pode usar uma imagem do Maven temporária para rodar os testes sem precisar instalar o Java/Maven na sua máquina.
+
+Na pasta raiz do projeto (`c:\projetos\fashion-erp\meu-erp-confeccao`), execute o seguinte comando no PowerShell ou CMD:
+
+```bash
+docker run --rm -v "${PWD}/backend:/usr/src/mymaven" -w /usr/src/mymaven maven:3.9-eclipse-temurin-17 mvn test jacoco:report
+```
+
+### 3.2. Como visualizar o relatório
+
+Após a execução do comando acima, o Maven irá rodar todos os testes e gerar um relatório em HTML.
+Para visualizá-lo:
+1. Navegue pelo seu explorador de arquivos até a pasta: `backend\target\site\jacoco`
+2. Dê um duplo clique no arquivo `index.html` para abri-lo no seu navegador (Chrome, Edge, etc).
+3. Você poderá navegar pelos pacotes e ver a porcentagem de cobertura, clicando nas classes para ver as linhas verdes (testadas) e vermelhas (não testadas).

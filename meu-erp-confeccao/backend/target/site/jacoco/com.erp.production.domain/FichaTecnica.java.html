@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FichaTecnica.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.erp.production.domain</a> &gt; <span class="el_source">FichaTecnica.java</span></div><h1>FichaTecnica.java</h1><pre class="source lang-java linenums">package com.erp.production.domain;
+
+import com.erp.catalog.domain.ProdutoBase;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+@Entity
+@Table(name = &quot;fichas_tecnicas&quot;)
+<span class="fc" id="L13">public class FichaTecnica {</span>
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @OneToOne(optional = false)
+    @JoinColumn(name = &quot;produto_base_id&quot;, nullable = false, unique = true)
+    private ProdutoBase produtoBase;
+
+    @Column(nullable = false, length = 10)
+    private String versao; // Ex: v1, v2
+
+    @Column(columnDefinition = &quot;TEXT&quot;)
+    private String observacoes;
+
+    @Column(name = &quot;criado_em&quot;, updatable = false)
+    private LocalDateTime criadoEm;
+
+<span class="fc" id="L32">    @OneToMany(mappedBy = &quot;fichaTecnica&quot;, cascade = CascadeType.ALL, orphanRemoval = true)</span>
+    private List&lt;FichaTecnicaMaterial&gt; materiais = new ArrayList&lt;&gt;();
+
+<span class="fc" id="L35">    @OneToMany(mappedBy = &quot;fichaTecnica&quot;, cascade = CascadeType.ALL, orphanRemoval = true)</span>
+    private List&lt;FichaTecnicaOperacao&gt; operacoes = new ArrayList&lt;&gt;();
+
+    @PrePersist
+    protected void onCreate() {
+<span class="nc" id="L40">        this.criadoEm = LocalDateTime.now();</span>
+<span class="nc" id="L41">    }</span>
+
+    public UUID getId() {
+<span class="fc" id="L44">        return id;</span>
+    }
+
+    public void setId(UUID id) {
+<span class="fc" id="L48">        this.id = id;</span>
+<span class="fc" id="L49">    }</span>
+
+    public ProdutoBase getProdutoBase() {
+<span class="fc" id="L52">        return produtoBase;</span>
+    }
+
+    public void setProdutoBase(ProdutoBase produtoBase) {
+<span class="fc" id="L56">        this.produtoBase = produtoBase;</span>
+<span class="fc" id="L57">    }</span>
+
+    public String getVersao() {
+<span class="fc" id="L60">        return versao;</span>
+    }
+
+    public void setVersao(String versao) {
+<span class="fc" id="L64">        this.versao = versao;</span>
+<span class="fc" id="L65">    }</span>
+
+    public String getObservacoes() {
+<span class="fc" id="L68">        return observacoes;</span>
+    }
+
+    public void setObservacoes(String observacoes) {
+<span class="fc" id="L72">        this.observacoes = observacoes;</span>
+<span class="fc" id="L73">    }</span>
+
+    public LocalDateTime getCriadoEm() {
+<span class="nc" id="L76">        return criadoEm;</span>
+    }
+
+    public void setCriadoEm(LocalDateTime criadoEm) {
+<span class="nc" id="L80">        this.criadoEm = criadoEm;</span>
+<span class="nc" id="L81">    }</span>
+
+    public List&lt;FichaTecnicaMaterial&gt; getMateriais() {
+<span class="fc" id="L84">        return materiais;</span>
+    }
+
+    public void setMateriais(List&lt;FichaTecnicaMaterial&gt; materiais) {
+<span class="fc" id="L88">        this.materiais = materiais;</span>
+<span class="fc" id="L89">    }</span>
+
+    public void addMaterial(FichaTecnicaMaterial material) {
+<span class="fc" id="L92">        this.materiais.add(material);</span>
+<span class="fc" id="L93">        material.setFichaTecnica(this);</span>
+<span class="fc" id="L94">    }</span>
+
+    public void removeMaterial(FichaTecnicaMaterial material) {
+<span class="nc" id="L97">        this.materiais.remove(material);</span>
+<span class="nc" id="L98">        material.setFichaTecnica(null);</span>
+<span class="nc" id="L99">    }</span>
+
+    public List&lt;FichaTecnicaOperacao&gt; getOperacoes() {
+<span class="fc" id="L102">        return operacoes;</span>
+    }
+
+    public void setOperacoes(List&lt;FichaTecnicaOperacao&gt; operacoes) {
+<span class="fc" id="L106">        this.operacoes = operacoes;</span>
+<span class="fc" id="L107">    }</span>
+
+    public void addOperacao(FichaTecnicaOperacao operacao) {
+<span class="fc" id="L110">        this.operacoes.add(operacao);</span>
+<span class="fc" id="L111">        operacao.setFichaTecnica(this);</span>
+<span class="fc" id="L112">    }</span>
+
+    public void removeOperacao(FichaTecnicaOperacao operacao) {
+<span class="fc" id="L115">        this.operacoes.remove(operacao);</span>
+<span class="fc" id="L116">        operacao.setFichaTecnica(null);</span>
+<span class="fc" id="L117">    }</span>
+
+    public BigDecimal getTempoPadraoTotalCentesimal() {
+<span class="fc" id="L120">        return operacoes.stream()</span>
+<span class="fc" id="L121">                .map(FichaTecnicaOperacao::getTempoCalculadoCentesimal)</span>
+<span class="fc" id="L122">                .filter(java.util.Objects::nonNull)</span>
+<span class="fc" id="L123">                .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

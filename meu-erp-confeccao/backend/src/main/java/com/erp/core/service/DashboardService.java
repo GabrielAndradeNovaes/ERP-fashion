@@ -7,7 +7,6 @@ import com.erp.production.domain.OrdemProducaoStatus;
 import com.erp.production.repository.OrdemProducaoRepository;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 
 @Service
 public class DashboardService {

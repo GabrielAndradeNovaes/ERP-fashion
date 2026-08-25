@@ -53,4 +53,20 @@ public class FichaTecnicaController {
         FichaTecnicaResponse response = fichaTecnicaService.removeOperacao(fichaTecnicaId, operacaoId);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/{fichaTecnicaId}/materiais")
+    public ResponseEntity<FichaTecnicaResponse> addMaterial(
+            @PathVariable UUID fichaTecnicaId, 
+            @RequestBody com.erp.production.dto.FichaTecnicaMaterialRequest request) {
+        FichaTecnicaResponse response = fichaTecnicaService.addMaterial(fichaTecnicaId, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{fichaTecnicaId}/materiais/{materialId}")
+    public ResponseEntity<FichaTecnicaResponse> removeMaterial(
+            @PathVariable UUID fichaTecnicaId, 
+            @PathVariable UUID materialId) {
+        FichaTecnicaResponse response = fichaTecnicaService.removeMaterial(fichaTecnicaId, materialId);
+        return ResponseEntity.ok(response);
+    }
 }

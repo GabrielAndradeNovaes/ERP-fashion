@@ -15,10 +15,10 @@ const StatCard = ({ title, value, icon, color }: { title: string, value: string 
   <Card variant="outlined" sx={{ borderRadius: 2, height: '100%', borderLeft: `4px solid ${color}` }}>
     <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 3 }}>
       <Box>
-        <Typography color="text.secondary" variant="subtitle2" gutterBottom fontWeight="bold" textTransform="uppercase">
+        <Typography color="text.secondary" variant="subtitle2" gutterBottom sx={{ fontWeight: 'bold', textTransform: 'uppercase' }}>
           {title}
         </Typography>
-        <Typography variant="h4" fontWeight="bold">
+        <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
           {value}
         </Typography>
       </Box>
@@ -71,7 +71,7 @@ const Dashboard = () => {
   return (
     <Box className="animate-fade-in">
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
+        <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 'bold' }}>
           Visão Geral
         </Typography>
         <Typography variant="body1" color="text.secondary">
@@ -80,7 +80,7 @@ const Dashboard = () => {
       </Box>
 
       <Grid container spacing={3}>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard 
             title="Total de Produtos" 
             value={data?.totalProdutos || 0} 
@@ -88,7 +88,7 @@ const Dashboard = () => {
             color="#3b82f6" 
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard 
             title="OPs em Andamento" 
             value={data?.opsEmAndamento || 0} 
@@ -96,7 +96,7 @@ const Dashboard = () => {
             color="#f59e0b" 
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard 
             title="OPs Concluídas" 
             value={data?.opsConcluidas || 0} 
@@ -104,7 +104,7 @@ const Dashboard = () => {
             color="#10b981" 
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard 
             title="Estoque (Custo)" 
             value={formatCurrency(data?.valorTotalEstoque || 0)} 
