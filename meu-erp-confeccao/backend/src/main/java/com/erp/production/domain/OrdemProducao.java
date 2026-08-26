@@ -37,6 +37,9 @@ public class OrdemProducao {
     @Column(name = "data_inicio")
     private LocalDateTime dataInicio;
 
+    @OneToMany(mappedBy = "ordemProducao", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<OrdemProducaoItem> itens = new java.util.ArrayList<>();
+
     @PrePersist
     protected void onCreate() {
         if (this.criadoEm == null) {
@@ -64,4 +67,16 @@ public class OrdemProducao {
     public void setCriadoEm(LocalDateTime criadoEm) { this.criadoEm = criadoEm; }
     public LocalDateTime getDataInicio() { return dataInicio; }
     public void setDataInicio(LocalDateTime dataInicio) { this.dataInicio = dataInicio; }
+    public java.util.List<OrdemProducaoItem> getItens() { return itens; }
+    public void setItens(java.util.List<OrdemProducaoItem> itens) { this.itens = itens; }
+    
+    public void addItem(OrdemProducaoItem item) {
+        this.itens.add(item);
+        item.setOrdemProducao(this);
+    }
+
+    public void removeItem(OrdemProducaoItem item) {
+        this.itens.remove(item);
+        item.setOrdemProducao(null);
+    }
 }

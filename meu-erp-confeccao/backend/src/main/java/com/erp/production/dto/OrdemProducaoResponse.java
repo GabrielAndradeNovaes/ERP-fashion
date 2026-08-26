@@ -14,5 +14,6 @@ public record OrdemProducaoResponse(
         Integer quantidade,
         OrdemProducaoStatus status,
         LocalDateTime criadoEm,
-        LocalDateTime dataInicio
+        LocalDateTime dataInicio,
+        java.util.List<OrdemProducaoItemResponse> itens
 ) {}

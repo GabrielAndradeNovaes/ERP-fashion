@@ -58,14 +58,15 @@ public class TenantRoutingDataSource extends AbstractRoutingDataSource {
     }
 
     private boolean isTenantValidAndActive(String schemaName) {
-        String sql = "SELECT ativo FROM master.clientes_tenant WHERE schema_name = ?";
+        String sql = "SELECT status FROM master.clientes_tenant WHERE schema_name = ?";
         try (Connection conn = masterDataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setString(1, schemaName);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return rs.getBoolean("ativo");
+                    String status = rs.getString("status");
+                    return "ATIVO".equals(status) || "INADIMPLENTE".equals(status);
                 }
             }
         } catch (SQLException e) {

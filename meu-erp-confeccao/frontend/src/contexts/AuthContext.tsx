@@ -6,6 +6,7 @@ interface User {
   email: string;
   role: string;
   tenantId: string;
+  tenantStatus?: string;
 }
 
 interface AuthContextType {

@@ -30,8 +30,16 @@ public class OrdemProducaoController {
         return ResponseEntity.ok(ordemProducaoService.listarTodas());
     }
 
-    @PutMapping("/{id}/iniciar")
+    @PostMapping("/{id}/iniciar")
     public ResponseEntity<OrdemProducaoResponse> iniciarProducao(@PathVariable UUID id) {
         return ResponseEntity.ok(ordemProducaoService.iniciarProducao(id));
+    }
+
+    @PostMapping("/{id}/gerar-pacotes")
+    public ResponseEntity<Void> gerarPacotes(
+            @PathVariable UUID id,
+            @RequestParam(defaultValue = "20") int tamanhoPacote) {
+        ordemProducaoService.gerarPacotes(id, tamanhoPacote);
+        return ResponseEntity.ok().build();
     }
 }

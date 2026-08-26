@@ -106,7 +106,9 @@ public class FichaTecnicaServiceImpl implements FichaTecnicaService {
         FichaTecnica fichaTecnica = fichaTecnicaRepository.findById(fichaTecnicaId)
                 .orElseThrow(() -> new IllegalArgumentException("Ficha Técnica não encontrada com ID: " + fichaTecnicaId));
 
-        Integer indice = request.quantidadeFolhas() + request.quantidadeParadas();
+        Integer qFolhas = request.quantidadeFolhas() != null ? request.quantidadeFolhas() : 0;
+        Integer qParadas = request.quantidadeParadas() != null ? request.quantidadeParadas() : 0;
+        Integer indice = qFolhas + qParadas;
 
         TabelaTempoPadrao tempoPadrao = tabelaTempoPadraoRepository.findByIndiceAndGrauDificuldadeAndFaixaComprimento(
                 indice, request.grauDificuldade(), request.faixaComprimento()
@@ -116,8 +118,8 @@ public class FichaTecnicaServiceImpl implements FichaTecnicaService {
         operacao.setNome(request.nome());
         operacao.setMaquina(request.maquina());
         operacao.setOrdemExecucao(request.ordemExecucao());
-        operacao.setQuantidadeFolhas(request.quantidadeFolhas());
-        operacao.setQuantidadeParadas(request.quantidadeParadas());
+        operacao.setQuantidadeFolhas(qFolhas);
+        operacao.setQuantidadeParadas(qParadas);
         operacao.setGrauDificuldade(request.grauDificuldade());
         operacao.setFaixaComprimento(request.faixaComprimento());
         operacao.setTempoCalculadoCentesimal(tempoPadrao != null ? tempoPadrao.getTempoCentesimal() : BigDecimal.ZERO);

@@ -42,6 +42,12 @@ public class OrdemProducaoServiceImplTest {
     private FichaTecnicaRepository fichaTecnicaRepository;
     @Mock
     private EstoqueMovimentacaoService estoqueMovimentacaoService;
+    @Mock
+    private com.erp.catalog.repository.ProdutoSkuRepository produtoSkuRepository;
+    @Mock
+    private com.erp.production.repository.PacoteRepository pacoteRepository;
+    @Mock
+    private com.erp.production.repository.CupomRepository cupomRepository;
 
     @InjectMocks
     private OrdemProducaoServiceImpl service;
@@ -57,11 +63,23 @@ public class OrdemProducaoServiceImplTest {
         mockProduto.setId(UUID.randomUUID());
         mockProduto.setNome("Camiseta");
 
+        com.erp.catalog.domain.ProdutoSku sku = new com.erp.catalog.domain.ProdutoSku();
+        sku.setId(UUID.randomUUID());
+        sku.setCor("Preto");
+        sku.setTamanho("M");
+        sku.setProdutoBase(mockProduto);
+        
+        List<com.erp.catalog.domain.ProdutoSku> skus = new ArrayList<>();
+        skus.add(sku);
+        mockProduto.setSkus(skus);
+
         mockFicha = new FichaTecnica();
         mockFicha.setId(UUID.randomUUID());
         mockFicha.setVersao("v1");
         mockFicha.setMateriais(new ArrayList<>());
         
+        mockProduto.setFichaTecnica(mockFicha);
+
         Material mat = new Material();
         mat.setId(UUID.randomUUID());
         
@@ -78,14 +96,13 @@ public class OrdemProducaoServiceImplTest {
         mockOp.setQuantidade(10);
         mockOp.setStatus(OrdemProducaoStatus.CADASTRADA);
 
-        mockRequest = new OrdemProducaoRequest("OP-001", mockProduto.getId(), mockFicha.getId(), 10);
+        mockRequest = new OrdemProducaoRequest("OP-001", mockProduto.getId(), 10, null);
     }
 
     @Test
     void shouldCreateOrdemProducao() {
         when(ordemProducaoRepository.existsByNumero("OP-001")).thenReturn(false);
         when(produtoBaseRepository.findById(mockProduto.getId())).thenReturn(Optional.of(mockProduto));
-        when(fichaTecnicaRepository.findById(mockFicha.getId())).thenReturn(Optional.of(mockFicha));
         when(ordemProducaoRepository.save(any(OrdemProducao.class))).thenReturn(mockOp);
 
         OrdemProducaoResponse response = service.criarOrdemProducao(mockRequest);
@@ -136,5 +153,35 @@ public class OrdemProducaoServiceImplTest {
         when(ordemProducaoRepository.findById(mockOp.getId())).thenReturn(Optional.of(mockOp));
         
         assertThrows(IllegalStateException.class, () -> service.iniciarProducao(mockOp.getId()));
+    }
+
+    @Test
+    void shouldGerarPacotes() {
+        // Setup
+        mockOp.setStatus(OrdemProducaoStatus.EM_ANDAMENTO);
+        
+        com.erp.catalog.domain.ProdutoSku sku = new com.erp.catalog.domain.ProdutoSku();
+        sku.setId(UUID.randomUUID());
+        
+        com.erp.production.domain.OrdemProducaoItem item = new com.erp.production.domain.OrdemProducaoItem();
+        item.setQuantidade(30);
+        item.setProdutoSku(sku);
+        mockOp.addItem(item);
+
+        com.erp.production.domain.FichaTecnicaOperacao operacao = new com.erp.production.domain.FichaTecnicaOperacao();
+        operacao.setOrdemExecucao(1);
+        operacao.setNome("Costura");
+        operacao.setTempoCalculadoCentesimal(new BigDecimal("2.0"));
+        mockFicha.getOperacoes().add(operacao);
+
+        when(ordemProducaoRepository.findById(mockOp.getId())).thenReturn(Optional.of(mockOp));
+        when(pacoteRepository.findByOrdemProducaoId(mockOp.getId())).thenReturn(new ArrayList<>());
+        when(pacoteRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
+        
+        service.gerarPacotes(mockOp.getId(), 20);
+
+        // 30 items with size 20 = 2 packages
+        verify(pacoteRepository, times(2)).save(any(com.erp.production.domain.Pacote.class));
+        verify(cupomRepository, times(2)).save(any(com.erp.production.domain.Cupom.class));
     }
 }

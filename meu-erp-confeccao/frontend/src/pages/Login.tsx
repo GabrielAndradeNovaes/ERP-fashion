@@ -20,9 +20,9 @@ const Login = () => {
 
     try {
       const response = await api.post('/auth/login', { email, senha });
-      const { token, nome, role, tenantId } = response.data;
+      const { token, nome, role, tenantId, tenantStatus } = response.data;
       
-      login(token, { nome, email, role, tenantId });
+      login(token, { nome, email, role, tenantId, tenantStatus });
       navigate('/');
     } catch (err: any) {
       setError(err.response?.data?.message || 'E-mail ou senha inválidos.');
@@ -47,7 +47,7 @@ const Login = () => {
             <Scissors size={32} />
           </Box>
           <Typography variant="h5" sx={{ fontWeight: 'bold' }}>Fashion ERP</Typography>
-          <Typography variant="body2" color="text.secondary">Faça login para continuar</Typography>
+          <Typography variant="body2" color="text.secondary">Acesse sua conta</Typography>
         </Box>
 
         {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
@@ -86,12 +86,6 @@ const Login = () => {
             {loading ? <CircularProgress size={24} color="inherit" /> : 'Entrar'}
           </Button>
         </form>
-        
-        <Box sx={{ mt: 4, textAlign: 'center' }}>
-          <Typography variant="caption" color="text.secondary">
-            Acesso demonstração: admin@fashion.com / password123
-          </Typography>
-        </Box>
       </Card>
     </Box>
   );

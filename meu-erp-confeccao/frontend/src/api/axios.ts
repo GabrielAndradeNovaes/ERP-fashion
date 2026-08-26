@@ -45,9 +45,10 @@ api.interceptors.response.use(
   (error) => {
     console.error('API Error:', error.response?.data || error.message);
     if (error.response?.status === 401 || error.response?.status === 403) {
-      // Opcional: Deslogar o usuário ou redirecionar se o token expirou
-      // localStorage.removeItem('@FashionERP:token');
-      // window.location.href = '/login';
+      // Deslogar o usuário ou redirecionar se o token expirou
+      localStorage.removeItem('@FashionERP:token');
+      localStorage.removeItem('@FashionERP:user');
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }

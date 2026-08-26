@@ -38,6 +38,7 @@ interface ProdutoBase {
   precoVenda: number;
   precoCusto: number;
   fichaTecnica: any; // Simplified for now
+  skus?: any[];
 }
 
 interface Material {
@@ -76,8 +77,12 @@ const Produtos = () => {
   const [opOrdem, setOpOrdem] = useState('1');
   const [opFolhas, setOpFolhas] = useState('2');
   const [opParadas, setOpParadas] = useState('1');
-  const [opDificuldade] = useState('MEDIO');
+  const [opDificuldade, setOpDificuldade] = useState('MEDIO');
   const [opComprimento, setOpComprimento] = useState('DE_0_A_60');
+  
+  // Form State (Add SKU Matrix)
+  const [skuCores, setSkuCores] = useState('');
+  const [skuTamanhos, setSkuTamanhos] = useState('');
 
   const fetchInitialData = async () => {
     try {
@@ -170,9 +175,9 @@ const Produtos = () => {
       await api.post(`/production/fichas-tecnicas/${selectedProduto.fichaTecnica.id}/operacoes`, {
         nome: opNome,
         maquina: opMaquina,
-        ordemExecucao: parseInt(opOrdem),
-        quantidadeFolhas: parseInt(opFolhas),
-        quantidadeParadas: parseInt(opParadas),
+        ordemExecucao: parseInt(opOrdem) || 1,
+        quantidadeFolhas: parseInt(opFolhas) || 0,
+        quantidadeParadas: parseInt(opParadas) || 0,
         grauDificuldade: opDificuldade,
         faixaComprimento: opComprimento
       });
@@ -183,6 +188,51 @@ const Produtos = () => {
       await refreshSelectedProduto();
     } catch (err: any) {
       alert(err.response?.data?.message || 'Erro ao adicionar operação.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleGenerateSkus = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedProduto || !skuCores || !skuTamanhos) return;
+
+    const coresList = skuCores.split(',').map(c => c.trim()).filter(c => c);
+    const tamanhosList = skuTamanhos.split(',').map(t => t.trim()).filter(t => t);
+
+    if (coresList.length === 0 || tamanhosList.length === 0) {
+        alert("Preencha ao menos uma cor e um tamanho validos.");
+        return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      
+      // Gera a matriz (produto cartesiano)
+      const newSkus: any[] = [];
+      coresList.forEach(cor => {
+          tamanhosList.forEach(tamanho => {
+              newSkus.push({ cor, tamanho, codigoBarras: null, precoVenda: selectedProduto.precoVenda });
+          });
+      });
+
+      // Junta com os existentes
+      const updatedSkus = [...(selectedProduto.skus || []), ...newSkus];
+      
+      await api.put(`/catalog/produtos/${selectedProduto.id}`, {
+        codigo: selectedProduto.codigo,
+        nome: selectedProduto.nome,
+        descricao: selectedProduto.descricao,
+        precoVenda: selectedProduto.precoVenda,
+        precoCusto: selectedProduto.precoCusto,
+        skus: updatedSkus
+      });
+      
+      setSkuCores('');
+      setSkuTamanhos('');
+      await refreshSelectedProduto();
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Erro ao gerar grade (SKUs).');
     } finally {
       setIsSubmitting(false);
     }
@@ -394,6 +444,7 @@ const Produtos = () => {
                 }}
               >
                 <Tab label="Informações Gerais" />
+                <Tab label="Grades (SKUs)" />
                 <Tab label="Materiais (BOM)" />
                 <Tab label="Operações de Costura" />
               </Tabs>
@@ -411,8 +462,87 @@ const Produtos = () => {
               </Stack>
             )}
 
+            {/* TAB SKUS */}
+            {activeTab === 1 && (
+              <Box className="animate-fade-in-up">
+                <div className="premium-card" style={{ padding: '24px', marginBottom: '24px', backgroundColor: 'rgba(99, 102, 241, 0.03)', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2, color: 'var(--accent-primary)' }}>
+                    Gerador Automático de Grade
+                  </Typography>
+                  <form onSubmit={handleGenerateSkus}>
+                    <Grid container spacing={2} alignItems="flex-end">
+                      <Grid size={{ xs: 12, sm: 5 }}>
+                        <TextField 
+                          label="Cores Disponíveis (separadas por vírgula)" 
+                          fullWidth 
+                          required 
+                          size="small" 
+                          value={skuCores} 
+                          onChange={e => setSkuCores(e.target.value)} 
+                          placeholder="Ex: Branco, Preto, Azul, Vermelho" 
+                        />
+                      </Grid>
+                      <Grid size={{ xs: 12, sm: 4 }}>
+                        <TextField 
+                          label="Tamanhos (separados por vírgula)" 
+                          fullWidth 
+                          required 
+                          size="small" 
+                          value={skuTamanhos} 
+                          onChange={e => setSkuTamanhos(e.target.value)} 
+                          placeholder="Ex: P, M, G, GG" 
+                        />
+                      </Grid>
+                      <Grid size={{ xs: 12, sm: 3 }}>
+                        <Button 
+                          type="submit" 
+                          variant="contained" 
+                          disabled={isSubmitting} 
+                          fullWidth 
+                          disableElevation 
+                          sx={{ height: 40, bgcolor: 'var(--accent-primary)', '&:hover': { bgcolor: 'var(--accent-hover)' } }}
+                        >
+                          {isSubmitting ? 'Gerando...' : 'Gerar Grade'}
+                        </Button>
+                      </Grid>
+                    </Grid>
+                  </form>
+                  <Typography variant="caption" sx={{ color: 'var(--text-muted)', display: 'block', mt: 1 }}>
+                    Dica: O sistema fará a combinação automática de todas as cores com todos os tamanhos e salvará na tabela abaixo. SKUs que já existirem não serão duplicados.
+                  </Typography>
+                </div>
+                <TableContainer sx={{ border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', bgcolor: 'transparent' }}>
+                  <Table size="small">
+                    <TableHead sx={{ bgcolor: 'rgba(255,255,255,0.02)' }}>
+                      <TableRow>
+                        <TableCell sx={{ color: 'var(--text-secondary)', fontWeight: 600, borderColor: 'var(--border-color)' }}>Cor</TableCell>
+                        <TableCell sx={{ color: 'var(--text-secondary)', fontWeight: 600, borderColor: 'var(--border-color)' }}>Tamanho</TableCell>
+                        <TableCell sx={{ color: 'var(--text-secondary)', fontWeight: 600, borderColor: 'var(--border-color)' }}>Cód. Barras</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {selectedProduto.skus?.map((sku: any, idx: number) => (
+                        <TableRow key={idx} sx={{ '&:hover': { bgcolor: 'rgba(255,255,255,0.02)' } }}>
+                          <TableCell sx={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>{sku.cor}</TableCell>
+                          <TableCell sx={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>{sku.tamanho}</TableCell>
+                          <TableCell sx={{ borderColor: 'var(--border-color)', color: 'var(--text-muted)' }}>{sku.codigoBarras || '-'}</TableCell>
+                        </TableRow>
+                      ))}
+                      {(!selectedProduto.skus || selectedProduto.skus.length === 0) && (
+                        <TableRow>
+                          <TableCell colSpan={3} align="center" sx={{ py: 3, color: 'text.secondary' }}>
+                            Nenhum tamanho ou cor (SKU) cadastrado para este produto.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Box>
+            )}
+
             {/* TAB MATERIAIS */}
-            {activeTab === 1 && selectedProduto.fichaTecnica && (
+            {activeTab === 2 && selectedProduto.fichaTecnica && (
               <Box className="animate-fade-in-up">
                 <Card variant="outlined" sx={{ p: 3, mb: 3, bgcolor: 'rgba(99, 102, 241, 0.05)', borderColor: 'rgba(99, 102, 241, 0.2)', borderRadius: 'var(--radius-md)' }}>
                   <Typography variant="body2" sx={{ color: 'var(--accent-primary)', fontWeight: 600, mb: 0.5 }}>Custo Total Materiais</Typography>
@@ -490,7 +620,7 @@ const Produtos = () => {
             )}
 
             {/* TAB OPERAÇÕES */}
-            {activeTab === 2 && selectedProduto.fichaTecnica && (
+            {activeTab === 3 && selectedProduto.fichaTecnica && (
               <Box className="animate-fade-in-up">
                 <Card variant="outlined" sx={{ p: 3, mb: 3, bgcolor: 'rgba(245, 158, 11, 0.05)', borderColor: 'rgba(245, 158, 11, 0.2)', borderRadius: 'var(--radius-md)' }}>
                   <Typography variant="body2" sx={{ color: 'var(--warning)', fontWeight: 600, mb: 0.5 }}>Tempo Padrão (TPP) Total</Typography>
@@ -515,15 +645,28 @@ const Produtos = () => {
                       <Grid size={{ xs: 6, sm: 2 }}>
                         <TextField label="Folhas" type="number" required size="small" value={opFolhas} onChange={e => setOpFolhas(e.target.value)} fullWidth />
                       </Grid>
-                      <Grid size={{ xs: 6, sm: 3 }}>
+                      <Grid size={{ xs: 6, sm: 2 }}>
                         <TextField label="Paradas" type="number" required size="small" value={opParadas} onChange={e => setOpParadas(e.target.value)} fullWidth />
                       </Grid>
-                      <Grid size={{ xs: 6, sm: 3 }}>
+                      <Grid size={{ xs: 6, sm: 2 }}>
+                        <FormControl fullWidth size="small">
+                          <InputLabel>Dif.</InputLabel>
+                          <Select value={opDificuldade} label="Dif." onChange={e => setOpDificuldade(e.target.value)}>
+                            <MenuItem value="MUITO_FACIL">Muito Fácil</MenuItem>
+                            <MenuItem value="FACIL">Fácil</MenuItem>
+                            <MenuItem value="MEDIO">Médio</MenuItem>
+                            <MenuItem value="MEDIO_DIFICIL">Médio Dif.</MenuItem>
+                            <MenuItem value="DIFICIL">Difícil</MenuItem>
+                          </Select>
+                        </FormControl>
+                      </Grid>
+                      <Grid size={{ xs: 6, sm: 2 }}>
                         <FormControl fullWidth size="small">
                           <InputLabel>Comp.</InputLabel>
                           <Select value={opComprimento} label="Comp." onChange={e => setOpComprimento(e.target.value)}>
                             <MenuItem value="DE_0_A_60">0-60</MenuItem>
                             <MenuItem value="DE_61_A_90">61-90</MenuItem>
+                            <MenuItem value="ACIMA_DE_91">{'>'} 91</MenuItem>
                           </Select>
                         </FormControl>
                       </Grid>

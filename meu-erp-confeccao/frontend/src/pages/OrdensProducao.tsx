@@ -44,7 +44,7 @@ interface OrdemProducao {
 const OrdensProducao = () => {
   const [ordens, setOrdens] = useState<OrdemProducao[]>([]);
   const [produtos, setProdutos] = useState<ProdutoBase[]>([]);
-  const [fichas, setFichas] = useState<FichaTecnica[]>([]);
+
   const [loading, setLoading] = useState(true);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -53,10 +53,14 @@ const OrdensProducao = () => {
   
   const [numero, setNumero] = useState('');
   const [produtoBaseId, setProdutoBaseId] = useState('');
-  const [fichaTecnicaId, setFichaTecnicaId] = useState('');
+
   const [quantidade, setQuantidade] = useState('100');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
+  const [isGerarPacotesModalOpen, setIsGerarPacotesModalOpen] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [tamanhoPacote, setTamanhoPacote] = useState('20');
+  const [selectedOrdem, setSelectedOrdem] = useState<OrdemProducao | null>(null);
 
   useEffect(() => {
     fetchInitialData();
@@ -78,31 +82,19 @@ const OrdensProducao = () => {
     }
   };
 
-  const carregarFichas = async (produtoId: string) => {
+  const carregarProduto = (produtoId: string) => {
     setProdutoBaseId(produtoId);
-    setFichaTecnicaId('');
-    if (!produtoId) {
-      setFichas([]);
-      return;
-    }
-    try {
-      const res = await api.get(`/production/fichas-tecnicas/produto/${produtoId}`);
-      setFichas(res.data);
-    } catch (err) {
-      console.error(err);
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!numero || !produtoBaseId || !fichaTecnicaId || !quantidade) return;
+    if (!numero || !produtoBaseId || !quantidade) return;
 
     try {
       setIsSubmitting(true);
       await api.post('/production/ordens', {
         numero,
         produtoBaseId,
-        fichaTecnicaId,
         quantidade: parseInt(quantidade)
       });
       setNumero('');
@@ -125,7 +117,7 @@ const OrdensProducao = () => {
     
     try {
       setIsStarting(true);
-      await api.put(`/production/ordens/${selectedOrdemParaIniciar.id}/iniciar`);
+      await api.post(`/production/ordens/${selectedOrdemParaIniciar.id}/iniciar`);
       setIsConfirmModalOpen(false);
       setSelectedOrdemParaIniciar(null);
       fetchInitialData();
@@ -133,6 +125,21 @@ const OrdensProducao = () => {
       alert(err.response?.data?.message || 'Erro ao iniciar OP');
     } finally {
       setIsStarting(false);
+    }
+  };
+
+  const handleGerarPacotes = async () => {
+    if (!selectedOrdem) return;
+    try {
+      setIsGenerating(true);
+      await api.post(`/production/ordens/${selectedOrdem.id}/gerar-pacotes?tamanhoPacote=${tamanhoPacote}`);
+      alert('Pacotes e cupons gerados com sucesso!');
+      setIsGerarPacotesModalOpen(false);
+      setSelectedOrdem(null);
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Erro ao gerar pacotes');
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -178,27 +185,47 @@ const OrdensProducao = () => {
       id: 'acoes',
       header: 'Ações',
       cell: (info) => {
-        if (info.row.original.status === 'CADASTRADA') {
-          return (
-            <Button
-              variant="contained"
-              size="small"
-              startIcon={<Play size={14} />}
-              onClick={() => openConfirmModal(info.row.original)}
-              sx={{ 
-                bgcolor: 'var(--accent-primary)', 
-                '&:hover': { bgcolor: 'var(--accent-hover)' },
-                borderRadius: 'var(--radius-sm)',
-                textTransform: 'none',
-                fontWeight: 600
-              }}
-              disableElevation
-            >
-              Iniciar
-            </Button>
-          );
-        }
-        return null;
+        return (
+          <Stack direction="row" spacing={1}>
+            {info.row.original.status === 'CADASTRADA' && (
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<Play size={14} />}
+                onClick={() => openConfirmModal(info.row.original)}
+                sx={{ 
+                  bgcolor: 'var(--accent-primary)', 
+                  '&:hover': { bgcolor: 'var(--accent-hover)' },
+                  borderRadius: 'var(--radius-sm)',
+                  textTransform: 'none',
+                  fontWeight: 600
+                }}
+                disableElevation
+              >
+                Iniciar
+              </Button>
+            )}
+            {(info.row.original.status === 'EM_ANDAMENTO' || info.row.original.status === 'CADASTRADA') && (
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => {
+                  setSelectedOrdem(info.row.original);
+                  setIsGerarPacotesModalOpen(true);
+                }}
+                sx={{ 
+                  borderColor: 'var(--accent-primary)', 
+                  color: 'var(--accent-primary)',
+                  borderRadius: 'var(--radius-sm)',
+                  textTransform: 'none',
+                  fontWeight: 600
+                }}
+              >
+                Gerar Pacotes
+              </Button>
+            )}
+          </Stack>
+        );
       }
     }
   ], []);
@@ -278,26 +305,11 @@ const OrdensProducao = () => {
                   labelId="produto-label"
                   value={produtoBaseId}
                   label="Produto Base"
-                  onChange={e => carregarFichas(e.target.value)}
+                  onChange={e => carregarProduto(e.target.value)}
                 >
                   <MenuItem value=""><em>Selecione...</em></MenuItem>
                   {produtos.map(p => (
                     <MenuItem key={p.id} value={p.id}>{p.codigo} - {p.nome}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
-              <FormControl fullWidth required disabled={!produtoBaseId}>
-                <InputLabel id="ficha-label">Ficha Técnica (BOM)</InputLabel>
-                <Select
-                  labelId="ficha-label"
-                  value={fichaTecnicaId}
-                  label="Ficha Técnica (BOM)"
-                  onChange={e => setFichaTecnicaId(e.target.value)}
-                >
-                  <MenuItem value=""><em>Selecione...</em></MenuItem>
-                  {fichas.map(f => (
-                    <MenuItem key={f.id} value={f.id}>{f.descricao}</MenuItem>
                   ))}
                 </Select>
               </FormControl>
@@ -384,6 +396,42 @@ const OrdensProducao = () => {
                 {isStarting ? 'Iniciando...' : 'Confirmar e Iniciar'}
               </Button>
             </Box>
+          </div>
+        )}
+      </Modal>
+
+      {/* Modal de Gerar Pacotes */}
+      <Modal isOpen={isGerarPacotesModalOpen} onClose={() => !isGenerating && setIsGerarPacotesModalOpen(false)} title="Gerar Pacotes Físicos" width="500px">
+        {selectedOrdem && (
+          <div className="glass-panel" style={{ padding: '24px', background: 'var(--bg-card)', border: 'none', boxShadow: 'none' }}>
+            <Typography variant="body2" sx={{ mb: 3, color: 'var(--text-secondary)' }}>
+              Defina o tamanho do pacote para a OP #{selectedOrdem.numero}. O sistema irá gerar pacotes respeitando as grades de SKUs automaticamente.
+            </Typography>
+            <Stack spacing={3}>
+              <TextField
+                label="Tamanho do Pacote (Peças)"
+                type="number"
+                variant="outlined"
+                fullWidth
+                required
+                slotProps={{ htmlInput: { min: 1, max: 200 } }}
+                value={tamanhoPacote}
+                onChange={e => setTamanhoPacote(e.target.value)}
+              />
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 2, gap: 2 }}>
+                <Button onClick={() => setIsGerarPacotesModalOpen(false)} sx={{ color: 'var(--text-secondary)' }}>Cancelar</Button>
+                <Button 
+                  onClick={handleGerarPacotes}
+                  variant="contained" 
+                  disabled={isGenerating}
+                  startIcon={isGenerating && <CircularProgress size={20} color="inherit" />}
+                  sx={{ bgcolor: 'var(--accent-primary)', '&:hover': { bgcolor: 'var(--accent-hover)' } }}
+                  disableElevation
+                >
+                  Confirmar e Gerar
+                </Button>
+              </Box>
+            </Stack>
           </div>
         )}
       </Modal>

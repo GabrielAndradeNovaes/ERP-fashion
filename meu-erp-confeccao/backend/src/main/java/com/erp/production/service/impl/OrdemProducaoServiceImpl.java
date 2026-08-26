@@ -1,16 +1,16 @@
 package com.erp.production.service.impl;
 
 import com.erp.catalog.domain.ProdutoBase;
+import com.erp.catalog.domain.ProdutoSku;
 import com.erp.catalog.repository.ProdutoBaseRepository;
+import com.erp.catalog.repository.ProdutoSkuRepository;
 import com.erp.inventory.domain.TipoMovimentacao;
 import com.erp.inventory.service.EstoqueMovimentacaoService;
-import com.erp.production.domain.FichaTecnica;
-import com.erp.production.domain.OrdemProducao;
-import com.erp.production.domain.OrdemProducaoStatus;
+import com.erp.production.domain.*;
 import com.erp.production.dto.OrdemProducaoRequest;
 import com.erp.production.dto.OrdemProducaoResponse;
-import com.erp.production.repository.FichaTecnicaRepository;
-import com.erp.production.repository.OrdemProducaoRepository;
+import com.erp.production.dto.OrdemProducaoItemResponse;
+import com.erp.production.repository.*;
 import com.erp.production.service.OrdemProducaoService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,15 +28,24 @@ public class OrdemProducaoServiceImpl implements OrdemProducaoService {
     private final ProdutoBaseRepository produtoBaseRepository;
     private final FichaTecnicaRepository fichaTecnicaRepository;
     private final EstoqueMovimentacaoService estoqueMovimentacaoService;
+    private final ProdutoSkuRepository produtoSkuRepository;
+    private final PacoteRepository pacoteRepository;
+    private final CupomRepository cupomRepository;
 
     public OrdemProducaoServiceImpl(OrdemProducaoRepository ordemProducaoRepository,
                                     ProdutoBaseRepository produtoBaseRepository,
                                     FichaTecnicaRepository fichaTecnicaRepository,
-                                    EstoqueMovimentacaoService estoqueMovimentacaoService) {
+                                    EstoqueMovimentacaoService estoqueMovimentacaoService,
+                                    ProdutoSkuRepository produtoSkuRepository,
+                                    PacoteRepository pacoteRepository,
+                                    CupomRepository cupomRepository) {
         this.ordemProducaoRepository = ordemProducaoRepository;
         this.produtoBaseRepository = produtoBaseRepository;
         this.fichaTecnicaRepository = fichaTecnicaRepository;
         this.estoqueMovimentacaoService = estoqueMovimentacaoService;
+        this.produtoSkuRepository = produtoSkuRepository;
+        this.pacoteRepository = pacoteRepository;
+        this.cupomRepository = cupomRepository;
     }
 
     @Override
@@ -49,8 +58,10 @@ public class OrdemProducaoServiceImpl implements OrdemProducaoService {
         ProdutoBase produto = produtoBaseRepository.findById(request.produtoBaseId())
                 .orElseThrow(() -> new IllegalArgumentException("Produto base não encontrado."));
 
-        FichaTecnica ficha = fichaTecnicaRepository.findById(request.fichaTecnicaId())
-                .orElseThrow(() -> new IllegalArgumentException("Ficha técnica não encontrada."));
+        FichaTecnica ficha = produto.getFichaTecnica();
+        if (ficha == null) {
+            throw new IllegalArgumentException("O produto selecionado não possui uma Ficha Técnica vinculada.");
+        }
 
         OrdemProducao op = new OrdemProducao();
         op.setNumero(request.numero());
@@ -58,6 +69,28 @@ public class OrdemProducaoServiceImpl implements OrdemProducaoService {
         op.setFichaTecnica(ficha);
         op.setQuantidade(request.quantidade());
         op.setStatus(OrdemProducaoStatus.CADASTRADA);
+
+        if (request.itens() != null && !request.itens().isEmpty()) {
+            for (var itemReq : request.itens()) {
+                ProdutoSku sku = produtoSkuRepository.findById(itemReq.produtoSkuId())
+                        .orElseThrow(() -> new IllegalArgumentException("SKU não encontrado: " + itemReq.produtoSkuId()));
+                OrdemProducaoItem item = new OrdemProducaoItem();
+                item.setProdutoSku(sku);
+                item.setQuantidade(itemReq.quantidade());
+                op.addItem(item);
+            }
+        } else {
+            if (produto.getSkus() != null && !produto.getSkus().isEmpty()) {
+                // Distribui toda a quantidade para o primeiro SKU (comportamento padrão quando não detalhado)
+                ProdutoSku primeiroSku = produto.getSkus().get(0);
+                OrdemProducaoItem item = new OrdemProducaoItem();
+                item.setProdutoSku(primeiroSku);
+                item.setQuantidade(op.getQuantidade());
+                op.addItem(item);
+            } else {
+                throw new IllegalArgumentException("O Produto Base não possui nenhuma Grade (SKU) cadastrada. Cadastre uma Grade no produto antes de criar a OP.");
+            }
+        }
 
         OrdemProducao saved = ordemProducaoRepository.save(op);
         return mapToResponse(saved);
@@ -103,7 +136,80 @@ public class OrdemProducaoServiceImpl implements OrdemProducaoService {
         return mapToResponse(saved);
     }
 
+    @Override
+    @Transactional
+    public void gerarPacotes(UUID id, int tamanhoPacote) {
+        OrdemProducao op = ordemProducaoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Ordem de Produção não encontrada."));
+
+        if (op.getStatus() != OrdemProducaoStatus.CADASTRADA && op.getStatus() != OrdemProducaoStatus.EM_ANDAMENTO) {
+            throw new IllegalStateException("Ordem de Produção não está em estado válido para gerar pacotes.");
+        }
+
+        // Verifica se já gerou pacotes
+        List<Pacote> pacotesExistentes = pacoteRepository.findByOrdemProducaoId(id);
+        if (!pacotesExistentes.isEmpty()) {
+            throw new IllegalStateException("Pacotes já foram gerados para esta OP.");
+        }
+        
+        if (op.getItens() == null || op.getItens().isEmpty()) {
+            throw new IllegalStateException("Esta Ordem de Produção não possui Itens (SKUs) associados, portanto não é possível gerar pacotes físicos. Por favor, crie uma nova OP.");
+        }
+
+        int sequencialGlobal = 1;
+
+        for (OrdemProducaoItem item : op.getItens()) {
+            int qtdRestante = item.getQuantidade();
+
+            while (qtdRestante > 0) {
+                int qtdPacote = Math.min(qtdRestante, tamanhoPacote);
+                
+                Pacote pacote = new Pacote();
+                pacote.setOrdemProducao(op);
+                pacote.setProdutoSku(item.getProdutoSku());
+                pacote.setSequencial(sequencialGlobal++);
+                pacote.setQuantidadePecas(qtdPacote);
+                
+                Pacote savedPacote = pacoteRepository.save(pacote);
+
+                // Gerar cupons para este pacote (um para cada operação da Ficha Técnica)
+                int seqCupom = 1;
+                for (FichaTecnicaOperacao operacao : op.getFichaTecnica().getOperacoes()) {
+                    Cupom cupom = new Cupom();
+                    cupom.setPacote(savedPacote);
+                    cupom.setOperacao(operacao);
+                    
+                    // Código: OP_NUM-SEQ_PACOTE-SEQ_CUPOM
+                    String codigoBarras = op.getNumero() + "-" + savedPacote.getSequencial() + "-" + (seqCupom++);
+                    cupom.setCodigoBarras(codigoBarras);
+                    
+                    // Tempo total = tempo_unitario * quantidade_no_pacote
+                    BigDecimal tempoUnitario = operacao.getTempoCalculadoCentesimal();
+                    if(tempoUnitario == null) tempoUnitario = BigDecimal.ZERO;
+                    cupom.setTempoTotalCentesimal(tempoUnitario.multiply(new BigDecimal(qtdPacote)));
+                    cupom.setStatus(Cupom.Status.PENDENTE);
+                    
+                    cupomRepository.save(cupom);
+                }
+
+                qtdRestante -= qtdPacote;
+            }
+        }
+    }
+
     private OrdemProducaoResponse mapToResponse(OrdemProducao op) {
+        List<OrdemProducaoItemResponse> itens = null;
+        if (op.getItens() != null) {
+            itens = op.getItens().stream().map(item -> new OrdemProducaoItemResponse(
+                    item.getId(),
+                    item.getProdutoSku().getId(),
+                    item.getProdutoSku().getCodigoBarras(),
+                    item.getProdutoSku().getCor(),
+                    item.getProdutoSku().getTamanho(),
+                    item.getQuantidade()
+            )).collect(Collectors.toList());
+        }
+
         return new OrdemProducaoResponse(
                 op.getId(),
                 op.getNumero(),
@@ -114,7 +220,8 @@ public class OrdemProducaoServiceImpl implements OrdemProducaoService {
                 op.getQuantidade(),
                 op.getStatus(),
                 op.getCriadoEm(),
-                op.getDataInicio()
+                op.getDataInicio(),
+                itens
         );
     }
 }

@@ -1,0 +1,84 @@
+/* PrintLayout.css */
+
+@media print {
+  /* Oculta tudo por padrão na tela inteira */
+  body * {
+    visibility: hidden;
+  }
+  
+  /* Mas exibe a área de impressão e todos os seus filhos */
+  #print-area, #print-area * {
+    visibility: visible;
+  }
+  
+  /* Posiciona a área de impressão no canto superior esquerdo da página física */
+  #print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: white;
+  }
+
+  /* Define o formato da página A4 e retira as margens padrões do navegador */
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+
+  /* Remove sombras e efeitos desnecessários na impressão */
+  .cupom-card {
+    box-shadow: none !important;
+    border: 1px solid #000 !important;
+    background-color: transparent !important;
+    color: #000 !important;
+    page-break-inside: avoid; /* Evita que um cupom seja cortado no meio da página */
+    margin-bottom: 5mm;
+  }
+
+  .print-grid {
+    display: grid !important;
+    /* Grid de 2 ou 3 colunas para A4, ajustável */
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 5mm !important;
+  }
+
+  /* Remove botões e cabeçalhos de controle que possam estar dentro da print-area (se houver) */
+  .no-print {
+    display: none !important;
+  }
+
+  /* Assegura que o barcode renderize sem fundo escuro (caso esteja em dark mode) */
+  svg {
+    background-color: white !important;
+  }
+  
+  body {
+    background-color: white;
+    color: black;
+  }
+
+  /* Prevent elements from breaking across pages */
+  .pacote-bloco {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    margin-bottom: 24px;
+    border: 1px solid #000 !important;
+    border-radius: 0 !important;
+    padding: 16px !important;
+  }
+
+  /* Optimize table borders for print */
+  .print-table th,
+  .print-table td {
+    border-color: #000 !important;
+    color: #000 !important;
+  }
+
+  /* Ensure barcodes print clearly */
+  svg {
+    max-width: 100%;
+  }
+}

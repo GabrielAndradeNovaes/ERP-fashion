@@ -9,4 +9,5 @@ public interface OrdemProducaoService {
     OrdemProducaoResponse criarOrdemProducao(OrdemProducaoRequest request);
     List<OrdemProducaoResponse> listarTodas();
     OrdemProducaoResponse iniciarProducao(UUID id);
+    void gerarPacotes(UUID id, int tamanhoPacote);
 }

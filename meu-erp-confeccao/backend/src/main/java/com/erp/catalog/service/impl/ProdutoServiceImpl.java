@@ -75,6 +75,25 @@ public class ProdutoServiceImpl implements ProdutoService {
         produto.setDescricao(request.descricao());
         produto.setPrecoVenda(request.precoVenda());
         produto.setPrecoCusto(request.precoCusto());
+
+        // Processa as Grades (SKUs)
+        if (request.skus() != null) {
+            for (com.erp.catalog.dto.ProdutoSkuRequest skuDto : request.skus()) {
+                // Verifica se a combinação de Cor + Tamanho já existe no produto
+                boolean existe = produto.getSkus().stream()
+                        .anyMatch(s -> s.getCor().equalsIgnoreCase(skuDto.cor()) && s.getTamanho().equalsIgnoreCase(skuDto.tamanho()));
+                
+                if (!existe) {
+                    ProdutoSku novoSku = new ProdutoSku();
+                    novoSku.setCor(skuDto.cor());
+                    novoSku.setTamanho(skuDto.tamanho());
+                    novoSku.setCodigoBarras(skuDto.codigoBarras());
+                    novoSku.setPrecoVenda(skuDto.precoVenda());
+                    produto.addSku(novoSku);
+                }
+            }
+        }
+
         return mapToResponse(produtoBaseRepository.save(produto));
     }
 
