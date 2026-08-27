@@ -1,5 +1,7 @@
 package com.erp.production.domain;
 
+import com.erp.core.domain.Empresa;
+import org.hibernate.annotations.Filter;
 import com.erp.inventory.domain.Material;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
@@ -7,7 +9,16 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "fichas_tecnicas_materiais")
+@Filter(name = "empresaFilter", condition = "empresa_id IN (:empresaIds)")
 public class FichaTecnicaMaterial {
+
+    @jakarta.persistence.ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
+    @jakarta.persistence.JoinColumn(name = "empresa_id")
+    private Empresa empresa;
+    
+    public Empresa getEmpresa() { return empresa; }
+    public void setEmpresa(Empresa empresa) { this.empresa = empresa; }
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

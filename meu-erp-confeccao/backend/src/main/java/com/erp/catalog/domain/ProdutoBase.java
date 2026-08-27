@@ -1,5 +1,7 @@
 package com.erp.catalog.domain;
 
+import com.erp.core.domain.Empresa;
+import org.hibernate.annotations.Filter;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -8,7 +10,16 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "produtos_base")
+@Filter(name = "empresaFilter", condition = "empresa_id IN (:empresaIds)")
 public class ProdutoBase {
+
+    @jakarta.persistence.ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
+    @jakarta.persistence.JoinColumn(name = "empresa_id")
+    private Empresa empresa;
+    
+    public Empresa getEmpresa() { return empresa; }
+    public void setEmpresa(Empresa empresa) { this.empresa = empresa; }
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

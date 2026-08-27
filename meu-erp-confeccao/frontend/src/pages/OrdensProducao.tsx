@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Play, CheckCircle2, AlertCircle } from 'lucide-react';
 import api from '../api/axios';
 import Modal from '../components/Modal';
+import { useAuth } from '../contexts/AuthContext';
 import {
   Box,
   Typography,
@@ -61,6 +62,9 @@ const OrdensProducao = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [tamanhoPacote, setTamanhoPacote] = useState('20');
   const [selectedOrdem, setSelectedOrdem] = useState<OrdemProducao | null>(null);
+
+  const { hasPermission } = useAuth();
+  const canEdit = hasPermission('PCP_EDIT');
 
   useEffect(() => {
     fetchInitialData();
@@ -185,6 +189,7 @@ const OrdensProducao = () => {
       id: 'acoes',
       header: 'Ações',
       cell: (info) => {
+        if (!canEdit) return null;
         return (
           <Stack direction="row" spacing={1}>
             {info.row.original.status === 'CADASTRADA' && (
@@ -228,7 +233,7 @@ const OrdensProducao = () => {
         );
       }
     }
-  ], []);
+  ], [canEdit]);
 
   return (
     <Box className="animate-fade-in-up">
@@ -241,24 +246,26 @@ const OrdensProducao = () => {
             Acompanhe o status e despache ordens para o chão de fábrica.
           </Typography>
         </Box>
-        <Button 
-          variant="contained" 
-          startIcon={<AddIcon />}
-          onClick={() => setIsModalOpen(true)}
-          size="large"
-          sx={{
-            background: 'var(--accent-gradient)',
-            borderRadius: 'var(--radius-md)',
-            textTransform: 'none',
-            fontWeight: 600,
-            boxShadow: '0 4px 14px 0 rgba(99, 102, 241, 0.39)',
-            '&:hover': {
-              boxShadow: '0 6px 20px rgba(99, 102, 241, 0.23)'
-            }
-          }}
-        >
-          Nova Ordem
-        </Button>
+        {canEdit && (
+          <Button 
+            variant="contained" 
+            startIcon={<AddIcon />}
+            onClick={() => setIsModalOpen(true)}
+            size="large"
+            sx={{
+              background: 'var(--accent-gradient)',
+              borderRadius: 'var(--radius-md)',
+              textTransform: 'none',
+              fontWeight: 600,
+              boxShadow: '0 4px 14px 0 rgba(99, 102, 241, 0.39)',
+              '&:hover': {
+                boxShadow: '0 6px 20px rgba(99, 102, 241, 0.23)'
+              }
+            }}
+          >
+            Nova Ordem
+          </Button>
+        )}
       </Box>
 
       <div className="premium-card">

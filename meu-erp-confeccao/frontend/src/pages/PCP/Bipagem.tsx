@@ -19,6 +19,7 @@ import {
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
 import api from '../../api/axios';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface Funcionario {
   id: string;
@@ -39,6 +40,8 @@ const Bipagem: React.FC = () => {
   const [selectedFuncionario, setSelectedFuncionario] = useState<string>('');
   const [codigoBarras, setCodigoBarras] = useState<string>('');
   const [logs, setLogs] = useState<BipagemLog[]>([]);
+  const { hasPermission } = useAuth();
+  const canEdit = hasPermission('PCP_EDIT');
   
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({
     open: false,
@@ -127,17 +130,23 @@ const Bipagem: React.FC = () => {
           onChange={(e) => setCodigoBarras(e.target.value)}
           onKeyDown={handleKeyDown}
           inputRef={inputRef}
-          disabled={!selectedFuncionario}
+          disabled={!selectedFuncionario || !canEdit}
           sx={{ 
             '& .MuiInputBase-input': { fontSize: '1.5rem', py: 2, textAlign: 'center' },
             '& .MuiInputLabel-root': { fontSize: '1.2rem' }
           }}
-          placeholder="O leitor de código de barras irá preencher este campo automaticamente"
+          placeholder={canEdit ? "O leitor de código de barras irá preencher este campo automaticamente" : "Você não tem permissão para bipar."}
         />
         
-        <Typography variant="body2" color="textSecondary" sx={{ mt: 2, textAlign: 'center' }}>
-          * Selecione um funcionário. O campo ficará em foco. Bipe o código usando o scanner. O sistema irá registrar e limpar o campo instantaneamente.
-        </Typography>
+        {canEdit ? (
+          <Typography variant="body2" color="textSecondary" sx={{ mt: 2, textAlign: 'center' }}>
+            * Selecione um funcionário. O campo ficará em foco. Bipe o código usando o scanner. O sistema irá registrar e limpar o campo instantaneamente.
+          </Typography>
+        ) : (
+          <Typography variant="body2" color="error" sx={{ mt: 2, textAlign: 'center' }}>
+            Você precisa da permissão de edição (PCP_EDIT) para realizar bipagem.
+          </Typography>
+        )}
 
       </Paper>
 

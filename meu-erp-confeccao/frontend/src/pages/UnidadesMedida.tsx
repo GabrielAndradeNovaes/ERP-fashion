@@ -7,6 +7,7 @@ const UnidadesMedida = () => {
       title="Unidades de Medida"
       description="Gerencie as unidades de medida."
       endpoint="/core/unidades-medida"
+      editPermission="PRODUTOS_EDIT"
       columns={[
         { key: 'sigla', label: 'Sigla' },
         { key: 'nome', label: 'Nome' }

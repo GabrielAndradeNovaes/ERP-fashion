@@ -10,9 +10,18 @@ import java.util.Collections;
 public class UserDetailsImpl implements UserDetails {
 
     private final Usuario usuario;
+    private java.util.List<String> empresas;
 
     public UserDetailsImpl(Usuario usuario) {
         this.usuario = usuario;
+    }
+
+    public void setEmpresas(java.util.List<String> empresas) {
+        this.empresas = empresas;
+    }
+
+    public java.util.List<String> getEmpresas() {
+        return empresas;
     }
 
     public Usuario getUsuario() {

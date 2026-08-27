@@ -59,6 +59,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             userEmail = jwtService.extractUsername(jwt);
             tenantId = jwtService.extractTenantId(jwt);
+            java.util.List<String> empresas = jwtService.extractEmpresas(jwt);
             
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
@@ -74,6 +75,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     
                     // Seta o Tenant no contexto a partir do Token!
                     TenantContext.setCurrentTenant(tenantId);
+                    
+                    if (empresas != null && !empresas.isEmpty()) {
+                        com.erp.core.tenant.EmpresaContext.setEmpresas(
+                            empresas.stream().map(java.util.UUID::fromString).collect(java.util.stream.Collectors.toList())
+                        );
+                    }
+
+                    // Se for SUPERADMIN, permite sobrescrever pelo cabeçalho X-TenantID
+                    if (userDetails.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_SUPERADMIN"))) {
+                        String headerTenant = request.getHeader("X-TenantID");
+                        if (headerTenant != null && !headerTenant.trim().isEmpty()) {
+                            TenantContext.setCurrentTenant(headerTenant);
+                        }
+                    }
                 }
             }
         } catch (Exception e) {
@@ -83,5 +98,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
         TenantContext.clear();
+        com.erp.core.tenant.EmpresaContext.clear();
     }
 }

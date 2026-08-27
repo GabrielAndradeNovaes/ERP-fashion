@@ -20,10 +20,14 @@ api.interceptors.request.use(
     if (userString) {
       try {
         const user = JSON.parse(userString);
-        if (user && user.tenantId) {
-          config.headers['X-TenantID'] = user.tenantId;
+        const impersonatedTenant = localStorage.getItem('@FashionERP:impersonatedTenant');
+        
+        if (impersonatedTenant && user.role === 'SUPERADMIN') {
+            config.headers['X-TenantID'] = impersonatedTenant;
+        } else if (user && user.tenantId) {
+            config.headers['X-TenantID'] = user.tenantId;
         } else {
-          config.headers['X-TenantID'] = 'tenant_1'; // fallback
+            config.headers['X-TenantID'] = 'tenant_1'; // fallback
         }
       } catch (e) {
         config.headers['X-TenantID'] = 'tenant_1';

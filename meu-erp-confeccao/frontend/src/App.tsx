@@ -16,16 +16,16 @@ import UnidadesMedida from './pages/UnidadesMedida';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import { Users, Truck, Tags, Ruler, ScanLine, UserCog, BarChart, FileText } from 'lucide-react';
-import React from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useThemeContext } from './contexts/ThemeContext';
-
+import Empresas from './pages/Empresas';
+import Usuarios from './pages/Usuarios';
 import PaymentPending from './pages/PaymentPending';
 import TenantsList from './pages/Backoffice/TenantsList';
 
 // Rotas Protegidas
-const PrivateRoute = ({ children, requireSuperAdmin = false }: { children: React.ReactNode, requireSuperAdmin?: boolean }) => {
-  const { isAuthenticated, user } = useAuth();
+const PrivateRoute = ({ children, requireSuperAdmin = false, requiredPermission }: { children: React.ReactNode, requireSuperAdmin?: boolean, requiredPermission?: string }) => {
+  const { isAuthenticated, user, hasPermission } = useAuth();
   
   if (!isAuthenticated) return <Navigate to="/login" />;
 
@@ -39,13 +39,18 @@ const PrivateRoute = ({ children, requireSuperAdmin = false }: { children: React
     return <Navigate to="/" />; // ou uma tela de "Não Autorizado"
   }
 
+  // Validação granular
+  if (requiredPermission && !hasPermission(requiredPermission)) {
+    return <Navigate to="/" />; // ou tela de Não Autorizado
+  }
+
   return <>{children}</>;
 };
 
 // Menu Lateral Premium
 const Sidebar = () => {
   const location = useLocation();
-  const { user, logout } = useAuth();
+  const { user, logout, impersonatedTenantId, setImpersonatedTenant, hasPermission } = useAuth();
   const { mode, toggleTheme } = useThemeContext();
   
   const navGroups = [
@@ -58,28 +63,30 @@ const Sidebar = () => {
     {
       title: 'Produção (PCP)',
       items: [
-        { path: '/pcp/ordens', label: 'Ordens de Produção', icon: <ClipboardList size={20} /> },
-        { path: '/pcp/cupons', label: 'Cupons / Etiquetas', icon: <FileText size={20} /> },
-        { path: '/pcp/bipagem', label: 'Bipagem Rápida', icon: <ScanLine size={20} /> },
-        { path: '/pcp/produtividade', label: 'Produtividade', icon: <BarChart size={20} /> },
-        { path: '/pcp/funcionarios', label: 'Funcionários (PCP)', icon: <UserCog size={20} /> },
-        { path: '/pcp/tempos', label: 'Tabela de Tempos', icon: <Clock size={20} /> },
+        { path: '/pcp/ordens', label: 'Ordens de Produção', icon: <ClipboardList size={20} />, perm: 'PCP_VIEW' },
+        { path: '/pcp/cupons', label: 'Cupons / Etiquetas', icon: <FileText size={20} />, perm: 'PCP_VIEW' },
+        { path: '/pcp/bipagem', label: 'Bipagem Rápida', icon: <ScanLine size={20} />, perm: 'PCP_VIEW' },
+        { path: '/pcp/produtividade', label: 'Produtividade', icon: <BarChart size={20} />, perm: 'PCP_VIEW' },
+        { path: '/pcp/funcionarios', label: 'Funcionários (PCP)', icon: <UserCog size={20} />, perm: 'PCP_VIEW' },
+        { path: '/pcp/tempos', label: 'Tabela de Tempos', icon: <Clock size={20} />, perm: 'PCP_VIEW' },
       ]
     },
     {
       title: 'Inventário e Engenharia',
       items: [
-        { path: '/catalog/produtos', label: 'Produtos e Fichas', icon: <Package size={20} /> },
-        { path: '/estoque', label: 'Estoque', icon: <PackageSearch size={20} /> },
+        { path: '/catalog/produtos', label: 'Produtos e Fichas', icon: <Package size={20} />, perm: 'PRODUTOS_VIEW' },
+        { path: '/estoque', label: 'Estoque', icon: <PackageSearch size={20} />, perm: 'ESTOQUE_VIEW' },
       ]
     },
     {
       title: 'Cadastros Base',
       items: [
-        { path: '/core/clientes', label: 'Clientes', icon: <Users size={20} /> },
-        { path: '/core/fornecedores', label: 'Fornecedores', icon: <Truck size={20} /> },
-        { path: '/core/categorias', label: 'Categorias', icon: <Tags size={20} /> },
-        { path: '/core/unidades-medida', label: 'Unidades de Medida', icon: <Ruler size={20} /> },
+        { path: '/core/empresas', label: 'Empresas/Filiais', icon: <Building2 size={20} />, perm: 'USUARIOS_ADMIN' },
+        { path: '/core/usuarios', label: 'Usuários', icon: <UserCog size={20} />, perm: 'USUARIOS_ADMIN' },
+        { path: '/core/clientes', label: 'Clientes', icon: <Users size={20} />, perm: 'CLIENTES_VIEW' },
+        { path: '/core/fornecedores', label: 'Fornecedores', icon: <Truck size={20} />, perm: 'CLIENTES_VIEW' },
+        { path: '/core/categorias', label: 'Categorias', icon: <Tags size={20} />, perm: 'PRODUTOS_VIEW' },
+        { path: '/core/unidades-medida', label: 'Unidades de Medida', icon: <Ruler size={20} />, perm: 'PRODUTOS_VIEW' },
       ]
     }
   ];
@@ -95,7 +102,7 @@ const Sidebar = () => {
       width: 'var(--sidebar-width)',
       boxShadow: '4px 0 24px rgba(0,0,0,0.2)'
     }}>
-      <div style={{ marginBottom: '2rem', padding: '0 1rem' }}>
+      <div style={{ marginBottom: '1rem', padding: '0 1rem' }}>
         <h1 className="text-gradient" style={{ fontSize: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: 800 }}>
           <div style={{ background: 'var(--accent-gradient)', padding: '6px', borderRadius: '8px', display: 'flex' }}>
             <Scissors size={20} color="white" />
@@ -103,6 +110,23 @@ const Sidebar = () => {
           Fashion ERP
         </h1>
       </div>
+
+      {impersonatedTenantId && user?.role === 'SUPERADMIN' && (
+        <Box sx={{ p: 2, mb: 2, bgcolor: 'rgba(239, 68, 68, 0.1)', borderRadius: 2, border: '1px solid var(--danger)' }}>
+          <Typography variant="body2" sx={{ color: 'var(--danger)', fontWeight: 'bold', mb: 0.5 }}>
+            Modo Suporte
+          </Typography>
+          <Typography variant="caption" display="block" sx={{ mb: 1, color: 'var(--text-secondary)' }}>
+            Acessando: {impersonatedTenantId}
+          </Typography>
+          <button 
+            onClick={() => { setImpersonatedTenant(null); window.location.href = '/admin/tenants'; }}
+            style={{ width: '100%', background: 'var(--danger)', color: 'white', border: 'none', padding: '6px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}
+          >
+            Voltar ao Master
+          </button>
+        </Box>
+      )}
       
       <nav style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1, overflowY: 'auto', paddingBottom: '1rem' }}>
         
@@ -132,40 +156,45 @@ const Sidebar = () => {
           </Box>
         )}
 
-        {navGroups.map((group, index) => (
-          <Box key={index} sx={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-            <Typography variant="overline" sx={{ px: 2, color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.5px' }}>
-              {group.title}
-            </Typography>
-            {group.items.map(item => {
-              const isActive = location.pathname === item.path;
-              return (
-                <Link 
-                  key={item.path} 
-                  to={item.path}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '1rem',
-                    padding: '0.75rem 1rem',
-                    borderRadius: 'var(--radius-md)',
-                    color: isActive ? 'white' : 'var(--text-secondary)',
-                    background: isActive ? 'var(--accent-gradient)' : 'transparent',
-                    fontWeight: isActive ? 600 : 500,
-                    transition: 'all var(--transition-fast)',
-                    boxShadow: isActive ? '0 4px 14px 0 rgba(99, 102, 241, 0.39)' : 'none',
-                    textDecoration: 'none'
-                  }}
-                  onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = 'rgba(128,128,128,0.1)' }}
-                  onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = 'transparent' }}
-                >
-                  {item.icon}
-                  {item.label}
-                </Link>
-              );
-            })}
-          </Box>
-        ))}
+        {navGroups.map((group, index) => {
+          const visibleItems = group.items.filter(item => hasPermission(item.perm));
+          if (visibleItems.length === 0) return null;
+
+          return (
+            <Box key={index} sx={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <Typography variant="overline" sx={{ px: 2, color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.5px' }}>
+                {group.title}
+              </Typography>
+              {visibleItems.map(item => {
+                const isActive = location.pathname === item.path;
+                return (
+                  <Link 
+                    key={item.path} 
+                    to={item.path}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '1rem',
+                      padding: '0.75rem 1rem',
+                      borderRadius: 'var(--radius-md)',
+                      color: isActive ? 'white' : 'var(--text-secondary)',
+                      background: isActive ? 'var(--accent-gradient)' : 'transparent',
+                      fontWeight: isActive ? 600 : 500,
+                      transition: 'all var(--transition-fast)',
+                      boxShadow: isActive ? '0 4px 14px 0 rgba(99, 102, 241, 0.39)' : 'none',
+                      textDecoration: 'none'
+                    }}
+                    onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = 'rgba(128,128,128,0.1)' }}
+                    onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = 'transparent' }}
+                  >
+                    {item.icon}
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </Box>
+          );
+        })}
       </nav>
 
       {/* User Profile & Logout */}
@@ -202,18 +231,20 @@ const MainApp = () => {
       <main className="main-content">
         <Routes>
           <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-          <Route path="/core/clientes" element={<PrivateRoute><Clientes /></PrivateRoute>} />
-          <Route path="/core/fornecedores" element={<PrivateRoute><Fornecedores /></PrivateRoute>} />
-          <Route path="/core/categorias" element={<PrivateRoute><Categorias /></PrivateRoute>} />
-          <Route path="/core/unidades-medida" element={<PrivateRoute><UnidadesMedida /></PrivateRoute>} />
-          <Route path="/catalog/produtos" element={<PrivateRoute><Produtos /></PrivateRoute>} />
-          <Route path="/pcp/tempos" element={<PrivateRoute><TabelaTempos /></PrivateRoute>} />
-          <Route path="/estoque" element={<PrivateRoute><Estoque /></PrivateRoute>} />
-          <Route path="/pcp/ordens" element={<PrivateRoute><OrdensProducao /></PrivateRoute>} />
-          <Route path="/pcp/cupons" element={<PrivateRoute><Cupons /></PrivateRoute>} />
-          <Route path="/pcp/bipagem" element={<PrivateRoute><Bipagem /></PrivateRoute>} />
-          <Route path="/pcp/funcionarios" element={<PrivateRoute><Funcionarios /></PrivateRoute>} />
-          <Route path="/pcp/produtividade" element={<PrivateRoute><Produtividade /></PrivateRoute>} />
+          <Route path="/core/empresas" element={<PrivateRoute requiredPermission="USUARIOS_ADMIN"><Empresas /></PrivateRoute>} />
+          <Route path="/core/usuarios" element={<PrivateRoute requiredPermission="USUARIOS_ADMIN"><Usuarios /></PrivateRoute>} />
+          <Route path="/core/clientes" element={<PrivateRoute requiredPermission="CLIENTES_VIEW"><Clientes /></PrivateRoute>} />
+          <Route path="/core/fornecedores" element={<PrivateRoute requiredPermission="CLIENTES_VIEW"><Fornecedores /></PrivateRoute>} />
+          <Route path="/core/categorias" element={<PrivateRoute requiredPermission="PRODUTOS_VIEW"><Categorias /></PrivateRoute>} />
+          <Route path="/core/unidades-medida" element={<PrivateRoute requiredPermission="PRODUTOS_VIEW"><UnidadesMedida /></PrivateRoute>} />
+          <Route path="/catalog/produtos" element={<PrivateRoute requiredPermission="PRODUTOS_VIEW"><Produtos /></PrivateRoute>} />
+          <Route path="/pcp/tempos" element={<PrivateRoute requiredPermission="PCP_VIEW"><TabelaTempos /></PrivateRoute>} />
+          <Route path="/estoque" element={<PrivateRoute requiredPermission="ESTOQUE_VIEW"><Estoque /></PrivateRoute>} />
+          <Route path="/pcp/ordens" element={<PrivateRoute requiredPermission="PCP_VIEW"><OrdensProducao /></PrivateRoute>} />
+          <Route path="/pcp/cupons" element={<PrivateRoute requiredPermission="PCP_VIEW"><Cupons /></PrivateRoute>} />
+          <Route path="/pcp/bipagem" element={<PrivateRoute requiredPermission="PCP_VIEW"><Bipagem /></PrivateRoute>} />
+          <Route path="/pcp/funcionarios" element={<PrivateRoute requiredPermission="PCP_VIEW"><Funcionarios /></PrivateRoute>} />
+          <Route path="/pcp/produtividade" element={<PrivateRoute requiredPermission="PCP_VIEW"><Produtividade /></PrivateRoute>} />
           
           <Route path="/admin/tenants" element={<PrivateRoute requireSuperAdmin><TenantsList /></PrivateRoute>} />
         </Routes>

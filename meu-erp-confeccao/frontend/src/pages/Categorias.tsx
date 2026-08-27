@@ -7,6 +7,7 @@ const Categorias = () => {
       title="Categorias"
       description="Categorias de produtos."
       endpoint="/core/categorias"
+      editPermission="PRODUTOS_EDIT"
       columns={[
         { key: 'nome', label: 'Nome da Categoria' }
       ]}

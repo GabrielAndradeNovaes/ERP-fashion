@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
 import Modal from '../components/Modal';
 import { DataTable } from '../components/DataTable';
+import { useAuth } from '../contexts/AuthContext';
 import type { ColumnDef } from '@tanstack/react-table';
 import {
   Box,
@@ -53,7 +54,9 @@ interface ProdutoBase {
 
 const Estoque = () => {
   const [activeTab, setActiveTab] = useState(0); // 0 = Materiais, 1 = Produtos
-  
+  const { hasPermission } = useAuth();
+  const canEdit = hasPermission('ESTOQUE_EDIT');
+
   // Data
   const [materiais, setMateriais] = useState<Material[]>([]);
   const [produtos, setProdutos] = useState<ProdutoBase[]>([]);
@@ -238,28 +241,30 @@ const Estoque = () => {
             Gerencie o estoque de Matérias-Primas e Produtos Acabados (SKUs).
           </Typography>
         </Box>
-        <Stack direction="row" spacing={2}>
-          <Button 
-            variant="outlined" 
-            color="primary" 
-            onClick={() => setIsMovimentacaoModalOpen(true)}
-            size="large"
-          >
-            Movimentar
-          </Button>
-          {activeTab === 0 && (
+        {canEdit && (
+          <Stack direction="row" spacing={2}>
             <Button 
-              variant="contained" 
+              variant="outlined" 
               color="primary" 
-              startIcon={<AddIcon />}
-              onClick={() => setIsMaterialModalOpen(true)}
+              onClick={() => setIsMovimentacaoModalOpen(true)}
               size="large"
-              disableElevation
             >
-              Novo Material
+              Movimentar
             </Button>
-          )}
-        </Stack>
+            {activeTab === 0 && (
+              <Button 
+                variant="contained" 
+                color="primary" 
+                startIcon={<AddIcon />}
+                onClick={() => setIsMaterialModalOpen(true)}
+                size="large"
+                disableElevation
+              >
+                Novo Material
+              </Button>
+            )}
+          </Stack>
+        )}
       </Box>
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>

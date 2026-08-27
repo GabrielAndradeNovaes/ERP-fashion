@@ -7,7 +7,13 @@ import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import java.util.UUID;
+import java.util.Set;
+import java.util.HashSet;
 import java.time.LocalDateTime;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.FetchType;
 
 @Entity
 @Table(name = "usuarios", schema = "master")
@@ -38,6 +44,18 @@ public class Usuario {
     @Column(name = "criado_em")
     private LocalDateTime criadoEm;
 
+    @Column(name = "filial_principal_id")
+    private UUID filialPrincipalId;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+        name = "usuario_permissoes", 
+        schema = "master", 
+        joinColumns = @JoinColumn(name = "usuario_id")
+    )
+    @Column(name = "permissao")
+    private Set<String> permissoes = new HashSet<>();
+
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
     
@@ -61,4 +79,10 @@ public class Usuario {
     
     public LocalDateTime getCriadoEm() { return criadoEm; }
     public void setCriadoEm(LocalDateTime criadoEm) { this.criadoEm = criadoEm; }
+
+    public UUID getFilialPrincipalId() { return filialPrincipalId; }
+    public void setFilialPrincipalId(UUID filialPrincipalId) { this.filialPrincipalId = filialPrincipalId; }
+
+    public Set<String> getPermissoes() { return permissoes; }
+    public void setPermissoes(Set<String> permissoes) { this.permissoes = permissoes; }
 }

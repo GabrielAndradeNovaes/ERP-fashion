@@ -7,6 +7,7 @@ const Fornecedores = () => {
       title="Fornecedores"
       description="Gerencie os fornecedores de matéria-prima."
       endpoint="/core/fornecedores"
+      editPermission="CLIENTES_EDIT"
       columns={[
         { key: 'nome', label: 'Razão Social' },
         { key: 'cnpj', label: 'CNPJ' },

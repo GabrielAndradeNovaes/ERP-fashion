@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Card, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, FormControl, Select, MenuItem, Snackbar, Alert, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, CircularProgress } from '@mui/material';
-import { Building2, CheckCircle2, AlertCircle, XCircle, Plus, Loader2 } from 'lucide-react';
+import { Building2, CheckCircle2, AlertCircle, XCircle, Plus, Loader2, LogIn } from 'lucide-react';
 import api from '../../api/axios';
+import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface Tenant {
   id: string;
@@ -21,8 +23,10 @@ const TenantsList = () => {
   // Modal State
   const [openModal, setOpenModal] = useState(false);
   const [newTenant, setNewTenant] = useState({
-    nomeEmpresa: '', schemaName: '', adminNome: '', adminEmail: '', adminSenha: ''
+    nomeEmpresa: '', adminNome: '', adminEmail: '', adminSenha: ''
   });
+  const { setImpersonatedTenant } = useAuth();
+  const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
 
   const fetchTenants = async () => {
@@ -58,7 +62,7 @@ const TenantsList = () => {
       await api.post('/admin/tenants/provision', newTenant);
       setSnackbar({ open: true, message: 'Provisionamento iniciado com sucesso!', severity: 'success' });
       setOpenModal(false);
-      setNewTenant({ nomeEmpresa: '', schemaName: '', adminNome: '', adminEmail: '', adminSenha: '' });
+      setNewTenant({ nomeEmpresa: '', adminNome: '', adminEmail: '', adminSenha: '' });
       fetchTenants();
     } catch (error: any) {
       setSnackbar({ open: true, message: error.response?.data?.message || 'Erro ao iniciar provisionamento.', severity: 'error' });
@@ -78,6 +82,11 @@ const TenantsList = () => {
   };
 
   const handleCloseSnackbar = () => setSnackbar({ ...snackbar, open: false });
+
+  const handleImpersonate = (schemaName: string) => {
+    setImpersonatedTenant(schemaName);
+    navigate('/');
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -137,7 +146,7 @@ const TenantsList = () => {
                 <TableCell sx={{ fontWeight: 600 }}>Schema ID</TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>CNPJ / Razão Social</TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>Criado Em</TableCell>
-                <TableCell sx={{ fontWeight: 600, width: 250 }}>Status (Ação)</TableCell>
+                <TableCell sx={{ fontWeight: 600, width: 300 }}>Status (Ação)</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -176,6 +185,16 @@ const TenantsList = () => {
                           </Select>
                         </FormControl>
                       )}
+                      {tenant.status === 'ATIVO' && (
+                        <Button 
+                          size="small" 
+                          variant="outlined" 
+                          startIcon={<LogIn size={16} />}
+                          onClick={() => handleImpersonate(tenant.schema_name)}
+                        >
+                          Acessar
+                        </Button>
+                      )}
                     </Box>
                   </TableCell>
                 </TableRow>
@@ -201,7 +220,6 @@ const TenantsList = () => {
               Um novo ambiente isolado será criado para esta empresa. O processo pode levar alguns segundos.
             </Typography>
             <TextField label="Nome Fantasia" required fullWidth value={newTenant.nomeEmpresa} onChange={(e) => setNewTenant({...newTenant, nomeEmpresa: e.target.value})} />
-            <TextField label="Identificador Único (Schema ID)" required fullWidth placeholder="Ex: tenant_2" helperText="Sem espaços ou caracteres especiais." value={newTenant.schemaName} onChange={(e) => setNewTenant({...newTenant, schemaName: e.target.value})} />
             <Typography variant="subtitle2" sx={{ mt: 2, fontWeight: 'bold' }}>Dados do Usuário Administrador (Seed)</Typography>
             <TextField label="Nome do Admin" required fullWidth value={newTenant.adminNome} onChange={(e) => setNewTenant({...newTenant, adminNome: e.target.value})} />
             <TextField label="E-mail do Admin" type="email" required fullWidth value={newTenant.adminEmail} onChange={(e) => setNewTenant({...newTenant, adminEmail: e.target.value})} />
@@ -213,7 +231,7 @@ const TenantsList = () => {
           <Button 
             variant="contained" 
             onClick={handleCreateTenant} 
-            disabled={submitting || !newTenant.nomeEmpresa || !newTenant.schemaName || !newTenant.adminEmail}
+            disabled={submitting || !newTenant.nomeEmpresa || !newTenant.adminEmail}
           >
             {submitting ? <CircularProgress size={24} color="inherit" /> : 'Criar e Provisionar'}
           </Button>

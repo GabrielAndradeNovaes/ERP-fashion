@@ -7,13 +7,14 @@ const Clientes = () => {
       title="Clientes"
       description="Gerencie os clientes do sistema."
       endpoint="/core/clientes"
+      editPermission="CLIENTES_EDIT"
       columns={[
         { key: 'nome', label: 'Nome/Razão Social' },
         { key: 'documento', label: 'CPF/CNPJ' },
         { key: 'email', label: 'Email' },
         { key: 'telefone', label: 'Telefone' }
       ]}
-      emptyEntity={{ nome: '', documento: '', email: '', telefone: '' }}
+      emptyEntity={{ nome: '', documento: '', email: '', telefone: '', empresa: null }}
       renderForm={(entity, setEntity) => (
         <>
           <TextField

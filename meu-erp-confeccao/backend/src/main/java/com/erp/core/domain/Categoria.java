@@ -1,13 +1,23 @@
 package com.erp.core.domain;
 
+import org.hibernate.annotations.Filter;
 import jakarta.persistence.*;
 import java.util.UUID;
 import org.hibernate.annotations.SQLDelete;
 
 @Entity
 @Table(name = "categorias")
+@Filter(name = "empresaFilter", condition = "empresa_id IN (:empresaIds)")
 @SQLDelete(sql = "UPDATE categorias SET deleted = true WHERE id=?")
 public class Categoria {
+
+    @jakarta.persistence.ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
+    @jakarta.persistence.JoinColumn(name = "empresa_id")
+    private Empresa empresa;
+    
+    public Empresa getEmpresa() { return empresa; }
+    public void setEmpresa(Empresa empresa) { this.empresa = empresa; }
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;

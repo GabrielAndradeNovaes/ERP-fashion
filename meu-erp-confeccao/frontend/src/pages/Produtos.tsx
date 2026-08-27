@@ -3,6 +3,7 @@ import { Info } from 'lucide-react';
 import api from '../api/axios';
 import Modal from '../components/Modal';
 import { DataTable } from '../components/DataTable';
+import { useAuth } from '../contexts/AuthContext';
 import type { ColumnDef } from '@tanstack/react-table';
 import {
   Box,
@@ -60,6 +61,8 @@ const Produtos = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedProduto, setSelectedProduto] = useState<ProdutoBase | null>(null);
   const [activeTab, setActiveTab] = useState(0);
+  const { hasPermission } = useAuth();
+  const canEdit = hasPermission('PRODUTOS_EDIT');
 
   // Form State (Add Product)
   const [codigo, setCodigo] = useState('');
@@ -266,6 +269,22 @@ const Produtos = () => {
 
   const columns: ColumnDef<any, any, any>[] = React.useMemo(() => [
     {
+      accessorKey: 'empresa',
+      header: 'Empresa',
+      cell: (info) => {
+        const emp = info.getValue();
+        if (!emp) return '-';
+        return (
+          <Chip 
+            label={emp.nomeFantasia || emp.razaoSocial || '-'} 
+            size="small" 
+            variant="outlined"
+            sx={{ borderColor: 'var(--accent-primary)', color: 'var(--accent-primary)', fontWeight: 600 }}
+          />
+        );
+      }
+    },
+    {
       accessorKey: 'codigo',
       header: 'Ref',
       cell: (info) => <Chip label={info.getValue() as string} color="primary" variant="outlined" size="small" />
@@ -312,24 +331,26 @@ const Produtos = () => {
             Gerencie os produtos e suas estruturas (BOM e Operações).
           </Typography>
         </Box>
-        <Button 
-          variant="contained" 
-          startIcon={<AddIcon />}
-          onClick={() => setIsAddModalOpen(true)}
-          size="large"
-          sx={{
-            background: 'var(--accent-gradient)',
-            borderRadius: 'var(--radius-md)',
-            textTransform: 'none',
-            fontWeight: 600,
-            boxShadow: '0 4px 14px 0 rgba(99, 102, 241, 0.39)',
-            '&:hover': {
-              boxShadow: '0 6px 20px rgba(99, 102, 241, 0.23)'
-            }
-          }}
-        >
-          Novo Produto
-        </Button>
+        {canEdit && (
+          <Button 
+            variant="contained" 
+            startIcon={<AddIcon />}
+            onClick={() => setIsAddModalOpen(true)}
+            size="large"
+            sx={{
+              background: 'var(--accent-gradient)',
+              borderRadius: 'var(--radius-md)',
+              textTransform: 'none',
+              fontWeight: 600,
+              boxShadow: '0 4px 14px 0 rgba(99, 102, 241, 0.39)',
+              '&:hover': {
+                boxShadow: '0 6px 20px rgba(99, 102, 241, 0.23)'
+              }
+            }}
+          >
+            Novo Produto
+          </Button>
+        )}
       </Box>
 
       <div className="premium-card">
@@ -469,44 +490,48 @@ const Produtos = () => {
                   <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2, color: 'var(--accent-primary)' }}>
                     Gerador Automático de Grade
                   </Typography>
-                  <form onSubmit={handleGenerateSkus}>
-                    <Grid container spacing={2} alignItems="flex-end">
-                      <Grid size={{ xs: 12, sm: 5 }}>
-                        <TextField 
-                          label="Cores Disponíveis (separadas por vírgula)" 
-                          fullWidth 
-                          required 
-                          size="small" 
-                          value={skuCores} 
-                          onChange={e => setSkuCores(e.target.value)} 
-                          placeholder="Ex: Branco, Preto, Azul, Vermelho" 
-                        />
+                  {canEdit ? (
+                    <form onSubmit={handleGenerateSkus}>
+                      <Grid container spacing={2} alignItems="flex-end">
+                        <Grid size={{ xs: 12, sm: 5 }}>
+                          <TextField 
+                            label="Cores Disponíveis (separadas por vírgula)" 
+                            fullWidth 
+                            required 
+                            size="small" 
+                            value={skuCores} 
+                            onChange={e => setSkuCores(e.target.value)} 
+                            placeholder="Ex: Branco, Preto, Azul, Vermelho" 
+                          />
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 4 }}>
+                          <TextField 
+                            label="Tamanhos (separados por vírgula)" 
+                            fullWidth 
+                            required 
+                            size="small" 
+                            value={skuTamanhos} 
+                            onChange={e => setSkuTamanhos(e.target.value)} 
+                            placeholder="Ex: P, M, G, GG" 
+                          />
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 3 }}>
+                          <Button 
+                            type="submit" 
+                            variant="contained" 
+                            disabled={isSubmitting} 
+                            fullWidth 
+                            disableElevation 
+                            sx={{ height: 40, bgcolor: 'var(--accent-primary)', '&:hover': { bgcolor: 'var(--accent-hover)' } }}
+                          >
+                            {isSubmitting ? 'Gerando...' : 'Gerar Grade'}
+                          </Button>
+                        </Grid>
                       </Grid>
-                      <Grid size={{ xs: 12, sm: 4 }}>
-                        <TextField 
-                          label="Tamanhos (separados por vírgula)" 
-                          fullWidth 
-                          required 
-                          size="small" 
-                          value={skuTamanhos} 
-                          onChange={e => setSkuTamanhos(e.target.value)} 
-                          placeholder="Ex: P, M, G, GG" 
-                        />
-                      </Grid>
-                      <Grid size={{ xs: 12, sm: 3 }}>
-                        <Button 
-                          type="submit" 
-                          variant="contained" 
-                          disabled={isSubmitting} 
-                          fullWidth 
-                          disableElevation 
-                          sx={{ height: 40, bgcolor: 'var(--accent-primary)', '&:hover': { bgcolor: 'var(--accent-hover)' } }}
-                        >
-                          {isSubmitting ? 'Gerando...' : 'Gerar Grade'}
-                        </Button>
-                      </Grid>
-                    </Grid>
-                  </form>
+                    </form>
+                  ) : (
+                    <Typography color="text.secondary">Você não tem permissão para gerar grade de SKUs.</Typography>
+                  )}
                   <Typography variant="caption" sx={{ color: 'var(--text-muted)', display: 'block', mt: 1 }}>
                     Dica: O sistema fará a combinação automática de todas as cores com todos os tamanhos e salvará na tabela abaixo. SKUs que já existirem não serão duplicados.
                   </Typography>
@@ -551,43 +576,45 @@ const Produtos = () => {
                   </Typography>
                 </Card>
 
-                <form onSubmit={handleAddMaterial}>
-                  <Stack direction="row" spacing={2} sx={{ mb: 3, alignItems: 'center' }}>
-                    <FormControl fullWidth required>
-                      <InputLabel id="material-label">Adicionar Material</InputLabel>
-                      <Select
-                        labelId="material-label"
-                        value={selectedMaterialId}
-                        label="Adicionar Material"
-                        onChange={e => setSelectedMaterialId(e.target.value)}
+                {canEdit && (
+                  <form onSubmit={handleAddMaterial}>
+                    <Stack direction="row" spacing={2} sx={{ mb: 3, alignItems: 'center' }}>
+                      <FormControl fullWidth required>
+                        <InputLabel id="material-label">Adicionar Material</InputLabel>
+                        <Select
+                          labelId="material-label"
+                          value={selectedMaterialId}
+                          label="Adicionar Material"
+                          onChange={e => setSelectedMaterialId(e.target.value)}
+                        >
+                          <MenuItem value=""><em>Selecione...</em></MenuItem>
+                          {estoque.map(m => (
+                            <MenuItem key={m.id} value={m.id}>{m.codigo} - {m.nome}</MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                      <TextField
+                        label="Qtd Gasta"
+                        type="number"
+                        required
+                        slotProps={{ htmlInput: { step: "0.001", min: "0" } }}
+                        value={quantidadeMaterial}
+                        onChange={e => setQuantidadeMaterial(e.target.value)}
+                        placeholder="0.120"
+                        sx={{ width: 150 }}
+                      />
+                      <Button 
+                        type="submit" 
+                        variant="contained" 
+                        disableElevation 
+                        disabled={isSubmitting}
+                        sx={{ height: 56, bgcolor: 'var(--accent-primary)', '&:hover': { bgcolor: 'var(--accent-hover)' } }}
                       >
-                        <MenuItem value=""><em>Selecione...</em></MenuItem>
-                        {estoque.map(m => (
-                          <MenuItem key={m.id} value={m.id}>{m.codigo} - {m.nome}</MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                    <TextField
-                      label="Qtd Gasta"
-                      type="number"
-                      required
-                      slotProps={{ htmlInput: { step: "0.001", min: "0" } }}
-                      value={quantidadeMaterial}
-                      onChange={e => setQuantidadeMaterial(e.target.value)}
-                      placeholder="0.120"
-                      sx={{ width: 150 }}
-                    />
-                    <Button 
-                      type="submit" 
-                      variant="contained" 
-                      disableElevation 
-                      disabled={isSubmitting}
-                      sx={{ height: 56, bgcolor: 'var(--accent-primary)', '&:hover': { bgcolor: 'var(--accent-hover)' } }}
-                    >
-                      {isSubmitting ? '...' : 'Incluir'}
-                    </Button>
-                  </Stack>
-                </form>
+                        {isSubmitting ? '...' : 'Incluir'}
+                      </Button>
+                    </Stack>
+                  </form>
+                )}
 
                 <TableContainer sx={{ border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', bgcolor: 'transparent' }}>
                   <Table size="small">
@@ -629,62 +656,64 @@ const Produtos = () => {
                   </Typography>
                 </Card>
 
-                <div className="premium-card" style={{ padding: '16px', marginBottom: '24px' }}>
-                  <form onSubmit={handleAddOperacao}>
-                    <Grid container spacing={2}>
-                      <Grid size={{ xs: 12, sm: 6 }}>
-                        <TextField label="Nome da Operação" fullWidth required size="small" value={opNome} onChange={e => setOpNome(e.target.value)} />
+                {canEdit && (
+                  <div className="premium-card" style={{ padding: '16px', marginBottom: '24px' }}>
+                    <form onSubmit={handleAddOperacao}>
+                      <Grid container spacing={2}>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                          <TextField label="Nome da Operação" fullWidth required size="small" value={opNome} onChange={e => setOpNome(e.target.value)} />
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                          <TextField label="Máquina" fullWidth size="small" value={opMaquina} onChange={e => setOpMaquina(e.target.value)} />
+                        </Grid>
+                        
+                        <Grid size={{ xs: 6, sm: 2 }}>
+                          <TextField label="Ordem" type="number" required size="small" value={opOrdem} onChange={e => setOpOrdem(e.target.value)} fullWidth />
+                        </Grid>
+                        <Grid size={{ xs: 6, sm: 2 }}>
+                          <TextField label="Folhas" type="number" required size="small" value={opFolhas} onChange={e => setOpFolhas(e.target.value)} fullWidth />
+                        </Grid>
+                        <Grid size={{ xs: 6, sm: 2 }}>
+                          <TextField label="Paradas" type="number" required size="small" value={opParadas} onChange={e => setOpParadas(e.target.value)} fullWidth />
+                        </Grid>
+                        <Grid size={{ xs: 6, sm: 2 }}>
+                          <FormControl fullWidth size="small">
+                            <InputLabel>Dif.</InputLabel>
+                            <Select value={opDificuldade} label="Dif." onChange={e => setOpDificuldade(e.target.value)}>
+                              <MenuItem value="MUITO_FACIL">Muito Fácil</MenuItem>
+                              <MenuItem value="FACIL">Fácil</MenuItem>
+                              <MenuItem value="MEDIO">Médio</MenuItem>
+                              <MenuItem value="MEDIO_DIFICIL">Médio Dif.</MenuItem>
+                              <MenuItem value="DIFICIL">Difícil</MenuItem>
+                            </Select>
+                          </FormControl>
+                        </Grid>
+                        <Grid size={{ xs: 6, sm: 2 }}>
+                          <FormControl fullWidth size="small">
+                            <InputLabel>Comp.</InputLabel>
+                            <Select value={opComprimento} label="Comp." onChange={e => setOpComprimento(e.target.value)}>
+                              <MenuItem value="DE_0_A_60">0-60</MenuItem>
+                              <MenuItem value="DE_61_A_90">61-90</MenuItem>
+                              <MenuItem value="ACIMA_DE_91">{'>'} 91</MenuItem>
+                            </Select>
+                          </FormControl>
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 2 }}>
+                          <Button 
+                            type="submit" 
+                            variant="contained" 
+                            disabled={isSubmitting} 
+                            fullWidth 
+                            disableElevation 
+                            sx={{ height: 40, bgcolor: 'var(--accent-primary)', '&:hover': { bgcolor: 'var(--accent-hover)' } }}
+                          >
+                            {isSubmitting ? '...' : '+ Operação'}
+                          </Button>
+                        </Grid>
                       </Grid>
-                      <Grid size={{ xs: 12, sm: 6 }}>
-                        <TextField label="Máquina" fullWidth size="small" value={opMaquina} onChange={e => setOpMaquina(e.target.value)} />
-                      </Grid>
-                      
-                      <Grid size={{ xs: 6, sm: 2 }}>
-                        <TextField label="Ordem" type="number" required size="small" value={opOrdem} onChange={e => setOpOrdem(e.target.value)} fullWidth />
-                      </Grid>
-                      <Grid size={{ xs: 6, sm: 2 }}>
-                        <TextField label="Folhas" type="number" required size="small" value={opFolhas} onChange={e => setOpFolhas(e.target.value)} fullWidth />
-                      </Grid>
-                      <Grid size={{ xs: 6, sm: 2 }}>
-                        <TextField label="Paradas" type="number" required size="small" value={opParadas} onChange={e => setOpParadas(e.target.value)} fullWidth />
-                      </Grid>
-                      <Grid size={{ xs: 6, sm: 2 }}>
-                        <FormControl fullWidth size="small">
-                          <InputLabel>Dif.</InputLabel>
-                          <Select value={opDificuldade} label="Dif." onChange={e => setOpDificuldade(e.target.value)}>
-                            <MenuItem value="MUITO_FACIL">Muito Fácil</MenuItem>
-                            <MenuItem value="FACIL">Fácil</MenuItem>
-                            <MenuItem value="MEDIO">Médio</MenuItem>
-                            <MenuItem value="MEDIO_DIFICIL">Médio Dif.</MenuItem>
-                            <MenuItem value="DIFICIL">Difícil</MenuItem>
-                          </Select>
-                        </FormControl>
-                      </Grid>
-                      <Grid size={{ xs: 6, sm: 2 }}>
-                        <FormControl fullWidth size="small">
-                          <InputLabel>Comp.</InputLabel>
-                          <Select value={opComprimento} label="Comp." onChange={e => setOpComprimento(e.target.value)}>
-                            <MenuItem value="DE_0_A_60">0-60</MenuItem>
-                            <MenuItem value="DE_61_A_90">61-90</MenuItem>
-                            <MenuItem value="ACIMA_DE_91">{'>'} 91</MenuItem>
-                          </Select>
-                        </FormControl>
-                      </Grid>
-                      <Grid size={{ xs: 12, sm: 2 }}>
-                        <Button 
-                          type="submit" 
-                          variant="contained" 
-                          disabled={isSubmitting} 
-                          fullWidth 
-                          disableElevation 
-                          sx={{ height: 40, bgcolor: 'var(--accent-primary)', '&:hover': { bgcolor: 'var(--accent-hover)' } }}
-                        >
-                          {isSubmitting ? '...' : '+ Operação'}
-                        </Button>
-                      </Grid>
-                    </Grid>
-                  </form>
-                </div>
+                    </form>
+                  </div>
+                )}
 
                 <TableContainer sx={{ border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', bgcolor: 'transparent' }}>
                   <Table size="small">

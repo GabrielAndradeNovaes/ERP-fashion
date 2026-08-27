@@ -1,12 +1,23 @@
 package com.erp.production.domain;
 
+import com.erp.core.domain.Empresa;
+import org.hibernate.annotations.Filter;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
 @Table(name = "cupons")
+@Filter(name = "empresaFilter", condition = "empresa_id IN (:empresaIds)")
 public class Cupom {
+
+    @jakarta.persistence.ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
+    @jakarta.persistence.JoinColumn(name = "empresa_id")
+    private Empresa empresa;
+    
+    public Empresa getEmpresa() { return empresa; }
+    public void setEmpresa(Empresa empresa) { this.empresa = empresa; }
+
 
     public enum Status {
         PENDENTE, PROCESSADO

@@ -31,6 +31,11 @@ public class JwtService {
         return extractClaim(token, claims -> claims.get("tenantId", String.class));
     }
 
+    @SuppressWarnings("unchecked")
+    public java.util.List<String> extractEmpresas(String token) {
+        return extractClaim(token, claims -> claims.get("empresas", java.util.List.class));
+    }
+
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
@@ -41,6 +46,9 @@ public class JwtService {
         extraClaims.put("tenantId", userDetails.getTenantId());
         extraClaims.put("role", userDetails.getAuthorities().iterator().next().getAuthority());
         extraClaims.put("nome", userDetails.getUsuario().getNome());
+        if (userDetails.getEmpresas() != null) {
+            extraClaims.put("empresas", userDetails.getEmpresas());
+        }
         return generateToken(extraClaims, userDetails);
     }
 

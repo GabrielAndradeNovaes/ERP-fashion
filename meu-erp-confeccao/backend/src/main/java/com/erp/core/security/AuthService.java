@@ -38,9 +38,18 @@ public class AuthService {
         );
 
         UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsService.loadUserByUsername(request.getEmail());
+        
+        java.util.List<String> empresas = getEmpresas(userDetails.getUsuario().getId().toString(), userDetails.getTenantId());
+        userDetails.setEmpresas(empresas);
+
         String jwtToken = jwtService.generateToken(userDetails);
         
         String tenantStatus = getTenantStatus(userDetails.getTenantId());
+
+        String filialId = userDetails.getUsuario().getFilialPrincipalId() != null ? userDetails.getUsuario().getFilialPrincipalId().toString() : null;
+        java.util.List<String> permissoes = userDetails.getUsuario().getPermissoes() != null 
+            ? new java.util.ArrayList<>(userDetails.getUsuario().getPermissoes()) 
+            : new java.util.ArrayList<>();
 
         return new AuthResponse(
                 jwtToken,
@@ -48,7 +57,10 @@ public class AuthService {
                 userDetails.getUsuario().getEmail(),
                 userDetails.getUsuario().getRole(),
                 userDetails.getTenantId(),
-                tenantStatus
+                tenantStatus,
+                empresas,
+                filialId,
+                permissoes
         );
     }
 
@@ -66,5 +78,22 @@ public class AuthService {
             System.err.println("Erro ao buscar status do tenant: " + e.getMessage());
         }
         return "ATIVO"; // fallback
+    }
+
+    private java.util.List<String> getEmpresas(String usuarioId, String schemaName) {
+        java.util.List<String> empresas = new java.util.ArrayList<>();
+        String sql = "SELECT empresa_id FROM " + schemaName + ".usuario_empresas WHERE usuario_id = ?";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setObject(1, java.util.UUID.fromString(usuarioId));
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    empresas.add(rs.getString("empresa_id"));
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Erro ao buscar empresas do usuario: " + e.getMessage());
+        }
+        return empresas;
     }
 }

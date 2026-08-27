@@ -29,15 +29,21 @@ public class AdminTenantController {
     @PreAuthorize("hasRole('SUPERADMIN')")
     public ResponseEntity<String> provisionTenant(@RequestBody TenantProvisionRequest request) {
         
+        String schemaName = request.getSchemaName();
+        if (schemaName == null || schemaName.trim().isEmpty()) {
+            // Gera um schemaId baseado em UUID (ex: tenant_4b2a9f)
+            schemaName = "tenant_" + java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 8);
+        }
+
         tenantProvisioningService.startProvisioning(
                 request.getNomeEmpresa(),
-                request.getSchemaName(),
+                schemaName,
                 request.getAdminNome(),
                 request.getAdminEmail(),
                 request.getAdminSenha()
         );
         
-        return ResponseEntity.accepted().body("Processo de provisionamento iniciado para " + request.getSchemaName());
+        return ResponseEntity.accepted().body("Processo de provisionamento iniciado para " + schemaName);
     }
 
     @GetMapping

@@ -5,6 +5,7 @@ import {
   Grid, Switch, FormControlLabel
 } from '@mui/material';
 import api from '../../api/axios';
+import { useAuth } from '../../contexts/AuthContext';
 import { Edit2, Trash2, Plus } from 'lucide-react';
 
 interface Funcionario {
@@ -24,6 +25,9 @@ const Funcionarios: React.FC = () => {
     cargaHorariaDiariaPadrao: 8.8,
     cargaHorariaMensalPadrao: 220
   });
+
+  const { hasPermission } = useAuth();
+  const canEdit = hasPermission('PCP_EDIT');
 
   const carregarFuncionarios = () => {
     api.get('/funcionarios').then(res => setFuncionarios(res.data)).catch(console.error);
@@ -57,17 +61,19 @@ const Funcionarios: React.FC = () => {
     <Box sx={{ p: 4, height: '100%' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
         <Typography variant="h4" sx={{ fontWeight: 'bold' }}>Funcionários (PCP)</Typography>
-        <Button 
-          variant="contained" 
-          startIcon={<Plus size={20} />}
-          onClick={() => {
-            setEditingFuncionario({ ativo: true, cargaHorariaDiariaPadrao: 8.8, cargaHorariaMensalPadrao: 220 });
-            setOpen(true);
-          }}
-          sx={{ background: 'var(--accent-gradient)' }}
-        >
-          Novo Funcionário
-        </Button>
+        {canEdit && (
+          <Button 
+            variant="contained" 
+            startIcon={<Plus size={20} />}
+            onClick={() => {
+              setEditingFuncionario({ ativo: true, cargaHorariaDiariaPadrao: 8.8, cargaHorariaMensalPadrao: 220 });
+              setOpen(true);
+            }}
+            sx={{ background: 'var(--accent-gradient)' }}
+          >
+            Novo Funcionário
+          </Button>
+        )}
       </Box>
 
       <TableContainer component={Paper} className="premium-card">
@@ -79,7 +85,7 @@ const Funcionarios: React.FC = () => {
               <TableCell>Carga Horária (Diária)</TableCell>
               <TableCell>Carga Horária (Mensal)</TableCell>
               <TableCell>Status</TableCell>
-              <TableCell align="right">Ações</TableCell>
+              {canEdit && <TableCell align="right">Ações</TableCell>}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -90,14 +96,16 @@ const Funcionarios: React.FC = () => {
                 <TableCell>{f.cargaHorariaDiariaPadrao} h</TableCell>
                 <TableCell>{f.cargaHorariaMensalPadrao} h</TableCell>
                 <TableCell>{f.ativo ? 'Ativo' : 'Inativo'}</TableCell>
-                <TableCell align="right">
-                  <IconButton onClick={() => { setEditingFuncionario(f); setOpen(true); }} size="small" color="primary">
-                    <Edit2 size={18} />
-                  </IconButton>
-                  <IconButton onClick={() => handleExcluir(f.id)} size="small" color="error">
-                    <Trash2 size={18} />
-                  </IconButton>
-                </TableCell>
+                {canEdit && (
+                  <TableCell align="right">
+                    <IconButton onClick={() => { setEditingFuncionario(f); setOpen(true); }} size="small" color="primary">
+                      <Edit2 size={18} />
+                    </IconButton>
+                    <IconButton onClick={() => handleExcluir(f.id)} size="small" color="error">
+                      <Trash2 size={18} />
+                    </IconButton>
+                  </TableCell>
+                )}
               </TableRow>
             ))}
             {funcionarios.length === 0 && (

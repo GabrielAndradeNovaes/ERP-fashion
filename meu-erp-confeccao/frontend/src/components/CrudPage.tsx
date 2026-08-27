@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Info } from 'lucide-react';
 import api from '../api/axios';
 import Modal from './Modal';
+import { EmpresaSelect } from './EmpresaSelect';
+import { useAuth } from '../contexts/AuthContext';
 import type { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from './DataTable';
 import {
@@ -29,9 +31,11 @@ interface CrudPageProps {
   columns: { key: string; label: string; format?: (val: any) => string }[];
   emptyEntity: any;
   renderForm: (entity: any, setEntity: (val: any) => void) => React.ReactNode;
+  hideEmpresa?: boolean;
+  editPermission?: string;
 }
 
-const CrudPage: React.FC<CrudPageProps> = ({ title, description, endpoint, columns, emptyEntity, renderForm }) => {
+const CrudPage: React.FC<CrudPageProps> = ({ title, description, endpoint, columns, emptyEntity, renderForm, hideEmpresa = false, editPermission }) => {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -40,6 +44,9 @@ const CrudPage: React.FC<CrudPageProps> = ({ title, description, endpoint, colum
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentEntity, setCurrentEntity] = useState<any>(emptyEntity);
   const [search, setSearch] = useState('');
+  const { user, hasPermission } = useAuth();
+  
+  const canEdit = hasPermission(editPermission);
 
   const fetchData = async () => {
     try {
@@ -92,7 +99,11 @@ const CrudPage: React.FC<CrudPageProps> = ({ title, description, endpoint, colum
   };
 
   const openNewModal = () => {
-    setCurrentEntity(emptyEntity);
+    let initialEntity = { ...emptyEntity };
+    if (!hideEmpresa && user?.filialPrincipalId) {
+      initialEntity = { ...initialEntity, empresa: { id: user.filialPrincipalId } };
+    }
+    setCurrentEntity(initialEntity);
     setIsModalOpen(true);
   };
 
@@ -101,33 +112,56 @@ const CrudPage: React.FC<CrudPageProps> = ({ title, description, endpoint, colum
   );
 
   const dataTableColumns: ColumnDef<any, any, any>[] = React.useMemo(() => {
-    const cols: ColumnDef<any, any, any>[] = columns.map(col => ({
+    const cols: ColumnDef<any, any, any>[] = [];
+    
+    if (!hideEmpresa) {
+      cols.push({
+        accessorKey: 'empresa',
+        header: 'Empresa',
+        cell: (info) => {
+          const emp = info.getValue();
+          if (!emp) return '-';
+          return (
+            <Chip 
+              label={emp.nomeFantasia || emp.razaoSocial || '-'} 
+              size="small" 
+              variant="outlined"
+              sx={{ borderColor: 'var(--accent-primary)', color: 'var(--accent-primary)', fontWeight: 600 }}
+            />
+          );
+        },
+      });
+    }
+
+    cols.push(...columns.map(col => ({
       accessorKey: col.key,
       header: col.label,
       cell: (info) => col.format ? col.format(info.getValue()) : info.getValue(),
-    }));
+    })));
 
-    cols.push({
-      id: 'actions',
-      header: 'Ações',
-      cell: (info) => (
-        <Stack direction="row" spacing={1} sx={{ justifyContent: 'center' }}>
-          <Tooltip title="Editar">
-            <IconButton size="small" color="primary" onClick={() => handleEdit(info.row.original)}>
-              <EditIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Excluir">
-            <IconButton size="small" color="error" onClick={() => handleDelete(info.row.original.id)}>
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </Stack>
-      ),
-    });
+    if (canEdit) {
+      cols.push({
+        id: 'actions',
+        header: 'Ações',
+        cell: (info) => (
+          <Stack direction="row" spacing={1} sx={{ justifyContent: 'center' }}>
+            <Tooltip title="Editar">
+              <IconButton size="small" color="primary" onClick={() => handleEdit(info.row.original)}>
+                <EditIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Excluir">
+              <IconButton size="small" color="error" onClick={() => handleDelete(info.row.original.id)}>
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Stack>
+        ),
+      });
+    }
 
     return cols;
-  }, [columns]);
+  }, [columns, canEdit, hideEmpresa]);
 
   return (
     <Box className="animate-fade-in">
@@ -140,16 +174,18 @@ const CrudPage: React.FC<CrudPageProps> = ({ title, description, endpoint, colum
             {description}
           </Typography>
         </Box>
-        <Button 
-          variant="contained" 
-          color="primary" 
-          startIcon={<AddIcon />}
-          onClick={openNewModal}
-          size="large"
-          disableElevation
-        >
-          Novo Cadastro
-        </Button>
+        {canEdit && (
+          <Button 
+            variant="contained" 
+            color="primary" 
+            startIcon={<AddIcon />}
+            onClick={openNewModal}
+            size="large"
+            disableElevation
+          >
+            Novo Cadastro
+          </Button>
+        )}
       </Box>
 
       <Card variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
@@ -195,6 +231,12 @@ const CrudPage: React.FC<CrudPageProps> = ({ title, description, endpoint, colum
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={currentEntity.id ? `Editar ${title}` : `Novo ${title}`} width="600px">
         <form onSubmit={handleSave}>
           <Stack spacing={3} sx={{ mt: 1 }}>
+            {!hideEmpresa && (
+              <EmpresaSelect
+                value={currentEntity.empresa?.id || ''}
+                onChange={(val) => setCurrentEntity({ ...currentEntity, empresa: { id: val } })}
+              />
+            )}
             {renderForm(currentEntity, setCurrentEntity)}
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 2 }}>
               <Button 
