@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.erp.core.service.impl.ClienteServiceImplTest
 -------------------------------------------------------------------------------
-Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.225 s -- in com.erp.core.service.impl.ClienteServiceImplTest
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.149 s -- in com.erp.core.service.impl.ClienteServiceImplTest
