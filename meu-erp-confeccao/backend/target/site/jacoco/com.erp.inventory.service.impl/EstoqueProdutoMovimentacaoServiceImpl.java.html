@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EstoqueProdutoMovimentacaoServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.erp.inventory.service.impl</a> &gt; <span class="el_source">EstoqueProdutoMovimentacaoServiceImpl.java</span></div><h1>EstoqueProdutoMovimentacaoServiceImpl.java</h1><pre class="source lang-java linenums">package com.erp.inventory.service.impl;
+
+import com.erp.catalog.domain.ProdutoSku;
+import com.erp.catalog.repository.ProdutoSkuRepository;
+import com.erp.inventory.domain.EstoqueProdutoMovimentacao;
+import com.erp.inventory.domain.TipoMovimentacao;
+import com.erp.inventory.repository.EstoqueProdutoMovimentacaoRepository;
+import com.erp.inventory.service.EstoqueProdutoMovimentacaoService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.UUID;
+
+@Service
+public class EstoqueProdutoMovimentacaoServiceImpl implements EstoqueProdutoMovimentacaoService {
+
+    private final EstoqueProdutoMovimentacaoRepository movimentacaoRepository;
+    private final ProdutoSkuRepository skuRepository;
+
+    public EstoqueProdutoMovimentacaoServiceImpl(EstoqueProdutoMovimentacaoRepository movimentacaoRepository,
+<span class="fc" id="L22">                                                 ProdutoSkuRepository skuRepository) {</span>
+<span class="fc" id="L23">        this.movimentacaoRepository = movimentacaoRepository;</span>
+<span class="fc" id="L24">        this.skuRepository = skuRepository;</span>
+<span class="fc" id="L25">    }</span>
+
+    @Override
+    @Transactional
+    public EstoqueProdutoMovimentacao registrarMovimentacao(UUID skuId, TipoMovimentacao tipo, Integer quantidade, String documentoReferencia) {
+<span class="fc" id="L30">        ProdutoSku sku = skuRepository.findById(skuId)</span>
+<span class="fc" id="L31">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;SKU não encontrado com ID: &quot; + skuId));</span>
+
+<span class="fc bfc" id="L33" title="All 4 branches covered.">        if (quantidade == null || quantidade &lt;= 0) {</span>
+<span class="fc" id="L34">            throw new IllegalArgumentException(&quot;A quantidade da movimentação deve ser maior que zero.&quot;);</span>
+        }
+
+<span class="fc bfc" id="L37" title="All 2 branches covered.">        if (tipo == TipoMovimentacao.ENTRADA) {</span>
+<span class="fc" id="L38">            sku.setQuantidadeAtual(sku.getQuantidadeAtual() + quantidade);</span>
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">        } else if (tipo == TipoMovimentacao.SAIDA) {</span>
+            // Permitindo saldo negativo conforme ADR 002 (simplificado)
+<span class="fc" id="L41">            sku.setQuantidadeAtual(sku.getQuantidadeAtual() - quantidade);</span>
+        }
+
+<span class="fc" id="L44">        skuRepository.save(sku);</span>
+
+<span class="fc" id="L46">        EstoqueProdutoMovimentacao mov = new EstoqueProdutoMovimentacao();</span>
+<span class="fc" id="L47">        mov.setSku(sku);</span>
+<span class="fc" id="L48">        mov.setTipo(tipo);</span>
+<span class="fc" id="L49">        mov.setQuantidade(quantidade);</span>
+<span class="fc" id="L50">        mov.setDocumentoReferencia(documentoReferencia);</span>
+
+<span class="fc" id="L52">        return movimentacaoRepository.save(mov);</span>
+    }
+
+    @Override
+    public List&lt;EstoqueProdutoMovimentacao&gt; listarHistoricoPorSku(UUID skuId) {
+<span class="fc" id="L57">        return movimentacaoRepository.findBySkuIdOrderByDataMovimentacaoDesc(skuId);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

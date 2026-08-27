@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UsuarioController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.erp.core.controller</a> &gt; <span class="el_source">UsuarioController.java</span></div><h1>UsuarioController.java</h1><pre class="source lang-java linenums">package com.erp.core.controller;
+
+import com.erp.core.security.Usuario;
+import com.erp.core.security.UsuarioRepository;
+import com.erp.core.security.UsuarioEmpresa;
+import com.erp.core.security.UsuarioEmpresaRepository;
+import com.erp.core.domain.Empresa;
+import com.erp.core.repository.EmpresaRepository;
+import com.erp.core.tenant.TenantContext;
+import com.erp.core.security.dto.UsuarioDTO;
+import com.erp.core.security.dto.UsuarioCreateDTO;
+import com.erp.core.security.dto.EmpresaSimpleDTO;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.time.LocalDateTime;
+
+@RestController
+@RequestMapping(&quot;/api/usuarios&quot;)
+public class UsuarioController {
+
+    private final UsuarioRepository usuarioRepository;
+    private final UsuarioEmpresaRepository usuarioEmpresaRepository;
+    private final EmpresaRepository empresaRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    public UsuarioController(UsuarioRepository usuarioRepository, 
+                             UsuarioEmpresaRepository usuarioEmpresaRepository,
+                             EmpresaRepository empresaRepository,
+<span class="nc" id="L38">                             PasswordEncoder passwordEncoder) {</span>
+<span class="nc" id="L39">        this.usuarioRepository = usuarioRepository;</span>
+<span class="nc" id="L40">        this.usuarioEmpresaRepository = usuarioEmpresaRepository;</span>
+<span class="nc" id="L41">        this.empresaRepository = empresaRepository;</span>
+<span class="nc" id="L42">        this.passwordEncoder = passwordEncoder;</span>
+<span class="nc" id="L43">    }</span>
+
+    @GetMapping
+    public List&lt;UsuarioDTO&gt; listarUsuarios() {
+<span class="nc" id="L47">        return usuarioRepository.findAll().stream()</span>
+<span class="nc" id="L48">                .filter(u -&gt; u.getTenantId().equals(TenantContext.getCurrentTenant()))</span>
+<span class="nc" id="L49">                .map(this::toDTO)</span>
+<span class="nc" id="L50">                .collect(Collectors.toList());</span>
+    }
+
+    @Transactional
+    @PostMapping
+    public ResponseEntity&lt;UsuarioDTO&gt; criarUsuario(@RequestBody UsuarioCreateDTO dto) {
+<span class="nc" id="L56">        Usuario u = new Usuario();</span>
+<span class="nc" id="L57">        u.setNome(dto.getNome());</span>
+<span class="nc" id="L58">        u.setEmail(dto.getEmail());</span>
+<span class="nc" id="L59">        u.setSenha(passwordEncoder.encode(dto.getSenha()));</span>
+<span class="nc" id="L60">        u.setRole(dto.getRole());</span>
+<span class="nc" id="L61">        u.setAtivo(true);</span>
+<span class="nc" id="L62">        u.setTenantId(TenantContext.getCurrentTenant());</span>
+<span class="nc" id="L63">        u.setCriadoEm(LocalDateTime.now());</span>
+<span class="nc" id="L64">        u.setFilialPrincipalId(dto.getFilialPrincipalId());</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        if (dto.getPermissoes() != null) {</span>
+<span class="nc" id="L66">            u.setPermissoes(new HashSet&lt;&gt;(dto.getPermissoes()));</span>
+        }
+        
+<span class="nc" id="L69">        Usuario salvo = usuarioRepository.save(u);</span>
+        
+<span class="nc" id="L71">        atribuirEmpresas(salvo.getId(), dto.getEmpresaIds());</span>
+        
+<span class="nc" id="L73">        return ResponseEntity.ok(toDTO(salvo));</span>
+    }
+
+    @Transactional
+    @PutMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;UsuarioDTO&gt; atualizarUsuario(@PathVariable UUID id, @RequestBody UsuarioCreateDTO dto) {
+<span class="nc" id="L79">        Optional&lt;Usuario&gt; opt = usuarioRepository.findById(id);</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        if (opt.isEmpty()) return ResponseEntity.notFound().build();</span>
+        
+<span class="nc" id="L82">        Usuario u = opt.get();</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        if (!u.getTenantId().equals(TenantContext.getCurrentTenant())) return ResponseEntity.status(403).build();</span>
+
+<span class="nc" id="L85">        u.setNome(dto.getNome());</span>
+<span class="nc" id="L86">        u.setEmail(dto.getEmail());</span>
+<span class="nc" id="L87">        u.setRole(dto.getRole());</span>
+<span class="nc" id="L88">        u.setFilialPrincipalId(dto.getFilialPrincipalId());</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        if (dto.getPermissoes() != null) {</span>
+<span class="nc" id="L90">            u.setPermissoes(new HashSet&lt;&gt;(dto.getPermissoes()));</span>
+        }
+
+<span class="nc bnc" id="L93" title="All 4 branches missed.">        if (dto.getSenha() != null &amp;&amp; !dto.getSenha().isEmpty()) {</span>
+<span class="nc" id="L94">            u.setSenha(passwordEncoder.encode(dto.getSenha()));</span>
+        }
+        
+<span class="nc" id="L97">        Usuario salvo = usuarioRepository.save(u);</span>
+        
+<span class="nc" id="L99">        atribuirEmpresas(salvo.getId(), dto.getEmpresaIds());</span>
+        
+<span class="nc" id="L101">        return ResponseEntity.ok(toDTO(salvo));</span>
+    }
+
+    @Transactional
+    @PostMapping(&quot;/{usuarioId}/empresas&quot;)
+    public ResponseEntity&lt;Void&gt; salvarEmpresas(@PathVariable UUID usuarioId, @RequestBody List&lt;UUID&gt; empresaIds) {
+<span class="nc" id="L107">        atribuirEmpresas(usuarioId, empresaIds);</span>
+<span class="nc" id="L108">        return ResponseEntity.ok().build();</span>
+    }
+    
+    private void atribuirEmpresas(UUID usuarioId, List&lt;UUID&gt; empresaIds) {
+<span class="nc bnc" id="L112" title="All 2 branches missed.">        if (empresaIds == null) return;</span>
+<span class="nc" id="L113">        List&lt;UsuarioEmpresa&gt; antigas = usuarioEmpresaRepository.findByUsuarioId(usuarioId);</span>
+<span class="nc" id="L114">        usuarioEmpresaRepository.deleteAll(antigas);</span>
+
+<span class="nc" id="L116">        List&lt;UsuarioEmpresa&gt; novas = empresaIds.stream().map(empId -&gt; {</span>
+<span class="nc" id="L117">            UsuarioEmpresa ue = new UsuarioEmpresa();</span>
+<span class="nc" id="L118">            ue.setUsuarioId(usuarioId);</span>
+<span class="nc" id="L119">            ue.setEmpresaId(empId);</span>
+<span class="nc" id="L120">            return ue;</span>
+<span class="nc" id="L121">        }).collect(Collectors.toList());</span>
+        
+<span class="nc" id="L123">        usuarioEmpresaRepository.saveAll(novas);</span>
+<span class="nc" id="L124">    }</span>
+
+    private UsuarioDTO toDTO(Usuario u) {
+<span class="nc" id="L127">        UsuarioDTO dto = new UsuarioDTO();</span>
+<span class="nc" id="L128">        dto.setId(u.getId());</span>
+<span class="nc" id="L129">        dto.setNome(u.getNome());</span>
+<span class="nc" id="L130">        dto.setEmail(u.getEmail());</span>
+<span class="nc" id="L131">        dto.setRole(u.getRole());</span>
+<span class="nc" id="L132">        dto.setAtivo(u.getAtivo());</span>
+<span class="nc" id="L133">        dto.setTenantId(u.getTenantId());</span>
+<span class="nc" id="L134">        dto.setCriadoEm(u.getCriadoEm());</span>
+<span class="nc" id="L135">        dto.setFilialPrincipalId(u.getFilialPrincipalId());</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">        if (u.getPermissoes() != null) {</span>
+<span class="nc" id="L137">            dto.setPermissoes(u.getPermissoes().stream().collect(Collectors.toList()));</span>
+        }
+        
+<span class="nc" id="L140">        List&lt;UUID&gt; empIds = usuarioEmpresaRepository.findByUsuarioId(u.getId())</span>
+<span class="nc" id="L141">                .stream().map(UsuarioEmpresa::getEmpresaId).collect(Collectors.toList());</span>
+                
+<span class="nc" id="L143">        List&lt;EmpresaSimpleDTO&gt; empresas = empresaRepository.findAllById(empIds).stream()</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">            .map(e -&gt; new EmpresaSimpleDTO(e.getId(), e.getNomeFantasia() != null ? e.getNomeFantasia() : e.getRazaoSocial()))</span>
+<span class="nc" id="L145">            .collect(Collectors.toList());</span>
+            
+<span class="nc" id="L147">        dto.setEmpresas(empresas);</span>
+<span class="nc" id="L148">        return dto;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

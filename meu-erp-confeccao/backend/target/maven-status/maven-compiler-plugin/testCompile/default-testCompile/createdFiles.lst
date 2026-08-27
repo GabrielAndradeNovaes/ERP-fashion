@@ -1,0 +1,15 @@
+com/erp/core/service/impl/FornecedorServiceImplTest.class
+com/erp/core/service/impl/ClienteServiceImplTest.class
+com/erp/production/service/impl/PcpServiceImplTest.class
+com/erp/production/service/impl/CupomServiceImplTest.class
+com/erp/core/domain/DomainCoverageTest.class
+com/erp/production/service/impl/OrdemProducaoServiceImplTest.class
+com/erp/inventory/service/impl/EstoqueMovimentacaoServiceImplTest.class
+com/erp/production/service/impl/TabelaTempoPadraoServiceImplTest.class
+com/erp/inventory/service/impl/EstoqueProdutoMovimentacaoServiceImplTest.class
+com/erp/production/service/impl/FichaTecnicaServiceImplTest.class
+com/erp/core/security/JwtServiceTest.class
+com/erp/core/service/impl/UnidadeMedidaServiceImplTest.class
+com/erp/catalog/service/impl/ProdutoServiceImplTest.class
+com/erp/core/service/impl/CategoriaServiceImplTest.class
+com/erp/inventory/service/impl/MaterialServiceImplTest.class
