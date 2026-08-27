@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Pacote.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.erp.production.domain</a> &gt; <span class="el_source">Pacote.java</span></div><h1>Pacote.java</h1><pre class="source lang-java linenums">package com.erp.production.domain;
+
+import com.erp.core.domain.Empresa;
+import org.hibernate.annotations.Filter;
+import com.erp.catalog.domain.ProdutoSku;
+import jakarta.persistence.*;
+import java.util.UUID;
+
+@Entity
+@Table(name = &quot;pacotes&quot;)
+@Filter(name = &quot;empresaFilter&quot;, condition = &quot;empresa_id IN (:empresaIds)&quot;)
+<span class="fc" id="L12">public class Pacote {</span>
+
+    @jakarta.persistence.ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
+    @jakarta.persistence.JoinColumn(name = &quot;empresa_id&quot;)
+    private Empresa empresa;
+    
+<span class="fc" id="L18">    public Empresa getEmpresa() { return empresa; }</span>
+<span class="fc" id="L19">    public void setEmpresa(Empresa empresa) { this.empresa = empresa; }</span>
+
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = &quot;ordem_producao_id&quot;, nullable = false)
+    private OrdemProducao ordemProducao;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = &quot;produto_sku_id&quot;, nullable = false)
+    private ProdutoSku produtoSku;
+
+    @Column(nullable = false)
+    private Integer sequencial;
+
+    @Column(name = &quot;quantidade_pecas&quot;, nullable = false)
+    private Integer quantidadePecas;
+
+<span class="nc" id="L40">    public UUID getId() { return id; }</span>
+<span class="nc" id="L41">    public void setId(UUID id) { this.id = id; }</span>
+<span class="fc" id="L42">    public OrdemProducao getOrdemProducao() { return ordemProducao; }</span>
+<span class="fc" id="L43">    public void setOrdemProducao(OrdemProducao ordemProducao) { this.ordemProducao = ordemProducao; }</span>
+<span class="nc" id="L44">    public ProdutoSku getProdutoSku() { return produtoSku; }</span>
+<span class="fc" id="L45">    public void setProdutoSku(ProdutoSku produtoSku) { this.produtoSku = produtoSku; }</span>
+<span class="fc" id="L46">    public Integer getSequencial() { return sequencial; }</span>
+<span class="fc" id="L47">    public void setSequencial(Integer sequencial) { this.sequencial = sequencial; }</span>
+<span class="fc" id="L48">    public Integer getQuantidadePecas() { return quantidadePecas; }</span>
+<span class="fc" id="L49">    public void setQuantidadePecas(Integer quantidadePecas) { this.quantidadePecas = quantidadePecas; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -4,7 +4,6 @@ import com.erp.core.security.Usuario;
 import com.erp.core.security.UsuarioRepository;
 import com.erp.core.security.UsuarioEmpresa;
 import com.erp.core.security.UsuarioEmpresaRepository;
-import com.erp.core.domain.Empresa;
 import com.erp.core.repository.EmpresaRepository;
 import com.erp.core.tenant.TenantContext;
 import com.erp.core.security.dto.UsuarioDTO;
@@ -17,7 +16,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.Set;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.stream.Collectors;

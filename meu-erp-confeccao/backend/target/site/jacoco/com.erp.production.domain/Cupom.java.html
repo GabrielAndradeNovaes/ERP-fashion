@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Cupom.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.erp.production.domain</a> &gt; <span class="el_source">Cupom.java</span></div><h1>Cupom.java</h1><pre class="source lang-java linenums">package com.erp.production.domain;
+
+import com.erp.core.domain.Empresa;
+import org.hibernate.annotations.Filter;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+import java.util.UUID;
+
+@Entity
+@Table(name = &quot;cupons&quot;)
+@Filter(name = &quot;empresaFilter&quot;, condition = &quot;empresa_id IN (:empresaIds)&quot;)
+<span class="fc" id="L12">public class Cupom {</span>
+
+    @jakarta.persistence.ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
+    @jakarta.persistence.JoinColumn(name = &quot;empresa_id&quot;)
+    private Empresa empresa;
+    
+<span class="fc" id="L18">    public Empresa getEmpresa() { return empresa; }</span>
+<span class="fc" id="L19">    public void setEmpresa(Empresa empresa) { this.empresa = empresa; }</span>
+
+
+<span class="fc" id="L22">    public enum Status {</span>
+<span class="fc" id="L23">        PENDENTE, PROCESSADO</span>
+    }
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = &quot;pacote_id&quot;, nullable = false)
+    private Pacote pacote;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = &quot;operacao_id&quot;, nullable = false)
+    private FichaTecnicaOperacao operacao;
+
+    @Column(name = &quot;codigo_barras&quot;, nullable = false, unique = true, length = 100)
+    private String codigoBarras;
+
+    @Column(name = &quot;tempo_total_centesimal&quot;, nullable = false, precision = 10, scale = 2)
+    private BigDecimal tempoTotalCentesimal;
+
+<span class="fc" id="L44">    @Enumerated(EnumType.STRING)</span>
+    @Column(nullable = false, length = 20)
+    private Status status = Status.PENDENTE;
+
+<span class="fc" id="L48">    public UUID getId() { return id; }</span>
+<span class="fc" id="L49">    public void setId(UUID id) { this.id = id; }</span>
+<span class="fc" id="L50">    public Pacote getPacote() { return pacote; }</span>
+<span class="fc" id="L51">    public void setPacote(Pacote pacote) { this.pacote = pacote; }</span>
+<span class="fc" id="L52">    public FichaTecnicaOperacao getOperacao() { return operacao; }</span>
+<span class="fc" id="L53">    public void setOperacao(FichaTecnicaOperacao operacao) { this.operacao = operacao; }</span>
+<span class="fc" id="L54">    public String getCodigoBarras() { return codigoBarras; }</span>
+<span class="fc" id="L55">    public void setCodigoBarras(String codigoBarras) { this.codigoBarras = codigoBarras; }</span>
+<span class="fc" id="L56">    public BigDecimal getTempoTotalCentesimal() { return tempoTotalCentesimal; }</span>
+<span class="fc" id="L57">    public void setTempoTotalCentesimal(BigDecimal tempoTotalCentesimal) { this.tempoTotalCentesimal = tempoTotalCentesimal; }</span>
+<span class="fc" id="L58">    public Status getStatus() { return status; }</span>
+<span class="fc" id="L59">    public void setStatus(Status status) { this.status = status; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

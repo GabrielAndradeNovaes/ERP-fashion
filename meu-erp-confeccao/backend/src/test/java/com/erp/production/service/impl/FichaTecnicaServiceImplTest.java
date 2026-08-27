@@ -5,7 +5,6 @@ import com.erp.catalog.repository.ProdutoBaseRepository;
 import com.erp.inventory.domain.Material;
 import com.erp.inventory.repository.MaterialRepository;
 import com.erp.production.domain.FichaTecnica;
-import com.erp.production.domain.FichaTecnicaMaterial;
 import com.erp.production.domain.FichaTecnicaOperacao;
 import com.erp.production.domain.TabelaTempoPadrao;
 import com.erp.production.domain.GrauDificuldade;

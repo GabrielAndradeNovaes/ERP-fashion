@@ -26,7 +26,7 @@ public class OrdemProducaoServiceImpl implements OrdemProducaoService {
 
     private final OrdemProducaoRepository ordemProducaoRepository;
     private final ProdutoBaseRepository produtoBaseRepository;
-    private final FichaTecnicaRepository fichaTecnicaRepository;
+
     private final EstoqueMovimentacaoService estoqueMovimentacaoService;
     private final ProdutoSkuRepository produtoSkuRepository;
     private final PacoteRepository pacoteRepository;
@@ -34,14 +34,12 @@ public class OrdemProducaoServiceImpl implements OrdemProducaoService {
 
     public OrdemProducaoServiceImpl(OrdemProducaoRepository ordemProducaoRepository,
                                     ProdutoBaseRepository produtoBaseRepository,
-                                    FichaTecnicaRepository fichaTecnicaRepository,
                                     EstoqueMovimentacaoService estoqueMovimentacaoService,
                                     ProdutoSkuRepository produtoSkuRepository,
                                     PacoteRepository pacoteRepository,
                                     CupomRepository cupomRepository) {
         this.ordemProducaoRepository = ordemProducaoRepository;
         this.produtoBaseRepository = produtoBaseRepository;
-        this.fichaTecnicaRepository = fichaTecnicaRepository;
         this.estoqueMovimentacaoService = estoqueMovimentacaoService;
         this.produtoSkuRepository = produtoSkuRepository;
         this.pacoteRepository = pacoteRepository;

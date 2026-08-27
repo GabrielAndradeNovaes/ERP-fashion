@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Funcionario.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.erp.core.domain</a> &gt; <span class="el_source">Funcionario.java</span></div><h1>Funcionario.java</h1><pre class="source lang-java linenums">package com.erp.core.domain;
+
+import org.hibernate.annotations.Filter;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+import java.util.UUID;
+
+@Entity
+@Table(name = &quot;funcionarios&quot;)
+@Filter(name = &quot;empresaFilter&quot;, condition = &quot;empresa_id IN (:empresaIds)&quot;)
+<span class="fc" id="L11">public class Funcionario {</span>
+
+    @jakarta.persistence.ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
+    @jakarta.persistence.JoinColumn(name = &quot;empresa_id&quot;)
+    private Empresa empresa;
+    
+<span class="fc" id="L17">    public Empresa getEmpresa() { return empresa; }</span>
+<span class="fc" id="L18">    public void setEmpresa(Empresa empresa) { this.empresa = empresa; }</span>
+
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @Column(nullable = false, length = 150)
+    private String nome;
+
+    @Column(nullable = false, length = 50, unique = true)
+    private String matricula;
+
+    @Column(name = &quot;carga_horaria_diaria_padrao&quot;, nullable = false, precision = 5, scale = 2)
+    private BigDecimal cargaHorariaDiariaPadrao;
+
+    @Column(name = &quot;carga_horaria_mensal_padrao&quot;, nullable = false, precision = 5, scale = 2)
+    private BigDecimal cargaHorariaMensalPadrao;
+
+<span class="fc" id="L37">    @Column(nullable = false)</span>
+<span class="fc" id="L38">    private Boolean ativo = true;</span>
+
+    // Getters and Setters
+<span class="fc" id="L41">    public UUID getId() { return id; }</span>
+<span class="fc" id="L42">    public void setId(UUID id) { this.id = id; }</span>
+<span class="fc" id="L43">    public String getNome() { return nome; }</span>
+<span class="fc" id="L44">    public void setNome(String nome) { this.nome = nome; }</span>
+<span class="fc" id="L45">    public String getMatricula() { return matricula; }</span>
+<span class="fc" id="L46">    public void setMatricula(String matricula) { this.matricula = matricula; }</span>
+<span class="fc" id="L47">    public BigDecimal getCargaHorariaDiariaPadrao() { return cargaHorariaDiariaPadrao; }</span>
+<span class="fc" id="L48">    public void setCargaHorariaDiariaPadrao(BigDecimal cargaHorariaDiariaPadrao) { this.cargaHorariaDiariaPadrao = cargaHorariaDiariaPadrao; }</span>
+<span class="fc" id="L49">    public BigDecimal getCargaHorariaMensalPadrao() { return cargaHorariaMensalPadrao; }</span>
+<span class="fc" id="L50">    public void setCargaHorariaMensalPadrao(BigDecimal cargaHorariaMensalPadrao) { this.cargaHorariaMensalPadrao = cargaHorariaMensalPadrao; }</span>
+<span class="fc" id="L51">    public Boolean getAtivo() { return ativo; }</span>
+<span class="fc" id="L52">    public void setAtivo(Boolean ativo) { this.ativo = ativo; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

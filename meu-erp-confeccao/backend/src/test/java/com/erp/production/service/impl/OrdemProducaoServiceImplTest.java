@@ -134,6 +134,7 @@ public class OrdemProducaoServiceImplTest {
 
         // 10 units * 1.5 of material = 15 total needed
         OrdemProducaoResponse response = service.iniciarProducao(mockOp.getId());
+        assertNotNull(response);
 
         assertEquals(OrdemProducaoStatus.EM_ANDAMENTO, mockOp.getStatus());
         assertNotNull(mockOp.getDataInicio());

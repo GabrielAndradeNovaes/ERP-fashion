@@ -23,6 +23,7 @@ com/erp/core/service/impl/CategoriaServiceImplTest.class
 com/erp/inventory/service/impl/MaterialServiceImplTest.class
 com/erp/core/service/DashboardServiceTest.class
 com/erp/production/controller/TabelaTempoPadraoControllerTest.class
+com/erp/HashGen.class
 com/erp/core/controller/UsuarioControllerTest.class
 com/erp/core/controller/EmpresaControllerTest.class
 com/erp/production/service/impl/PcpServiceImplTest.class
