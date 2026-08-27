@@ -4,6 +4,7 @@
 /app/src/test/java/com/erp/core/tenant/TenantProvisioningServiceTest.java
 /app/src/test/java/com/erp/inventory/service/impl/EstoqueProdutoMovimentacaoServiceImplTest.java
 /app/src/test/java/com/erp/catalog/service/impl/ProdutoServiceImplTest.java
+/app/src/test/java/com/erp/HashGen.java
 /app/src/test/java/com/erp/inventory/service/impl/MaterialServiceImplTest.java
 /app/src/test/java/com/erp/production/controller/FichaTecnicaControllerTest.java
 /app/src/test/java/com/erp/core/domain/DomainCoverageTest.java

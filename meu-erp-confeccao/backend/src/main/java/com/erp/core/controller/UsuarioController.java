@@ -57,6 +57,9 @@ public class UsuarioController {
         u.setNome(dto.getNome());
         u.setEmail(dto.getEmail());
         u.setSenha(passwordEncoder.encode(dto.getSenha()));
+        if ("SUPERADMIN".equalsIgnoreCase(dto.getRole())) {
+            throw new IllegalArgumentException("Não é permitido atribuir a role SUPERADMIN.");
+        }
         u.setRole(dto.getRole());
         u.setAtivo(true);
         u.setTenantId(TenantContext.getCurrentTenant());
@@ -84,6 +87,9 @@ public class UsuarioController {
 
         u.setNome(dto.getNome());
         u.setEmail(dto.getEmail());
+        if ("SUPERADMIN".equalsIgnoreCase(dto.getRole())) {
+            throw new IllegalArgumentException("Não é permitido atribuir a role SUPERADMIN.");
+        }
         u.setRole(dto.getRole());
         u.setFilialPrincipalId(dto.getFilialPrincipalId());
         if (dto.getPermissoes() != null) {
