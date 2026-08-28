@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
 import { LayoutDashboard, Clock, Scissors, PackageSearch, Package, ClipboardList, LogOut, Sun, Moon, Building2 } from 'lucide-react';
 import { Box, Typography } from '@mui/material';
-import TabelaTempos from './pages/TabelaTempos';
 import Estoque from './pages/Estoque';
 import Produtos from './pages/Produtos';
 import OrdensProducao from './pages/OrdensProducao';
