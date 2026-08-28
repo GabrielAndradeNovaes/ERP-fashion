@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Play, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Play, CheckCircle2, AlertCircle, Package } from 'lucide-react';
 import api from '../api/axios';
 import Modal from '../components/Modal';
 import { useAuth } from '../contexts/AuthContext';
@@ -7,29 +7,21 @@ import {
   Box,
   Typography,
   Button,
-  Card,
   TextField,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
   Stack,
-  Chip,
   CircularProgress,
+  IconButton
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import type { ColumnDef } from '@tanstack/react-table';
-import { DataTable } from '../components/DataTable';
 
 interface ProdutoBase {
   id: string;
   codigo: string;
   nome: string;
-}
-
-interface FichaTecnica {
-  id: string;
-  descricao: string;
 }
 
 interface OrdemProducao {
@@ -42,29 +34,35 @@ interface OrdemProducao {
   criadoEm: string;
 }
 
+const COLUMNS = [
+  { id: 'CADASTRADA', title: 'Planejamento', color: 'var(--warning)', bgColor: 'rgba(245, 158, 11, 0.05)' },
+  { id: 'CORTE', title: 'Corte', color: '#ec4899', bgColor: 'rgba(236, 72, 153, 0.05)' },
+  { id: 'COSTURA', title: 'Costura', color: 'var(--accent-primary)', bgColor: 'rgba(99, 102, 241, 0.05)' },
+  { id: 'FACCAO', title: 'Facção Externa', color: '#8b5cf6', bgColor: 'rgba(139, 92, 246, 0.05)' },
+  { id: 'CONCLUIDA', title: 'Concluída', color: 'var(--success)', bgColor: 'rgba(16, 185, 129, 0.05)' }
+];
+
 const OrdensProducao = () => {
   const [ordens, setOrdens] = useState<OrdemProducao[]>([]);
   const [produtos, setProdutos] = useState<ProdutoBase[]>([]);
-
   const [loading, setLoading] = useState(true);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [selectedOrdemParaIniciar, setSelectedOrdemParaIniciar] = useState<OrdemProducao | null>(null);
-  
-  const [numero, setNumero] = useState('');
-  const [produtoBaseId, setProdutoBaseId] = useState('');
-
-  const [quantidade, setQuantidade] = useState('100');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isStarting, setIsStarting] = useState(false);
   const [isGerarPacotesModalOpen, setIsGerarPacotesModalOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [tamanhoPacote, setTamanhoPacote] = useState('20');
   const [selectedOrdem, setSelectedOrdem] = useState<OrdemProducao | null>(null);
 
+  const [numero, setNumero] = useState('');
+  const [produtoBaseId, setProdutoBaseId] = useState('');
+  const [quantidade, setQuantidade] = useState('100');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const { hasPermission } = useAuth();
   const canEdit = hasPermission('PCP_EDIT');
+
+  // Drag and drop state
+  const [draggedItem, setDraggedItem] = useState<string | null>(null);
 
   useEffect(() => {
     fetchInitialData();
@@ -83,6 +81,40 @@ const OrdensProducao = () => {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDragStart = (e: React.DragEvent, id: string) => {
+    setDraggedItem(id);
+    e.dataTransfer.effectAllowed = 'move';
+    // Transparent drag image offset
+    e.dataTransfer.setDragImage(e.target as Element, 20, 20);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault(); // Necessary to allow dropping
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = async (e: React.DragEvent, newStatus: string) => {
+    e.preventDefault();
+    if (!draggedItem || !canEdit) return;
+
+    const opToMove = ordens.find(o => o.id === draggedItem);
+    if (!opToMove || opToMove.status === newStatus) return;
+
+    // Optimistic update
+    const previousOrdens = [...ordens];
+    setOrdens(prev => prev.map(o => o.id === draggedItem ? { ...o, status: newStatus } : o));
+
+    try {
+      await api.put(`/production/ordens/${draggedItem}/status`, { status: newStatus });
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Erro ao mover OP');
+      // Revert on error
+      setOrdens(previousOrdens);
+    } finally {
+      setDraggedItem(null);
     }
   };
 
@@ -111,27 +143,6 @@ const OrdensProducao = () => {
     }
   };
 
-  const openConfirmModal = (ordem: OrdemProducao) => {
-    setSelectedOrdemParaIniciar(ordem);
-    setIsConfirmModalOpen(true);
-  };
-
-  const handleIniciarProducao = async () => {
-    if (!selectedOrdemParaIniciar) return;
-    
-    try {
-      setIsStarting(true);
-      await api.post(`/production/ordens/${selectedOrdemParaIniciar.id}/iniciar`);
-      setIsConfirmModalOpen(false);
-      setSelectedOrdemParaIniciar(null);
-      fetchInitialData();
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Erro ao iniciar OP');
-    } finally {
-      setIsStarting(false);
-    }
-  };
-
   const handleGerarPacotes = async () => {
     if (!selectedOrdem) return;
     try {
@@ -147,103 +158,24 @@ const OrdensProducao = () => {
     }
   };
 
-  const columns: ColumnDef<any, any, any>[] = React.useMemo(() => [
-    {
-      accessorKey: 'numero',
-      header: 'Nº OP',
-      cell: (info) => <Typography sx={{ fontWeight: 700, color: 'var(--accent-primary)' }}>#{info.getValue() as string}</Typography>
-    },
-    {
-      id: 'produto',
-      header: 'Produto Final',
-      cell: (info) => (
-        <Box>
-          <Typography variant="body2" sx={{ fontWeight: 600 }}>{info.row.original.produtoBaseNome}</Typography>
-          <Typography variant="caption" sx={{ color: 'var(--text-muted)' }}>
-            Ficha: {info.row.original.fichaTecnicaVersao}
-          </Typography>
-        </Box>
-      )
-    },
-    {
-      accessorKey: 'quantidade',
-      header: 'Quantidade',
-      cell: (info) => <Typography sx={{ fontWeight: 500 }}>{info.getValue() as number} un</Typography>
-    },
-    {
-      accessorKey: 'status',
-      header: 'Status',
-      cell: (info) => {
-        const status = info.getValue() as string;
-        if (status === 'CADASTRADA') {
-          return <Chip label="Planejada" sx={{ bgcolor: 'rgba(245, 158, 11, 0.1)', color: 'var(--warning)', fontWeight: 600 }} size="small" />;
-        } else if (status === 'EM_ANDAMENTO') {
-          return <Chip label="Em Produção" sx={{ bgcolor: 'rgba(99, 102, 241, 0.1)', color: 'var(--accent-primary)', fontWeight: 600 }} size="small" />;
-        } else if (status === 'CONCLUIDA') {
-          return <Chip label="Concluída" sx={{ bgcolor: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)', fontWeight: 600 }} size="small" />;
-        }
-        return <Chip label={status} size="small" />;
-      }
-    },
-    {
-      id: 'acoes',
-      header: 'Ações',
-      cell: (info) => {
-        if (!canEdit) return null;
-        return (
-          <Stack direction="row" spacing={1}>
-            {info.row.original.status === 'CADASTRADA' && (
-              <Button
-                variant="contained"
-                size="small"
-                startIcon={<Play size={14} />}
-                onClick={() => openConfirmModal(info.row.original)}
-                sx={{ 
-                  bgcolor: 'var(--accent-primary)', 
-                  '&:hover': { bgcolor: 'var(--accent-hover)' },
-                  borderRadius: 'var(--radius-sm)',
-                  textTransform: 'none',
-                  fontWeight: 600
-                }}
-                disableElevation
-              >
-                Iniciar
-              </Button>
-            )}
-            {(info.row.original.status === 'EM_ANDAMENTO' || info.row.original.status === 'CADASTRADA') && (
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={() => {
-                  setSelectedOrdem(info.row.original);
-                  setIsGerarPacotesModalOpen(true);
-                }}
-                sx={{ 
-                  borderColor: 'var(--accent-primary)', 
-                  color: 'var(--accent-primary)',
-                  borderRadius: 'var(--radius-sm)',
-                  textTransform: 'none',
-                  fontWeight: 600
-                }}
-              >
-                Gerar Pacotes
-              </Button>
-            )}
-          </Stack>
-        );
-      }
-    }
-  ], [canEdit]);
+  const getOrdensByStatus = (statusId: string) => {
+    return ordens.filter(o => {
+      // Map old status to new if exists
+      let currentStatus = o.status;
+      if (currentStatus === 'EM_ANDAMENTO') currentStatus = 'CORTE';
+      return currentStatus === statusId;
+    });
+  };
 
   return (
-    <Box className="animate-fade-in-up">
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+    <Box className="animate-fade-in-up" sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4, flexShrink: 0 }}>
         <Box>
           <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>
-            Ordens de <span className="text-gradient">Produção</span>
+            Kanban de <span className="text-gradient">Produção</span>
           </Typography>
           <Typography variant="body1" sx={{ color: 'var(--text-secondary)' }}>
-            Acompanhe o status e despache ordens para o chão de fábrica.
+            Arraste as ordens de produção (O.P.) entre as fases para atualizar seu status no chão de fábrica.
           </Typography>
         </Box>
         {canEdit && (
@@ -257,10 +189,7 @@ const OrdensProducao = () => {
               borderRadius: 'var(--radius-md)',
               textTransform: 'none',
               fontWeight: 600,
-              boxShadow: '0 4px 14px 0 rgba(99, 102, 241, 0.39)',
-              '&:hover': {
-                boxShadow: '0 6px 20px rgba(99, 102, 241, 0.23)'
-              }
+              boxShadow: '0 4px 14px 0 rgba(99, 102, 241, 0.39)'
             }}
           >
             Nova Ordem
@@ -268,30 +197,104 @@ const OrdensProducao = () => {
         )}
       </Box>
 
-      <div className="premium-card">
-        <Box sx={{ p: 3, borderBottom: '1px solid', borderColor: 'var(--border-color)' }}>
-          <Typography variant="h6" sx={{ fontWeight: 600, color: 'var(--text-primary)' }}>Controle de PCP</Typography>
+      {loading ? (
+        <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <CircularProgress sx={{ color: 'var(--accent-primary)' }} />
         </Box>
-        
-        {loading ? (
-          <Box sx={{ p: 6, display: 'flex', justifyContent: 'center' }}>
-            <CircularProgress sx={{ color: 'var(--accent-primary)' }} />
-          </Box>
-        ) : ordens.length === 0 ? (
-          <Box sx={{ p: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', color: 'var(--text-muted)' }}>
-            <Typography>Nenhuma ordem de produção encontrada.</Typography>
-          </Box>
-        ) : (
-          <Box sx={{ 
-            '& th': { bgcolor: 'transparent', color: 'var(--text-secondary)', fontWeight: 600 },
-            '& td': { borderColor: 'var(--border-color)', color: 'var(--text-primary)' },
-            '& tbody tr:hover': { bgcolor: 'rgba(255,255,255,0.02)' }
-          }}>
-            <DataTable columns={columns} data={ordens} />
-          </Box>
-        )}
-      </div>
+      ) : (
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            gap: 3, 
+            flexGrow: 1, 
+            overflowX: 'auto', 
+            pb: 2,
+            '&::-webkit-scrollbar': { height: 8 },
+            '&::-webkit-scrollbar-thumb': { bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 4 }
+          }}
+        >
+          {COLUMNS.map(col => {
+            const columnOrdens = getOrdensByStatus(col.id);
+            return (
+              <Box 
+                key={col.id}
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, col.id)}
+                sx={{
+                  minWidth: 320,
+                  maxWidth: 320,
+                  bgcolor: 'rgba(20,20,20,0.4)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: 'var(--radius-md)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  overflow: 'hidden'
+                }}
+              >
+                <Box sx={{ p: 2, borderBottom: '1px solid var(--border-color)', bgcolor: col.bgColor, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <Typography sx={{ fontWeight: 700, color: col.color, fontSize: '0.9rem', textTransform: 'uppercase' }}>
+                    {col.title}
+                  </Typography>
+                  <Typography sx={{ bgcolor: 'rgba(255,255,255,0.1)', px: 1, borderRadius: 2, fontSize: '0.75rem', fontWeight: 600 }}>
+                    {columnOrdens.length}
+                  </Typography>
+                </Box>
+                
+                <Box sx={{ p: 2, flexGrow: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  {columnOrdens.map(op => (
+                    <Box 
+                      key={op.id}
+                      draggable={canEdit}
+                      onDragStart={(e) => handleDragStart(e, op.id)}
+                      sx={{
+                        bgcolor: 'var(--bg-card)',
+                        p: 2,
+                        borderRadius: 'var(--radius-sm)',
+                        border: '1px solid var(--border-color)',
+                        cursor: canEdit ? 'grab' : 'default',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                        transition: 'transform 0.2s',
+                        '&:active': { cursor: 'grabbing', transform: 'scale(0.98)' },
+                        opacity: draggedItem === op.id ? 0.5 : 1
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                        <Typography sx={{ fontWeight: 700, color: 'var(--accent-primary)' }}>#{op.numero}</Typography>
+                        <Typography sx={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{op.quantidade} un</Typography>
+                      </Box>
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: 'var(--text-primary)', mb: 0.5 }}>
+                        {op.produtoBaseNome}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: 'var(--text-muted)' }}>
+                        Ficha: {op.fichaTecnicaVersao}
+                      </Typography>
+                      
+                      {canEdit && (op.status === 'CADASTRADA' || op.status === 'CORTE') && (
+                        <Box sx={{ mt: 2, pt: 2, borderTop: '1px dashed var(--border-color)', display: 'flex', justifyContent: 'flex-end' }}>
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            startIcon={<Package size={14} />}
+                            onClick={() => {
+                              setSelectedOrdem(op);
+                              setIsGerarPacotesModalOpen(true);
+                            }}
+                            sx={{ fontSize: '0.7rem', textTransform: 'none', py: 0.5 }}
+                          >
+                            Gerar Pacotes
+                          </Button>
+                        </Box>
+                      )}
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
+            );
+          })}
+        </Box>
+      )}
 
+      {/* Modals remain the same */}
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Nova OP" width="500px">
         <div className="glass-panel" style={{ padding: '24px', background: 'var(--bg-card)', border: 'none', boxShadow: 'none' }}>
           <form onSubmit={handleSubmit}>
@@ -350,64 +353,6 @@ const OrdensProducao = () => {
         </div>
       </Modal>
 
-      {/* Modal de Confirmação (Checklist) */}
-      <Modal isOpen={isConfirmModalOpen} onClose={() => !isStarting && setIsConfirmModalOpen(false)} title="Checklist de Início" width="550px">
-        {selectedOrdemParaIniciar && (
-          <div className="glass-panel" style={{ padding: '32px', background: 'var(--bg-card)', border: 'none', boxShadow: 'none' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-              <Box sx={{ p: 2, borderRadius: '50%', bgcolor: 'rgba(16, 185, 129, 0.1)', color: 'var(--success)' }}>
-                <CheckCircle2 size={32} />
-              </Box>
-              <Box>
-                <Typography variant="h5" sx={{ fontWeight: 700, color: 'var(--text-primary)' }}>
-                  Iniciar OP #{selectedOrdemParaIniciar.numero}
-                </Typography>
-                <Typography variant="body2" sx={{ color: 'var(--text-muted)' }}>
-                  Produto: {selectedOrdemParaIniciar.produtoBaseNome} ({selectedOrdemParaIniciar.quantidade} unidades)
-                </Typography>
-              </Box>
-            </Box>
-
-            <Box sx={{ bgcolor: 'rgba(245, 158, 11, 0.05)', border: '1px solid rgba(245, 158, 11, 0.2)', p: 3, borderRadius: 'var(--radius-md)', mb: 4 }}>
-              <Typography variant="subtitle1" sx={{ color: 'var(--warning)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                <AlertCircle size={18} /> Atenção ao Estoque
-              </Typography>
-              <Typography variant="body2" sx={{ color: 'var(--text-secondary)' }}>
-                Ao confirmar o início desta Ordem de Produção, o sistema irá deduzir <strong>imediatamente</strong> as quantidades de materiais exigidas pela Ficha Técnica correspondente.
-                Esta ação <strong>não</strong> pode ser desfeita automaticamente.
-              </Typography>
-            </Box>
-
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-              <Button 
-                onClick={() => setIsConfirmModalOpen(false)} 
-                disabled={isStarting}
-                sx={{ color: 'var(--text-muted)', fontWeight: 600 }}
-              >
-                Voltar
-              </Button>
-              <Button 
-                onClick={handleIniciarProducao}
-                variant="contained" 
-                disabled={isStarting}
-                startIcon={isStarting ? <CircularProgress size={20} color="inherit" /> : <Play size={18} />}
-                sx={{ 
-                  background: 'var(--success)', 
-                  '&:hover': { filter: 'brightness(1.1)' },
-                  textTransform: 'none',
-                  fontWeight: 600,
-                  px: 4
-                }}
-                disableElevation
-              >
-                {isStarting ? 'Iniciando...' : 'Confirmar e Iniciar'}
-              </Button>
-            </Box>
-          </div>
-        )}
-      </Modal>
-
-      {/* Modal de Gerar Pacotes */}
       <Modal isOpen={isGerarPacotesModalOpen} onClose={() => !isGenerating && setIsGerarPacotesModalOpen(false)} title="Gerar Pacotes Físicos" width="500px">
         {selectedOrdem && (
           <div className="glass-panel" style={{ padding: '24px', background: 'var(--bg-card)', border: 'none', boxShadow: 'none' }}>

@@ -25,7 +25,9 @@ public class DashboardService {
 
     public DashboardResumoDTO getResumo() {
         long totalProdutos = produtoBaseRepository.count();
-        long opsEmAndamento = ordemProducaoRepository.countByStatus(OrdemProducaoStatus.EM_ANDAMENTO);
+        long opsEmAndamento = ordemProducaoRepository.countByStatus(OrdemProducaoStatus.CORTE)
+                            + ordemProducaoRepository.countByStatus(OrdemProducaoStatus.COSTURA)
+                            + ordemProducaoRepository.countByStatus(OrdemProducaoStatus.FACCAO);
         long opsConcluidas = ordemProducaoRepository.countByStatus(OrdemProducaoStatus.CONCLUIDA);
         
         // Calcular valor total de estoque (soma de quantidade * custo)

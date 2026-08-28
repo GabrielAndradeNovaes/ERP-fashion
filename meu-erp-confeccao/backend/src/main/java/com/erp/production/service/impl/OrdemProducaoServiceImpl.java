@@ -127,7 +127,7 @@ public class OrdemProducaoServiceImpl implements OrdemProducaoService {
             );
         });
 
-        op.setStatus(OrdemProducaoStatus.EM_ANDAMENTO);
+        op.setStatus(OrdemProducaoStatus.CORTE);
         op.setDataInicio(LocalDateTime.now());
         
         OrdemProducao saved = ordemProducaoRepository.save(op);
@@ -140,7 +140,7 @@ public class OrdemProducaoServiceImpl implements OrdemProducaoService {
         OrdemProducao op = ordemProducaoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Ordem de Produção não encontrada."));
 
-        if (op.getStatus() != OrdemProducaoStatus.CADASTRADA && op.getStatus() != OrdemProducaoStatus.EM_ANDAMENTO) {
+        if (op.getStatus() == OrdemProducaoStatus.CADASTRADA || op.getStatus() == OrdemProducaoStatus.CONCLUIDA) {
             throw new IllegalStateException("Ordem de Produção não está em estado válido para gerar pacotes.");
         }
 
@@ -193,6 +193,29 @@ public class OrdemProducaoServiceImpl implements OrdemProducaoService {
                 qtdRestante -= qtdPacote;
             }
         }
+    }
+
+    @Override
+    @Transactional
+    public OrdemProducaoResponse atualizarStatus(UUID id, OrdemProducaoStatus novoStatus) {
+        OrdemProducao op = ordemProducaoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Ordem de Produção não encontrada."));
+        
+        if (novoStatus == OrdemProducaoStatus.CONCLUIDA && op.getStatus() != OrdemProducaoStatus.CONCLUIDA) {
+            // Dar entrada no estoque de produtos acabados
+            if (op.getItens() != null) {
+                for (OrdemProducaoItem item : op.getItens()) {
+                    ProdutoSku sku = item.getProdutoSku();
+                    int currentStock = sku.getQuantidadeAtual() != null ? sku.getQuantidadeAtual() : 0;
+                    sku.setQuantidadeAtual(currentStock + item.getQuantidade());
+                    produtoSkuRepository.save(sku);
+                }
+            }
+        }
+        
+        op.setStatus(novoStatus);
+        OrdemProducao saved = ordemProducaoRepository.save(op);
+        return mapToResponse(saved);
     }
 
     private OrdemProducaoResponse mapToResponse(OrdemProducao op) {

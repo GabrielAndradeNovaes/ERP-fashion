@@ -42,4 +42,14 @@ public class OrdemProducaoController {
         ordemProducaoService.gerarPacotes(id, tamanhoPacote);
         return ResponseEntity.ok().build();
     }
+
+    @PutMapping("/{id}/status")
+    public ResponseEntity<OrdemProducaoResponse> atualizarStatus(
+            @PathVariable UUID id, 
+            @RequestBody java.util.Map<String, String> payload) {
+        String novoStatus = payload.get("status");
+        com.erp.production.domain.OrdemProducaoStatus statusEnum = 
+            com.erp.production.domain.OrdemProducaoStatus.valueOf(novoStatus.toUpperCase());
+        return ResponseEntity.ok(ordemProducaoService.atualizarStatus(id, statusEnum));
+    }
 }

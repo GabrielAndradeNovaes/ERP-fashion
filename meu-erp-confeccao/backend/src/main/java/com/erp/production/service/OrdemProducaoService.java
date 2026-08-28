@@ -10,4 +10,5 @@ public interface OrdemProducaoService {
     List<OrdemProducaoResponse> listarTodas();
     OrdemProducaoResponse iniciarProducao(UUID id);
     void gerarPacotes(UUID id, int tamanhoPacote);
+    OrdemProducaoResponse atualizarStatus(UUID id, com.erp.production.domain.OrdemProducaoStatus novoStatus);
 }

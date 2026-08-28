@@ -65,6 +65,46 @@ const Bipagem: React.FC = () => {
     }
   }, [selectedFuncionario, snackbar]); // Re-focus after showing snackbar too
 
+  const playBeep = (type: 'success' | 'error') => {
+    try {
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextClass) return;
+      
+      const ctx = new AudioContextClass();
+      const osc = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+      
+      osc.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      
+      if (type === 'success') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.1);
+        
+        gainNode.gain.setValueAtTime(0, ctx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 0.05);
+        gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.2);
+        
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.2);
+      } else {
+        // Error buzzer
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, ctx.currentTime);
+        
+        gainNode.gain.setValueAtTime(0, ctx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.05);
+        gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.5);
+        
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.5);
+      }
+    } catch(e) {
+      console.error("Audio API not supported", e);
+    }
+  };
+
   const handleKeyDown = async (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -84,9 +124,11 @@ const Bipagem: React.FC = () => {
           codigoBarras: currentCode,
           funcionarioId: selectedFuncionario
         });
+        playBeep('success');
         showFeedback(`Cupom ${currentCode} processado com sucesso!`, 'success', currentCode);
       } catch (err: any) {
         const errorMsg = err.response?.data?.message || err.message || 'Erro desconhecido ao processar cupom.';
+        playBeep('error');
         showFeedback(errorMsg, 'error', currentCode);
       }
     }

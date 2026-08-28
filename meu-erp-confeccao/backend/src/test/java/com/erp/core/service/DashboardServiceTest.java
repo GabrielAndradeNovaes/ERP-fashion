@@ -34,8 +34,10 @@ public class DashboardServiceTest {
     @Test
     void testGetResumo() {
         when(produtoBaseRepository.count()).thenReturn(10L);
-        when(ordemProducaoRepository.countByStatus(OrdemProducaoStatus.EM_ANDAMENTO)).thenReturn(5L);
-        when(ordemProducaoRepository.countByStatus(OrdemProducaoStatus.CONCLUIDA)).thenReturn(3L);
+        when(ordemProducaoRepository.countByStatus(OrdemProducaoStatus.CORTE)).thenReturn(3L);
+        when(ordemProducaoRepository.countByStatus(OrdemProducaoStatus.COSTURA)).thenReturn(2L);
+        when(ordemProducaoRepository.countByStatus(OrdemProducaoStatus.FACCAO)).thenReturn(0L);
+        when(ordemProducaoRepository.countByStatus(OrdemProducaoStatus.CONCLUIDA)).thenReturn(5L);
 
         Material m = new Material();
         m.setQuantidadeAtual(new BigDecimal("10"));

@@ -136,7 +136,7 @@ public class OrdemProducaoServiceImplTest {
         OrdemProducaoResponse response = service.iniciarProducao(mockOp.getId());
         assertNotNull(response);
 
-        assertEquals(OrdemProducaoStatus.EM_ANDAMENTO, mockOp.getStatus());
+        assertEquals(OrdemProducaoStatus.CORTE, mockOp.getStatus());
         assertNotNull(mockOp.getDataInicio());
 
         // Verify inventory service was called correctly for the explosion
@@ -150,7 +150,7 @@ public class OrdemProducaoServiceImplTest {
     
     @Test
     void shouldThrowExceptionWhenStartingStartedOp() {
-        mockOp.setStatus(OrdemProducaoStatus.EM_ANDAMENTO);
+        mockOp.setStatus(OrdemProducaoStatus.CORTE);
         when(ordemProducaoRepository.findById(mockOp.getId())).thenReturn(Optional.of(mockOp));
         
         assertThrows(IllegalStateException.class, () -> service.iniciarProducao(mockOp.getId()));
@@ -159,7 +159,7 @@ public class OrdemProducaoServiceImplTest {
     @Test
     void shouldGerarPacotes() {
         // Setup
-        mockOp.setStatus(OrdemProducaoStatus.EM_ANDAMENTO);
+        mockOp.setStatus(OrdemProducaoStatus.CORTE);
         
         com.erp.catalog.domain.ProdutoSku sku = new com.erp.catalog.domain.ProdutoSku();
         sku.setId(UUID.randomUUID());

@@ -9,6 +9,7 @@ import Cupons from './pages/PCP/Cupons';
 import Bipagem from './pages/PCP/Bipagem';
 import Funcionarios from './pages/PCP/Funcionarios';
 import Produtividade from './pages/PCP/Produtividade';
+import Faccoes from './pages/PCP/Faccoes';
 import Clientes from './pages/Clientes';
 import Fornecedores from './pages/Fornecedores';
 import Categorias from './pages/Categorias';
@@ -64,6 +65,7 @@ const Sidebar = () => {
       title: 'Produção (PCP)',
       items: [
         { path: '/pcp/ordens', label: 'Ordens de Produção', icon: <ClipboardList size={20} />, perm: 'PCP_VIEW' },
+        { path: '/pcp/faccoes', label: 'Gestão de Facções', icon: <Truck size={20} />, perm: 'PCP_VIEW' },
         { path: '/pcp/cupons', label: 'Cupons / Etiquetas', icon: <FileText size={20} />, perm: 'PCP_VIEW' },
         { path: '/pcp/bipagem', label: 'Bipagem Rápida', icon: <ScanLine size={20} />, perm: 'PCP_VIEW' },
         { path: '/pcp/produtividade', label: 'Produtividade', icon: <BarChart size={20} />, perm: 'PCP_VIEW' },
@@ -239,6 +241,7 @@ const MainApp = () => {
           <Route path="/catalog/produtos" element={<PrivateRoute requiredPermission="PRODUTOS_VIEW"><Produtos /></PrivateRoute>} />
           <Route path="/estoque" element={<PrivateRoute requiredPermission="ESTOQUE_VIEW"><Estoque /></PrivateRoute>} />
           <Route path="/pcp/ordens" element={<PrivateRoute requiredPermission="PCP_VIEW"><OrdensProducao /></PrivateRoute>} />
+          <Route path="/pcp/faccoes" element={<PrivateRoute requiredPermission="PCP_VIEW"><Faccoes /></PrivateRoute>} />
           <Route path="/pcp/cupons" element={<PrivateRoute requiredPermission="PCP_VIEW"><Cupons /></PrivateRoute>} />
           <Route path="/pcp/bipagem" element={<PrivateRoute requiredPermission="PCP_VIEW"><Bipagem /></PrivateRoute>} />
           <Route path="/pcp/funcionarios" element={<PrivateRoute requiredPermission="PCP_VIEW"><Funcionarios /></PrivateRoute>} />
