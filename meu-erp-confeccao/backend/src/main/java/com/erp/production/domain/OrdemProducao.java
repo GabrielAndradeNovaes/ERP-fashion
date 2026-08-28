@@ -57,7 +57,7 @@ public class OrdemProducao {
             this.criadoEm = LocalDateTime.now();
         }
         if (this.status == null) {
-            this.status = OrdemProducaoStatus.CADASTRADA;
+            this.status = OrdemProducaoStatus.PENDENTE;
         }
     }
 

@@ -16,4 +16,6 @@ public interface CupomRepository extends JpaRepository<Cupom, UUID> {
     
     @Query("SELECT c FROM Cupom c JOIN c.pacote p JOIN p.ordemProducao o WHERE o.id = :ordemProducaoId")
     List<Cupom> findByOrdemProducaoId(@Param("ordemProducaoId") UUID ordemProducaoId);
+    
+    List<Cupom> findByPacoteId(UUID pacoteId);
 }
