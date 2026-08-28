@@ -34,6 +34,16 @@ public class MaterialServiceImpl implements MaterialService {
         material.setDescricao(request.descricao());
         material.setUnidadeMedida(request.unidadeMedida());
         material.setCustoUnitario(request.custoUnitario() != null ? request.custoUnitario() : java.math.BigDecimal.ZERO);
+        material.setTipoMaterial(request.tipoMaterial());
+        material.setComposicao(request.composicao());
+        material.setNcm(request.ncm());
+        material.setUnidadeCompra(request.unidadeCompra());
+        material.setFatorConversao(request.fatorConversao());
+        material.setLargura(request.largura());
+        material.setGramatura(request.gramatura());
+        material.setRendimento(request.rendimento());
+        material.setStatus(request.status());
+        material.setFornecedorPadraoId(request.fornecedorPadraoId());
 
         Material saved = materialRepository.save(material);
         return mapToResponse(saved);
@@ -63,7 +73,17 @@ public class MaterialServiceImpl implements MaterialService {
                 material.getDescricao(),
                 material.getUnidadeMedida(),
                 material.getCustoUnitario(),
-                material.getQuantidadeAtual()
+                material.getQuantidadeAtual(),
+                material.getTipoMaterial(),
+                material.getComposicao(),
+                material.getNcm(),
+                material.getUnidadeCompra(),
+                material.getFatorConversao(),
+                material.getLargura(),
+                material.getGramatura(),
+                material.getRendimento(),
+                material.getStatus(),
+                material.getFornecedorPadraoId()
         );
     }
 }

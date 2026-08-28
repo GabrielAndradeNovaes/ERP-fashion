@@ -45,6 +45,36 @@ public class Material {
     @Column(name = "criado_em", updatable = false)
     private LocalDateTime criadoEm;
 
+    @Column(name = "tipo_material", length = 50)
+    private String tipoMaterial;
+
+    @Column(length = 255)
+    private String composicao;
+
+    @Column(length = 20)
+    private String ncm;
+
+    @Column(name = "unidade_compra", length = 20)
+    private String unidadeCompra;
+
+    @Column(name = "fator_conversao", precision = 10, scale = 4)
+    private BigDecimal fatorConversao;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal largura;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal gramatura;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal rendimento;
+
+    @Column(length = 20)
+    private String status = "ATIVO";
+
+    @Column(name = "fornecedor_padrao_id")
+    private UUID fornecedorPadraoId;
+
     @PrePersist
     protected void onCreate() {
         this.criadoEm = LocalDateTime.now();
@@ -115,4 +145,34 @@ public class Material {
     public void setCriadoEm(LocalDateTime criadoEm) {
         this.criadoEm = criadoEm;
     }
+
+    public String getTipoMaterial() { return tipoMaterial; }
+    public void setTipoMaterial(String tipoMaterial) { this.tipoMaterial = tipoMaterial; }
+
+    public String getComposicao() { return composicao; }
+    public void setComposicao(String composicao) { this.composicao = composicao; }
+
+    public String getNcm() { return ncm; }
+    public void setNcm(String ncm) { this.ncm = ncm; }
+
+    public String getUnidadeCompra() { return unidadeCompra; }
+    public void setUnidadeCompra(String unidadeCompra) { this.unidadeCompra = unidadeCompra; }
+
+    public BigDecimal getFatorConversao() { return fatorConversao; }
+    public void setFatorConversao(BigDecimal fatorConversao) { this.fatorConversao = fatorConversao; }
+
+    public BigDecimal getLargura() { return largura; }
+    public void setLargura(BigDecimal largura) { this.largura = largura; }
+
+    public BigDecimal getGramatura() { return gramatura; }
+    public void setGramatura(BigDecimal gramatura) { this.gramatura = gramatura; }
+
+    public BigDecimal getRendimento() { return rendimento; }
+    public void setRendimento(BigDecimal rendimento) { this.rendimento = rendimento; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public UUID getFornecedorPadraoId() { return fornecedorPadraoId; }
+    public void setFornecedorPadraoId(UUID fornecedorPadraoId) { this.fornecedorPadraoId = fornecedorPadraoId; }
 }
