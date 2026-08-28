@@ -69,6 +69,18 @@ const Produtos = () => {
   const [nome, setNome] = useState('');
   const [descricao, setDescricao] = useState('');
   const [precoVenda, setPrecoVenda] = useState<string>('');
+  
+  const [marca, setMarca] = useState('');
+  const [categoria, setCategoria] = useState('');
+  const [colecao, setColecao] = useState('');
+  const [genero, setGenero] = useState('');
+  const [ncm, setNcm] = useState('');
+  const [cest, setCest] = useState('');
+  const [origem, setOrigem] = useState('');
+  const [pesoBruto, setPesoBruto] = useState('');
+  const [pesoLiquido, setPesoLiquido] = useState('');
+  const [status, setStatus] = useState('ATIVO');
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form State (Add Ficha/Material/Operacao)
@@ -120,6 +132,16 @@ const Produtos = () => {
         descricao,
         precoVenda: parseFloat(precoVenda) || 0,
         precoCusto: 0,
+        marca,
+        categoria,
+        colecao,
+        genero,
+        ncm,
+        cest,
+        origem,
+        pesoBruto: parseFloat(pesoBruto) || null,
+        pesoLiquido: parseFloat(pesoLiquido) || null,
+        status,
         skus: []
       });
       
@@ -127,6 +149,16 @@ const Produtos = () => {
       setNome('');
       setDescricao('');
       setPrecoVenda('');
+      setMarca('');
+      setCategoria('');
+      setColecao('');
+      setGenero('');
+      setNcm('');
+      setCest('');
+      setOrigem('');
+      setPesoBruto('');
+      setPesoLiquido('');
+      setStatus('ATIVO');
       setIsAddModalOpen(false);
       fetchInitialData();
     } catch (err: any) {
@@ -393,34 +425,69 @@ const Produtos = () => {
         <div className="glass-panel" style={{ padding: '24px', background: 'var(--bg-card)', border: 'none', boxShadow: 'none' }}>
           <form onSubmit={handleAddProduto}>
           <Stack spacing={3} sx={{ mt: 1 }}>
-            <TextField
-              label="Código (Referência)"
-              variant="outlined"
-              fullWidth
-              required
-              value={codigo}
-              onChange={(e) => setCodigo(e.target.value)}
-              placeholder="Ex: REF-100"
-            />
-            <TextField
-              label="Nome do Produto"
-              variant="outlined"
-              fullWidth
-              required
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
-              placeholder="Ex: Calcinha Algodão"
-            />
-            <TextField
-              label="Preço de Venda (R$)"
-              type="number"
-              variant="outlined"
-              fullWidth
-              required
-              slotProps={{ htmlInput: { step: "0.01", min: "0" } }}
-              value={precoVenda}
-              onChange={(e) => setPrecoVenda(e.target.value)}
-            />
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <TextField
+                  label="Código (Referência)"
+                  variant="outlined"
+                  fullWidth
+                  required
+                  value={codigo}
+                  onChange={(e) => setCodigo(e.target.value)}
+                  placeholder="Ex: REF-100"
+                />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <TextField
+                  label="Nome do Produto"
+                  variant="outlined"
+                  fullWidth
+                  required
+                  value={nome}
+                  onChange={(e) => setNome(e.target.value)}
+                  placeholder="Ex: Calcinha Algodão"
+                />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <TextField
+                  label="Preço de Venda (R$)"
+                  type="number"
+                  variant="outlined"
+                  fullWidth
+                  required
+                  slotProps={{ htmlInput: { step: "0.01", min: "0" } }}
+                  value={precoVenda}
+                  onChange={(e) => setPrecoVenda(e.target.value)}
+                />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <TextField label="Marca" fullWidth value={marca} onChange={e => setMarca(e.target.value)} />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 4 }}>
+                <TextField label="Categoria" fullWidth value={categoria} onChange={e => setCategoria(e.target.value)} />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 4 }}>
+                <TextField label="Coleção" fullWidth value={colecao} onChange={e => setColecao(e.target.value)} />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 4 }}>
+                <TextField label="Gênero" fullWidth value={genero} onChange={e => setGenero(e.target.value)} />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 4 }}>
+                <TextField label="NCM" fullWidth value={ncm} onChange={e => setNcm(e.target.value)} />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 4 }}>
+                <TextField label="CEST" fullWidth value={cest} onChange={e => setCest(e.target.value)} />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 4 }}>
+                <TextField label="Origem" fullWidth value={origem} onChange={e => setOrigem(e.target.value)} />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <TextField label="Peso Bruto" type="number" fullWidth value={pesoBruto} onChange={e => setPesoBruto(e.target.value)} />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <TextField label="Peso Líquido" type="number" fullWidth value={pesoLiquido} onChange={e => setPesoLiquido(e.target.value)} />
+              </Grid>
+            </Grid>
             <TextField
               label="Descrição (Opcional)"
               variant="outlined"

@@ -73,6 +73,17 @@ const Estoque = () => {
   const [descricao, setDescricao] = useState('');
   const [unidadeMedida, setUnidadeMedida] = useState('KG');
   const [custoUnitario, setCustoUnitario] = useState<string>('');
+  
+  const [tipoMaterial, setTipoMaterial] = useState('');
+  const [composicao, setComposicao] = useState('');
+  const [ncm, setNcm] = useState('');
+  const [unidadeCompra, setUnidadeCompra] = useState('');
+  const [fatorConversao, setFatorConversao] = useState<string>('');
+  const [largura, setLargura] = useState<string>('');
+  const [gramatura, setGramatura] = useState<string>('');
+  const [rendimento, setRendimento] = useState<string>('');
+  const [status, setStatus] = useState('ATIVO');
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Movimentacao Form
@@ -113,13 +124,32 @@ const Estoque = () => {
         nome,
         descricao,
         unidadeMedida,
-        custoUnitario: parseFloat(custoUnitario) || 0
+        custoUnitario: parseFloat(custoUnitario) || 0,
+        tipoMaterial,
+        composicao,
+        ncm,
+        unidadeCompra,
+        fatorConversao: parseFloat(fatorConversao) || null,
+        largura: parseFloat(largura) || null,
+        gramatura: parseFloat(gramatura) || null,
+        rendimento: parseFloat(rendimento) || null,
+        status,
+        fornecedorPadraoId: null
       });
       
       setCodigo('');
       setNome('');
       setDescricao('');
       setCustoUnitario('');
+      setTipoMaterial('');
+      setComposicao('');
+      setNcm('');
+      setUnidadeCompra('');
+      setFatorConversao('');
+      setLargura('');
+      setGramatura('');
+      setRendimento('');
+      setStatus('ATIVO');
       setIsMaterialModalOpen(false);
       fetchData();
     } catch (err: any) {
@@ -351,6 +381,83 @@ const Estoque = () => {
                   slotProps={{ htmlInput: { step: "0.01", min: "0" } }}
                   value={custoUnitario}
                   onChange={(e) => setCustoUnitario(e.target.value)}
+                />
+              </Grid>
+              <Grid size={6}>
+                <TextField
+                  label="Tipo Material"
+                  variant="outlined"
+                  fullWidth
+                  value={tipoMaterial}
+                  onChange={(e) => setTipoMaterial(e.target.value)}
+                  placeholder="Ex: Têxtil, Aviamento"
+                />
+              </Grid>
+              <Grid size={6}>
+                <TextField
+                  label="Composição"
+                  variant="outlined"
+                  fullWidth
+                  value={composicao}
+                  onChange={(e) => setComposicao(e.target.value)}
+                />
+              </Grid>
+              <Grid size={6}>
+                <TextField
+                  label="NCM"
+                  variant="outlined"
+                  fullWidth
+                  value={ncm}
+                  onChange={(e) => setNcm(e.target.value)}
+                />
+              </Grid>
+              <Grid size={6}>
+                <TextField
+                  label="Un. Compra"
+                  variant="outlined"
+                  fullWidth
+                  value={unidadeCompra}
+                  onChange={(e) => setUnidadeCompra(e.target.value)}
+                />
+              </Grid>
+              <Grid size={6}>
+                <TextField
+                  label="Fator Conversão"
+                  type="number"
+                  variant="outlined"
+                  fullWidth
+                  value={fatorConversao}
+                  onChange={(e) => setFatorConversao(e.target.value)}
+                />
+              </Grid>
+              <Grid size={6}>
+                <TextField
+                  label="Largura"
+                  type="number"
+                  variant="outlined"
+                  fullWidth
+                  value={largura}
+                  onChange={(e) => setLargura(e.target.value)}
+                />
+              </Grid>
+              <Grid size={6}>
+                <TextField
+                  label="Gramatura"
+                  type="number"
+                  variant="outlined"
+                  fullWidth
+                  value={gramatura}
+                  onChange={(e) => setGramatura(e.target.value)}
+                />
+              </Grid>
+              <Grid size={6}>
+                <TextField
+                  label="Rendimento"
+                  type="number"
+                  variant="outlined"
+                  fullWidth
+                  value={rendimento}
+                  onChange={(e) => setRendimento(e.target.value)}
                 />
               </Grid>
             </Grid>
