@@ -46,6 +46,11 @@ public class ClienteServiceImplTest {
                 "cliente@teste.com",
                 "11999999999",
                 null,
+                null,
+                null,
+                null,
+                null,
+                null,
                 null
         );
     }

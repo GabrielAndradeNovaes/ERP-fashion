@@ -29,8 +29,8 @@ public class MaterialControllerTest {
 
     @Test
     void testCreateMaterial() {
-        MaterialRequest req = new MaterialRequest(null, null, null, null, null);
-        MaterialResponse res = new MaterialResponse(null, null, null, null, null, null, null);
+        MaterialRequest req = new MaterialRequest(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        MaterialResponse res = new MaterialResponse(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
         when(materialService.createMaterial(req)).thenReturn(res);
         ResponseEntity<MaterialResponse> result = controller.createMaterial(req);
         assertEquals(HttpStatus.CREATED, result.getStatusCode());
@@ -39,7 +39,7 @@ public class MaterialControllerTest {
 
     @Test
     void testGetAllMateriais() {
-        List<MaterialResponse> list = Collections.singletonList(new MaterialResponse(null, null, null, null, null, null, null));
+        List<MaterialResponse> list = Collections.singletonList(new MaterialResponse(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null));
         when(materialService.getAllMateriais()).thenReturn(list);
         ResponseEntity<List<MaterialResponse>> result = controller.getAllMateriais();
         assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -49,7 +49,7 @@ public class MaterialControllerTest {
     @Test
     void testGetMaterialById() {
         UUID id = UUID.randomUUID();
-        MaterialResponse res = new MaterialResponse(null, null, null, null, null, null, null);
+        MaterialResponse res = new MaterialResponse(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
         when(materialService.getMaterialById(id)).thenReturn(res);
         ResponseEntity<MaterialResponse> result = controller.getMaterialById(id);
         assertEquals(HttpStatus.OK, result.getStatusCode());

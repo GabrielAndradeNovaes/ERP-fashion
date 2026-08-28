@@ -29,8 +29,8 @@ public class ProdutoControllerTest {
 
     @Test
     void testCreateProduto() {
-        ProdutoBaseRequest req = new ProdutoBaseRequest(null, null, null, null, null, null);
-        ProdutoBaseResponse res = new ProdutoBaseResponse(null, null, null, null, null, null, null, null);
+        ProdutoBaseRequest req = new ProdutoBaseRequest(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        ProdutoBaseResponse res = new ProdutoBaseResponse(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
         when(produtoService.createProduto(req)).thenReturn(res);
         ResponseEntity<ProdutoBaseResponse> result = controller.createProduto(req);
         assertEquals(HttpStatus.CREATED, result.getStatusCode());
@@ -39,7 +39,7 @@ public class ProdutoControllerTest {
 
     @Test
     void testGetAllProdutos() {
-        List<ProdutoBaseResponse> list = Collections.singletonList(new ProdutoBaseResponse(null, null, null, null, null, null, null, null));
+        List<ProdutoBaseResponse> list = Collections.singletonList(new ProdutoBaseResponse(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null));
         when(produtoService.getAllProdutos()).thenReturn(list);
         ResponseEntity<List<ProdutoBaseResponse>> result = controller.getAllProdutos();
         assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -49,7 +49,7 @@ public class ProdutoControllerTest {
     @Test
     void testGetProduto() {
         UUID id = UUID.randomUUID();
-        ProdutoBaseResponse res = new ProdutoBaseResponse(null, null, null, null, null, null, null, null);
+        ProdutoBaseResponse res = new ProdutoBaseResponse(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
         when(produtoService.getProduto(id)).thenReturn(res);
         ResponseEntity<ProdutoBaseResponse> result = controller.getProduto(id);
         assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -59,8 +59,8 @@ public class ProdutoControllerTest {
     @Test
     void testUpdateProduto() {
         UUID id = UUID.randomUUID();
-        ProdutoBaseRequest req = new ProdutoBaseRequest(null, null, null, null, null, null);
-        ProdutoBaseResponse res = new ProdutoBaseResponse(null, null, null, null, null, null, null, null);
+        ProdutoBaseRequest req = new ProdutoBaseRequest(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        ProdutoBaseResponse res = new ProdutoBaseResponse(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
         when(produtoService.updateProduto(id, req)).thenReturn(res);
         ResponseEntity<ProdutoBaseResponse> result = controller.updateProduto(id, req);
         assertEquals(HttpStatus.OK, result.getStatusCode());

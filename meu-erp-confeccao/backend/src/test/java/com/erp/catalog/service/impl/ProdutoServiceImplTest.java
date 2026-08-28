@@ -45,8 +45,18 @@ public class ProdutoServiceImplTest {
                 "PROD-001",
                 "Camiseta Básica",
                 "Camiseta 100% algodão",
-                new BigDecimal("49.90"),
-                new BigDecimal("20.00"),
+                java.math.BigDecimal.TEN,
+                java.math.BigDecimal.ZERO,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
                 null
         );
     }

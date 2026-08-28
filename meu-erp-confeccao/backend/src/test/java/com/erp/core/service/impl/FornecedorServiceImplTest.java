@@ -44,7 +44,13 @@ public class FornecedorServiceImplTest {
                 "Fornecedor Teste",
                 "98765432100",
                 "fornecedor@teste.com",
-                "11888888888",
+                "11999999999",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
                 null,
                 null
         );

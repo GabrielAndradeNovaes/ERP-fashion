@@ -29,8 +29,8 @@ public class ClienteControllerTest {
 
     @Test
     void testCreate() {
-        ClienteRequest req = new ClienteRequest(null, null, null, null, null, null);
-        ClienteResponse res = new ClienteResponse(null, null, null, null, null, null, null);
+        ClienteRequest req = new ClienteRequest(null, null, null, null, null, null, null, null, null, null, null);
+        ClienteResponse res = new ClienteResponse(null, null, null, null, null, null, null, null, null, null, null, null);
         when(service.create(req)).thenReturn(res);
         ResponseEntity<ClienteResponse> result = controller.create(req);
         assertEquals(HttpStatus.CREATED, result.getStatusCode());
@@ -39,7 +39,7 @@ public class ClienteControllerTest {
 
     @Test
     void testGetAll() {
-        List<ClienteResponse> list = Collections.singletonList(new ClienteResponse(null, null, null, null, null, null, null));
+        List<ClienteResponse> list = Collections.singletonList(new ClienteResponse(null, null, null, null, null, null, null, null, null, null, null, null));
         when(service.getAll()).thenReturn(list);
         ResponseEntity<List<ClienteResponse>> result = controller.getAll();
         assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -49,7 +49,7 @@ public class ClienteControllerTest {
     @Test
     void testGetById() {
         UUID id = UUID.randomUUID();
-        ClienteResponse res = new ClienteResponse(null, null, null, null, null, null, null);
+        ClienteResponse res = new ClienteResponse(null, null, null, null, null, null, null, null, null, null, null, null);
         when(service.getById(id)).thenReturn(res);
         ResponseEntity<ClienteResponse> result = controller.getById(id);
         assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -59,8 +59,8 @@ public class ClienteControllerTest {
     @Test
     void testUpdate() {
         UUID id = UUID.randomUUID();
-        ClienteRequest req = new ClienteRequest(null, null, null, null, null, null);
-        ClienteResponse res = new ClienteResponse(null, null, null, null, null, null, null);
+        ClienteRequest req = new ClienteRequest(null, null, null, null, null, null, null, null, null, null, null);
+        ClienteResponse res = new ClienteResponse(null, null, null, null, null, null, null, null, null, null, null, null);
         when(service.update(id, req)).thenReturn(res);
         ResponseEntity<ClienteResponse> result = controller.update(id, req);
         assertEquals(HttpStatus.OK, result.getStatusCode());

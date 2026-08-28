@@ -48,7 +48,17 @@ public class MaterialServiceImplTest {
                 "Tecido Algodão",
                 "Tecido 100% algodão branco",
                 "METRO",
-                new BigDecimal("15.50")
+                new BigDecimal("15.50"),
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
         );
     }
 

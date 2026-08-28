@@ -29,8 +29,8 @@ public class FornecedorControllerTest {
 
     @Test
     void testCreate() {
-        FornecedorRequest req = new FornecedorRequest(null, null, null, null, null, null);
-        FornecedorResponse res = new FornecedorResponse(null, null, null, null, null, null, null);
+        FornecedorRequest req = new FornecedorRequest(null, null, null, null, null, null, null, null, null, null, null, null);
+        FornecedorResponse res = new FornecedorResponse(null, null, null, null, null, null, null, null, null, null, null, null, null);
         when(service.create(req)).thenReturn(res);
         ResponseEntity<FornecedorResponse> result = controller.create(req);
         assertEquals(HttpStatus.CREATED, result.getStatusCode());
@@ -39,7 +39,7 @@ public class FornecedorControllerTest {
 
     @Test
     void testGetAll() {
-        List<FornecedorResponse> list = Collections.singletonList(new FornecedorResponse(null, null, null, null, null, null, null));
+        List<FornecedorResponse> list = Collections.singletonList(new FornecedorResponse(null, null, null, null, null, null, null, null, null, null, null, null, null));
         when(service.getAll()).thenReturn(list);
         ResponseEntity<List<FornecedorResponse>> result = controller.getAll();
         assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -49,7 +49,7 @@ public class FornecedorControllerTest {
     @Test
     void testGetById() {
         UUID id = UUID.randomUUID();
-        FornecedorResponse res = new FornecedorResponse(null, null, null, null, null, null, null);
+        FornecedorResponse res = new FornecedorResponse(null, null, null, null, null, null, null, null, null, null, null, null, null);
         when(service.getById(id)).thenReturn(res);
         ResponseEntity<FornecedorResponse> result = controller.getById(id);
         assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -59,8 +59,8 @@ public class FornecedorControllerTest {
     @Test
     void testUpdate() {
         UUID id = UUID.randomUUID();
-        FornecedorRequest req = new FornecedorRequest(null, null, null, null, null, null);
-        FornecedorResponse res = new FornecedorResponse(null, null, null, null, null, null, null);
+        FornecedorRequest req = new FornecedorRequest(null, null, null, null, null, null, null, null, null, null, null, null);
+        FornecedorResponse res = new FornecedorResponse(null, null, null, null, null, null, null, null, null, null, null, null, null);
         when(service.update(id, req)).thenReturn(res);
         ResponseEntity<FornecedorResponse> result = controller.update(id, req);
         assertEquals(HttpStatus.OK, result.getStatusCode());

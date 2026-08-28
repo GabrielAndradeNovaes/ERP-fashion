@@ -7,15 +7,17 @@ import org.hibernate.Session;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.UUID;
 
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class EmpresaFilterAspectTest {
 
     @Mock
@@ -27,14 +29,11 @@ class EmpresaFilterAspectTest {
     @Mock
     private Filter filter;
 
-    @InjectMocks
     private EmpresaFilterAspect aspect;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-        when(entityManager.unwrap(Session.class)).thenReturn(session);
-        when(session.enableFilter("empresaFilter")).thenReturn(filter);
+        aspect = new EmpresaFilterAspect(entityManager);
         EmpresaContext.clear();
     }
 
@@ -47,6 +46,8 @@ class EmpresaFilterAspectTest {
     void enableEmpresaFilter_WithEmpresas_EnablesFilter() {
         UUID empresaId = UUID.randomUUID();
         EmpresaContext.setEmpresas(Collections.singletonList(empresaId));
+        when(entityManager.unwrap(org.mockito.ArgumentMatchers.any())).thenReturn(session);
+        when(session.enableFilter(org.mockito.ArgumentMatchers.anyString())).thenReturn(filter);
 
         aspect.enableEmpresaFilter();
 
