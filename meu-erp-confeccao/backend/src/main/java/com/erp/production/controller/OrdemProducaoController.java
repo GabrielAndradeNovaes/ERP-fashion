@@ -52,4 +52,16 @@ public class OrdemProducaoController {
             com.erp.production.domain.OrdemProducaoStatus.valueOf(novoStatus.toUpperCase());
         return ResponseEntity.ok(ordemProducaoService.atualizarStatus(id, statusEnum));
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<OrdemProducaoResponse> atualizar(
+            @PathVariable UUID id,
+            @RequestBody OrdemProducaoRequest request) {
+        return ResponseEntity.ok(ordemProducaoService.atualizarOrdemProducao(id, request));
+    }
+
+    @PostMapping("/{id}/estornar")
+    public ResponseEntity<OrdemProducaoResponse> estornar(@PathVariable UUID id) {
+        return ResponseEntity.ok(ordemProducaoService.estornarOrdemProducao(id));
+    }
 }

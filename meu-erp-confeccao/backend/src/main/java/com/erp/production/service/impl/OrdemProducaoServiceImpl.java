@@ -66,7 +66,7 @@ public class OrdemProducaoServiceImpl implements OrdemProducaoService {
         op.setProdutoBase(produto);
         op.setFichaTecnica(ficha);
         op.setQuantidade(request.quantidade());
-        op.setStatus(OrdemProducaoStatus.CADASTRADA);
+        op.setStatus(OrdemProducaoStatus.PENDENTE);
 
         if (request.itens() != null && !request.itens().isEmpty()) {
             for (var itemReq : request.itens()) {
@@ -108,8 +108,8 @@ public class OrdemProducaoServiceImpl implements OrdemProducaoService {
         OrdemProducao op = ordemProducaoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Ordem de Produção não encontrada."));
 
-        if (op.getStatus() != OrdemProducaoStatus.CADASTRADA) {
-            throw new IllegalStateException("Ordem de Produção deve estar no status CADASTRADA para ser iniciada.");
+        if (op.getStatus() != OrdemProducaoStatus.PENDENTE) {
+            throw new IllegalStateException("Ordem de Produção deve estar no status PENDENTE para ser iniciada.");
         }
 
         // Explosão de materiais (BOM)
@@ -127,7 +127,7 @@ public class OrdemProducaoServiceImpl implements OrdemProducaoService {
             );
         });
 
-        op.setStatus(OrdemProducaoStatus.CORTE);
+        op.setStatus(OrdemProducaoStatus.EM_ANDAMENTO);
         op.setDataInicio(LocalDateTime.now());
         
         OrdemProducao saved = ordemProducaoRepository.save(op);
@@ -140,7 +140,7 @@ public class OrdemProducaoServiceImpl implements OrdemProducaoService {
         OrdemProducao op = ordemProducaoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Ordem de Produção não encontrada."));
 
-        if (op.getStatus() == OrdemProducaoStatus.CADASTRADA || op.getStatus() == OrdemProducaoStatus.CONCLUIDA) {
+        if (op.getStatus() == OrdemProducaoStatus.PENDENTE || op.getStatus() == OrdemProducaoStatus.CONCLUIDA) {
             throw new IllegalStateException("Ordem de Produção não está em estado válido para gerar pacotes.");
         }
 
@@ -216,6 +216,111 @@ public class OrdemProducaoServiceImpl implements OrdemProducaoService {
         op.setStatus(novoStatus);
         OrdemProducao saved = ordemProducaoRepository.save(op);
         return mapToResponse(saved);
+    }
+
+    @Override
+    @Transactional
+    public OrdemProducaoResponse atualizarOrdemProducao(UUID id, OrdemProducaoRequest request) {
+        OrdemProducao op = ordemProducaoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Ordem de Produção não encontrada."));
+
+        if (op.getStatus() != OrdemProducaoStatus.PENDENTE) {
+            throw new IllegalStateException("Só é possível editar Ordens de Produção no status PENDENTE. Se necessário, realize o estorno primeiro.");
+        }
+
+        ProdutoBase produto = produtoBaseRepository.findById(request.produtoBaseId())
+                .orElseThrow(() -> new IllegalArgumentException("Produto base não encontrado."));
+
+        FichaTecnica ficha = produto.getFichaTecnica();
+        if (ficha == null) {
+            throw new IllegalArgumentException("O produto selecionado não possui uma Ficha Técnica vinculada.");
+        }
+
+        if (!op.getNumero().equals(request.numero()) && ordemProducaoRepository.existsByNumero(request.numero())) {
+            throw new IllegalArgumentException("Ordem de Produção com número " + request.numero() + " já existe.");
+        }
+
+        op.setNumero(request.numero());
+        op.setProdutoBase(produto);
+        op.setFichaTecnica(ficha);
+        op.setQuantidade(request.quantidade());
+
+        op.getItens().clear();
+
+        if (request.itens() != null && !request.itens().isEmpty()) {
+            for (var itemReq : request.itens()) {
+                ProdutoSku sku = produtoSkuRepository.findById(itemReq.produtoSkuId())
+                        .orElseThrow(() -> new IllegalArgumentException("SKU não encontrado: " + itemReq.produtoSkuId()));
+                OrdemProducaoItem item = new OrdemProducaoItem();
+                item.setProdutoSku(sku);
+                item.setQuantidade(itemReq.quantidade());
+                op.addItem(item);
+            }
+        } else {
+            if (produto.getSkus() != null && !produto.getSkus().isEmpty()) {
+                ProdutoSku primeiroSku = produto.getSkus().get(0);
+                OrdemProducaoItem item = new OrdemProducaoItem();
+                item.setProdutoSku(primeiroSku);
+                item.setQuantidade(op.getQuantidade());
+                op.addItem(item);
+            } else {
+                throw new IllegalArgumentException("O Produto Base não possui nenhuma Grade (SKU) cadastrada.");
+            }
+        }
+
+        return mapToResponse(ordemProducaoRepository.save(op));
+    }
+
+    @Override
+    @Transactional
+    public OrdemProducaoResponse estornarOrdemProducao(UUID id) {
+        OrdemProducao op = ordemProducaoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Ordem de Produção não encontrada."));
+
+        if (op.getStatus() == OrdemProducaoStatus.PENDENTE || op.getStatus() == OrdemProducaoStatus.CANCELADA) {
+            throw new IllegalStateException("Não é possível estornar uma OP que está PENDENTE ou CANCELADA.");
+        }
+
+        // Se estiver CONCLUIDA, retirar produtos acabados
+        if (op.getStatus() == OrdemProducaoStatus.CONCLUIDA) {
+            if (op.getItens() != null) {
+                for (OrdemProducaoItem item : op.getItens()) {
+                    ProdutoSku sku = item.getProdutoSku();
+                    int currentStock = sku.getQuantidadeAtual() != null ? sku.getQuantidadeAtual() : 0;
+                    sku.setQuantidadeAtual(currentStock - item.getQuantidade());
+                    produtoSkuRepository.save(sku);
+                }
+            }
+        }
+
+        // Sempre devolver matéria-prima se a OP passou de PENDENTE (foi iniciada)
+        FichaTecnica ficha = op.getFichaTecnica();
+        BigDecimal qtdOp = new BigDecimal(op.getQuantidade());
+
+        ficha.getMateriais().forEach(fm -> {
+            BigDecimal consumoTotal = fm.getQuantidade().multiply(qtdOp);
+            estoqueMovimentacaoService.registrarMovimentacao(
+                    fm.getMaterial().getId(),
+                    TipoMovimentacao.ENTRADA,
+                    consumoTotal,
+                    "Estorno OP: " + op.getNumero()
+            );
+        });
+
+        // Opcional: deletar pacotes e cupons se houver, ou deixá-los órfãos/cancelados.
+        // Como o sistema gera pacotes e cupons a parte, vamos deletá-los para não duplicar se iniciar de novo.
+        List<Pacote> pacotesExistentes = pacoteRepository.findByOrdemProducaoId(id);
+        if (!pacotesExistentes.isEmpty()) {
+            for (Pacote p : pacotesExistentes) {
+                cupomRepository.deleteAll(cupomRepository.findByPacoteId(p.getId()));
+            }
+            pacoteRepository.deleteAll(pacotesExistentes);
+        }
+
+        op.setStatus(OrdemProducaoStatus.PENDENTE);
+        op.setDataInicio(null);
+
+        return mapToResponse(ordemProducaoRepository.save(op));
     }
 
     private OrdemProducaoResponse mapToResponse(OrdemProducao op) {

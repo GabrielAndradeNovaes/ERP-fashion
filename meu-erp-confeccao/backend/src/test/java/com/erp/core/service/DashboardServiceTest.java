@@ -34,9 +34,8 @@ public class DashboardServiceTest {
     @Test
     void testGetResumo() {
         when(produtoBaseRepository.count()).thenReturn(10L);
-        when(ordemProducaoRepository.countByStatus(OrdemProducaoStatus.CORTE)).thenReturn(3L);
-        when(ordemProducaoRepository.countByStatus(OrdemProducaoStatus.COSTURA)).thenReturn(2L);
-        when(ordemProducaoRepository.countByStatus(OrdemProducaoStatus.FACCAO)).thenReturn(0L);
+        when(ordemProducaoRepository.countByStatus(OrdemProducaoStatus.EM_ANDAMENTO)).thenReturn(3L);
+        when(ordemProducaoRepository.countByStatus(OrdemProducaoStatus.FACCAO)).thenReturn(2L);
         when(ordemProducaoRepository.countByStatus(OrdemProducaoStatus.CONCLUIDA)).thenReturn(5L);
 
         Material m = new Material();
@@ -48,7 +47,7 @@ public class DashboardServiceTest {
 
         assertEquals(10L, result.getTotalProdutos());
         assertEquals(5L, result.getOpsEmAndamento());
-        assertEquals(3L, result.getOpsConcluidas());
+        assertEquals(5L, result.getOpsConcluidas());
         assertEquals(25.0, result.getValorTotalEstoque());
     }
 }

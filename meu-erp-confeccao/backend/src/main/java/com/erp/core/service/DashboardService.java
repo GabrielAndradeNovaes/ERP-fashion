@@ -25,8 +25,7 @@ public class DashboardService {
 
     public DashboardResumoDTO getResumo() {
         long totalProdutos = produtoBaseRepository.count();
-        long opsEmAndamento = ordemProducaoRepository.countByStatus(OrdemProducaoStatus.CORTE)
-                            + ordemProducaoRepository.countByStatus(OrdemProducaoStatus.COSTURA)
+        long opsEmAndamento = ordemProducaoRepository.countByStatus(OrdemProducaoStatus.EM_ANDAMENTO)
                             + ordemProducaoRepository.countByStatus(OrdemProducaoStatus.FACCAO);
         long opsConcluidas = ordemProducaoRepository.countByStatus(OrdemProducaoStatus.CONCLUIDA);
         

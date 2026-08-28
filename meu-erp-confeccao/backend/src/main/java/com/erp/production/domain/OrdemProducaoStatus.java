@@ -1,9 +1,8 @@
 package com.erp.production.domain;
 
 public enum OrdemProducaoStatus {
-    CADASTRADA,
-    CORTE,
-    COSTURA,
+    PENDENTE,
+    EM_ANDAMENTO,
     FACCAO,
     CONCLUIDA,
     CANCELADA

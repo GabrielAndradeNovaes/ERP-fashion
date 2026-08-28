@@ -94,7 +94,7 @@ public class OrdemProducaoServiceImplTest {
         mockOp.setProdutoBase(mockProduto);
         mockOp.setFichaTecnica(mockFicha);
         mockOp.setQuantidade(10);
-        mockOp.setStatus(OrdemProducaoStatus.CADASTRADA);
+        mockOp.setStatus(OrdemProducaoStatus.PENDENTE);
 
         mockRequest = new OrdemProducaoRequest("OP-001", mockProduto.getId(), 10, null);
     }
@@ -109,7 +109,7 @@ public class OrdemProducaoServiceImplTest {
 
         assertNotNull(response);
         assertEquals("OP-001", response.numero());
-        assertEquals(OrdemProducaoStatus.CADASTRADA, response.status());
+        assertEquals(OrdemProducaoStatus.PENDENTE, response.status());
     }
 
     @Test
@@ -136,7 +136,7 @@ public class OrdemProducaoServiceImplTest {
         OrdemProducaoResponse response = service.iniciarProducao(mockOp.getId());
         assertNotNull(response);
 
-        assertEquals(OrdemProducaoStatus.CORTE, mockOp.getStatus());
+        assertEquals(OrdemProducaoStatus.EM_ANDAMENTO, mockOp.getStatus());
         assertNotNull(mockOp.getDataInicio());
 
         // Verify inventory service was called correctly for the explosion
@@ -150,7 +150,7 @@ public class OrdemProducaoServiceImplTest {
     
     @Test
     void shouldThrowExceptionWhenStartingStartedOp() {
-        mockOp.setStatus(OrdemProducaoStatus.CORTE);
+        mockOp.setStatus(OrdemProducaoStatus.EM_ANDAMENTO);
         when(ordemProducaoRepository.findById(mockOp.getId())).thenReturn(Optional.of(mockOp));
         
         assertThrows(IllegalStateException.class, () -> service.iniciarProducao(mockOp.getId()));
@@ -159,7 +159,7 @@ public class OrdemProducaoServiceImplTest {
     @Test
     void shouldGerarPacotes() {
         // Setup
-        mockOp.setStatus(OrdemProducaoStatus.CORTE);
+        mockOp.setStatus(OrdemProducaoStatus.EM_ANDAMENTO);
         
         com.erp.catalog.domain.ProdutoSku sku = new com.erp.catalog.domain.ProdutoSku();
         sku.setId(UUID.randomUUID());
