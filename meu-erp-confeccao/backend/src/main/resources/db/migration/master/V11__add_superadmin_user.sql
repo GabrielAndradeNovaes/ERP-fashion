@@ -1,3 +1,8 @@
+-- Insere o tenant master caso não exista para satisfazer a chave estrangeira
+INSERT INTO clientes_tenant (nome_empresa, schema_name) 
+VALUES ('Administração Control Plane', 'master') 
+ON CONFLICT (schema_name) DO NOTHING;
+
 -- Insere ou atualiza o usuario admin@gmail.com para SUPERADMIN
 INSERT INTO usuarios (id, tenant_id, nome, email, senha, role, ativo, criado_em)
 VALUES (
@@ -5,7 +10,7 @@ VALUES (
     'master', 
     'Super Admin', 
     'admin@gmail.com', 
-    '$2a$10$qa5NrjWLAm.8YZoqI/pHY.bLL8vkaN0xm119Mkxfvg5fV0ifh53ze', 
+    '$2a$06$vvPXdhlTH1AvjdBWhhGEFOPXspGogSGezlm81DYVspmOBIT78aXGq', 
     'SUPERADMIN',
     true,
     CURRENT_TIMESTAMP

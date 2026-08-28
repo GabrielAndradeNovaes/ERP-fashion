@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.erp.production.controller.FichaTecnicaControllerTest
--------------------------------------------------------------------------------
-Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.222 s -- in com.erp.production.controller.FichaTecnicaControllerTest
