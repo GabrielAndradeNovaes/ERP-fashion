@@ -370,8 +370,22 @@ const TenantsList = () => {
           </Box>
           
           <TabPanel value={tabValue} index={0}>
+            {editingSchema && (
+              <Box sx={{ mb: 2, p: 2, bgcolor: 'primary.50', borderRadius: 2, border: '1px solid', borderColor: 'primary.100' }}>
+                <Typography variant="body2" color="primary.800" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <strong>Link de Acesso (Subdomínio):</strong> 
+                  <a 
+                    href={`${window.location.protocol}//${newTenant.slug}.${window.location.hostname.replace('admin.', '').replace('www.', '')}${window.location.port ? ':' + window.location.port : ''}/`} 
+                    target="_blank" 
+                    rel="noreferrer"
+                  >
+                    {`${window.location.protocol}//${newTenant.slug}.${window.location.hostname.replace('admin.', '').replace('www.', '')}${window.location.port ? ':' + window.location.port : ''}/`}
+                  </a>
+                </Typography>
+              </Box>
+            )}
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
+              <Grid xs={12} sm={6}>
                 <TextField 
                   label="CNPJ" 
                   fullWidth 
@@ -379,50 +393,52 @@ const TenantsList = () => {
                   value={newTenant.cnpj} 
                   onChange={(e) => setNewTenant({...newTenant, cnpj: e.target.value})}
                   onBlur={fetchCnpjData}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton onClick={fetchCnpjData} edge="end" disabled={fetchingCnpj}>
-                          {fetchingCnpj ? <CircularProgress size={24} /> : <Search size={20} />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton onClick={fetchCnpjData} edge="end" disabled={fetchingCnpj}>
+                            {fetchingCnpj ? <CircularProgress size={24} /> : <Search size={20} />}
+                          </IconButton>
+                        </InputAdornment>
+                      )
+                    }
                   }}
                   helperText="Digite o CNPJ e saia do campo para buscar dados"
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid xs={12} sm={6}>
                 <TextField label="Nome Fantasia / Empresa" required fullWidth value={newTenant.nomeEmpresa} onChange={(e) => setNewTenant({...newTenant, nomeEmpresa: e.target.value})} />
               </Grid>
-              <Grid item xs={12}>
+              <Grid xs={12}>
                 <TextField label="Razão Social" fullWidth value={newTenant.razaoSocial} onChange={(e) => setNewTenant({...newTenant, razaoSocial: e.target.value})} />
               </Grid>
-              <Grid item xs={12} sm={4}>
+              <Grid xs={12} sm={4}>
                 <TextField label="Porte" fullWidth value={newTenant.porte} onChange={(e) => setNewTenant({...newTenant, porte: e.target.value})} />
               </Grid>
-              <Grid item xs={12} sm={4}>
+              <Grid xs={12} sm={4}>
                 <TextField label="Natureza Jurídica" fullWidth value={newTenant.naturezaJuridica} onChange={(e) => setNewTenant({...newTenant, naturezaJuridica: e.target.value})} />
               </Grid>
-              <Grid item xs={12} sm={4}>
+              <Grid xs={12} sm={4}>
                 <TextField label="Status RFB" fullWidth value={newTenant.statusRfb} onChange={(e) => setNewTenant({...newTenant, statusRfb: e.target.value})} />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid xs={12} sm={6}>
                 <TextField label="E-mail Principal" type="email" fullWidth value={newTenant.emailPrincipal} onChange={(e) => setNewTenant({...newTenant, emailPrincipal: e.target.value})} />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid xs={12} sm={6}>
                 <TextField label="Telefone" fullWidth value={newTenant.telefone} onChange={(e) => setNewTenant({...newTenant, telefone: e.target.value})} />
               </Grid>
 
-              <Grid item xs={12}>
+              <Grid xs={12}>
                 <Typography variant="subtitle2" sx={{ mt: 2, fontWeight: 'bold' }}>Dados do Usuário Administrador (Seed)</Typography>
               </Grid>
-              <Grid item xs={12} sm={4}>
+              <Grid xs={12} sm={4}>
                 <TextField label="Nome do Admin" required={!editingSchema} disabled={!!editingSchema} fullWidth value={newTenant.adminNome} onChange={(e) => setNewTenant({...newTenant, adminNome: e.target.value})} />
               </Grid>
-              <Grid item xs={12} sm={4}>
+              <Grid xs={12} sm={4}>
                 <TextField label="E-mail do Admin" type="email" required={!editingSchema} disabled={!!editingSchema} fullWidth value={newTenant.adminEmail} onChange={(e) => setNewTenant({...newTenant, adminEmail: e.target.value})} />
               </Grid>
-              <Grid item xs={12} sm={4}>
+              <Grid xs={12} sm={4}>
                 <TextField label="Senha Temporária" type="password" required={!editingSchema} disabled={!!editingSchema} fullWidth value={newTenant.adminSenha} onChange={(e) => setNewTenant({...newTenant, adminSenha: e.target.value})} />
               </Grid>
             </Grid>
@@ -430,25 +446,25 @@ const TenantsList = () => {
 
           <TabPanel value={tabValue} index={1}>
              <Grid container spacing={2}>
-              <Grid item xs={12} sm={4}>
+              <Grid xs={12} sm={4}>
                 <TextField label="CEP" fullWidth value={newTenant.cep} onChange={(e) => setNewTenant({...newTenant, cep: e.target.value})} />
               </Grid>
-              <Grid item xs={12} sm={8}>
+              <Grid xs={12} sm={8}>
                 <TextField label="Logradouro" fullWidth value={newTenant.logradouro} onChange={(e) => setNewTenant({...newTenant, logradouro: e.target.value})} />
               </Grid>
-              <Grid item xs={12} sm={4}>
+              <Grid xs={12} sm={4}>
                 <TextField label="Número" fullWidth value={newTenant.numero} onChange={(e) => setNewTenant({...newTenant, numero: e.target.value})} />
               </Grid>
-              <Grid item xs={12} sm={8}>
+              <Grid xs={12} sm={8}>
                 <TextField label="Complemento" fullWidth value={newTenant.complemento} onChange={(e) => setNewTenant({...newTenant, complemento: e.target.value})} />
               </Grid>
-              <Grid item xs={12} sm={5}>
+              <Grid xs={12} sm={5}>
                 <TextField label="Bairro" fullWidth value={newTenant.bairro} onChange={(e) => setNewTenant({...newTenant, bairro: e.target.value})} />
               </Grid>
-              <Grid item xs={12} sm={5}>
+              <Grid xs={12} sm={5}>
                 <TextField label="Cidade" fullWidth value={newTenant.cidade} onChange={(e) => setNewTenant({...newTenant, cidade: e.target.value})} />
               </Grid>
-              <Grid item xs={12} sm={2}>
+              <Grid xs={12} sm={2}>
                 <TextField label="UF" fullWidth value={newTenant.estado} onChange={(e) => setNewTenant({...newTenant, estado: e.target.value})} />
               </Grid>
              </Grid>
@@ -456,13 +472,13 @@ const TenantsList = () => {
 
           <TabPanel value={tabValue} index={2}>
              <Grid container spacing={2}>
-              <Grid item xs={12} sm={4}>
+              <Grid xs={12} sm={4}>
                 <TextField label="CNAE Principal" fullWidth value={newTenant.cnaePrincipalCodigo} onChange={(e) => setNewTenant({...newTenant, cnaePrincipalCodigo: e.target.value})} />
               </Grid>
-              <Grid item xs={12} sm={8}>
+              <Grid xs={12} sm={8}>
                 <TextField label="Descrição CNAE" fullWidth value={newTenant.cnaePrincipalDescricao} onChange={(e) => setNewTenant({...newTenant, cnaePrincipalDescricao: e.target.value})} />
               </Grid>
-              <Grid item xs={12}>
+              <Grid xs={12}>
                 <FormControl fullWidth>
                   <Select
                     value={newTenant.simplesNacional ? 'sim' : 'nao'}
