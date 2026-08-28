@@ -2,6 +2,7 @@ package com.erp.core.tenant;
 
 import com.erp.core.security.Usuario;
 import com.erp.core.security.UsuarioRepository;
+import com.erp.core.tenant.dto.TenantProvisionRequest;
 import org.flywaydb.core.Flyway;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,21 +26,24 @@ public class TenantProvisioningService {
     private final DataSource dataSource; // Master datasource
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
+    private final TenantRepository tenantRepository;
 
     public TenantProvisioningService(DataSource dataSource, 
                                      UsuarioRepository usuarioRepository, 
-                                     PasswordEncoder passwordEncoder) {
+                                     PasswordEncoder passwordEncoder,
+                                     TenantRepository tenantRepository) {
         this.dataSource = dataSource;
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
+        this.tenantRepository = tenantRepository;
     }
 
-    public void startProvisioning(String nomeEmpresa, String schemaName, String adminNome, String adminEmail, String adminSenha) {
+    public void startProvisioning(TenantProvisionRequest request) {
         // 1. Registro síncrono no DB como PENDENTE
-        insertTenantRecord(nomeEmpresa, schemaName, "PENDENTE");
+        insertTenantRecord(request, "PENDENTE");
         
         // 2. Dispara a orquestração pesada em background (Fire and Forget)
-        executeProvisioningAsync(schemaName, adminNome, adminEmail, adminSenha);
+        executeProvisioningAsync(request.getSchemaName(), request.getAdminNome(), request.getAdminEmail(), request.getAdminSenha());
     }
 
     @Async
@@ -69,14 +73,12 @@ public class TenantProvisioningService {
     }
 
     private void updateTenantStatus(String schemaName, String status) {
-        String sql = "UPDATE master.clientes_tenant SET status = ? WHERE schema_name = ?";
-        try (Connection conn = dataSource.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, status);
-            stmt.setString(2, schemaName);
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            logger.error("Erro ao atualizar status do tenant {}", schemaName, e);
+        Tenant tenant = tenantRepository.findBySchemaName(schemaName);
+        if (tenant != null) {
+            tenant.setStatus(status);
+            tenantRepository.save(tenant);
+        } else {
+            logger.error("Tenant {} não encontrado para atualizar o status para {}", schemaName, status);
         }
     }
 
@@ -91,17 +93,38 @@ public class TenantProvisioningService {
         }
     }
 
-    private void insertTenantRecord(String nomeEmpresa, String schemaName, String status) {
-        String sql = "INSERT INTO master.clientes_tenant (nome_empresa, schema_name, status) VALUES (?, ?, ?)";
-        try (Connection conn = dataSource.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, nomeEmpresa);
-            stmt.setString(2, schemaName);
-            stmt.setString(3, status);
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException("Erro ao inserir registro do tenant no master.", e);
-        }
+    private void insertTenantRecord(TenantProvisionRequest request, String status) {
+        Tenant tenant = new Tenant();
+        tenant.setId(UUID.randomUUID());
+        tenant.setNomeEmpresa(request.getNomeEmpresa());
+        tenant.setSchemaName(request.getSchemaName());
+        tenant.setStatus(status);
+        tenant.setAtivo(true);
+        tenant.setCriadoEm(LocalDateTime.now());
+        
+        tenant.setCnpj(request.getCnpj());
+        tenant.setRazaoSocial(request.getRazaoSocial());
+        tenant.setNomeFantasia(request.getNomeFantasia());
+        tenant.setPorte(request.getPorte());
+        tenant.setNaturezaJuridica(request.getNaturezaJuridica());
+        tenant.setStatusRfb(request.getStatusRfb());
+        tenant.setDataAbertura(request.getDataAbertura());
+        tenant.setEmailPrincipal(request.getEmailPrincipal());
+        tenant.setTelefone(request.getTelefone());
+        tenant.setCep(request.getCep());
+        tenant.setLogradouro(request.getLogradouro());
+        tenant.setNumero(request.getNumero());
+        tenant.setComplemento(request.getComplemento());
+        tenant.setBairro(request.getBairro());
+        tenant.setCidade(request.getCidade());
+        tenant.setEstado(request.getEstado());
+        tenant.setCnaePrincipalCodigo(request.getCnaePrincipalCodigo());
+        tenant.setCnaePrincipalDescricao(request.getCnaePrincipalDescricao());
+        tenant.setSimplesNacional(request.getSimplesNacional());
+        String rawData = request.getReceitaFederalRawData();
+        tenant.setReceitaFederalRawData((rawData != null && rawData.trim().isEmpty()) ? null : rawData);
+
+        tenantRepository.save(tenant);
     }
 
     private void createSchema(String schemaName) {

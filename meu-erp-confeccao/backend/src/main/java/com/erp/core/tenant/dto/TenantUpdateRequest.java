@@ -2,13 +2,8 @@ package com.erp.core.tenant.dto;
 
 import java.time.LocalDate;
 
-public class TenantProvisionRequest {
+public class TenantUpdateRequest {
     private String nomeEmpresa;
-    private String schemaName;
-    private String adminNome;
-    private String adminEmail;
-    private String adminSenha;
-
     private String cnpj;
     private String razaoSocial;
     private String nomeFantasia;
@@ -32,22 +27,8 @@ public class TenantProvisionRequest {
     private Boolean simplesNacional;
     private String receitaFederalRawData;
 
-    // Getters and Setters
-
     public String getNomeEmpresa() { return nomeEmpresa; }
     public void setNomeEmpresa(String nomeEmpresa) { this.nomeEmpresa = nomeEmpresa; }
-
-    public String getSchemaName() { return schemaName; }
-    public void setSchemaName(String schemaName) { this.schemaName = schemaName; }
-
-    public String getAdminNome() { return adminNome; }
-    public void setAdminNome(String adminNome) { this.adminNome = adminNome; }
-
-    public String getAdminEmail() { return adminEmail; }
-    public void setAdminEmail(String adminEmail) { this.adminEmail = adminEmail; }
-
-    public String getAdminSenha() { return adminSenha; }
-    public void setAdminSenha(String adminSenha) { this.adminSenha = adminSenha; }
 
     public String getCnpj() { return cnpj; }
     public void setCnpj(String cnpj) { this.cnpj = cnpj; }
