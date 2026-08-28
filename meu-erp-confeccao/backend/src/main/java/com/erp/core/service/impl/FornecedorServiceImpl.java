@@ -29,6 +29,14 @@ public class FornecedorServiceImpl implements FornecedorService {
         entity.setDocumento(request.documento());
         entity.setEmail(request.email());
         entity.setTelefone(request.telefone());
+        entity.setTipoPessoa(request.tipoPessoa());
+        entity.setRazaoSocial(request.razaoSocial());
+        entity.setInscricaoEstadual(request.inscricaoEstadual());
+        entity.setCategoriaFornecedor(request.categoriaFornecedor());
+        entity.setPrazoPagamentoPadrao(request.prazoPagamentoPadrao());
+        entity.setContatoNome(request.contatoNome());
+        entity.setStatus(request.status());
+        entity.setEndereco(request.endereco());
         return mapToResponse(repository.save(entity));
     }
 
@@ -52,6 +60,14 @@ public class FornecedorServiceImpl implements FornecedorService {
         entity.setDocumento(request.documento());
         entity.setEmail(request.email());
         entity.setTelefone(request.telefone());
+        entity.setTipoPessoa(request.tipoPessoa());
+        entity.setRazaoSocial(request.razaoSocial());
+        entity.setInscricaoEstadual(request.inscricaoEstadual());
+        entity.setCategoriaFornecedor(request.categoriaFornecedor());
+        entity.setPrazoPagamentoPadrao(request.prazoPagamentoPadrao());
+        entity.setContatoNome(request.contatoNome());
+        entity.setStatus(request.status());
+        entity.setEndereco(request.endereco());
         return mapToResponse(repository.save(entity));
     }
 
@@ -68,8 +84,14 @@ public class FornecedorServiceImpl implements FornecedorService {
                 entity.getDocumento(),
                 entity.getEmail(),
                 entity.getTelefone(),
-                null,
-                null
+                entity.getTipoPessoa(),
+                entity.getRazaoSocial(),
+                entity.getInscricaoEstadual(),
+                entity.getCategoriaFornecedor(),
+                entity.getPrazoPagamentoPadrao(),
+                entity.getContatoNome(),
+                entity.getStatus(),
+                entity.getEndereco()
         );
     }
 }

@@ -8,6 +8,11 @@ public record ClienteResponse(
     String documento,
     String email,
     String telefone,
-    String tipo,
-    String sigla
+    String tipoPessoa,
+    String razaoSocial,
+    String inscricaoEstadual,
+    java.math.BigDecimal limiteCredito,
+    String tabelaPrecoPadrao,
+    String status,
+    String endereco
 ) {}

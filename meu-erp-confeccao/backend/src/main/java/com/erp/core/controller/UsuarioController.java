@@ -66,6 +66,12 @@ public class UsuarioController {
         if (dto.getPermissoes() != null) {
             u.setPermissoes(new HashSet<>(dto.getPermissoes()));
         }
+        u.setCpf(dto.getCpf());
+        u.setTelefone(dto.getTelefone());
+        u.setCargo(dto.getCargo());
+        u.setDataNascimento(dto.getDataNascimento());
+        u.setDepartamento(dto.getDepartamento());
+        u.setFotoUrl(dto.getFotoUrl());
         
         Usuario salvo = usuarioRepository.save(u);
         
@@ -93,6 +99,13 @@ public class UsuarioController {
         if (dto.getPermissoes() != null) {
             u.setPermissoes(new HashSet<>(dto.getPermissoes()));
         }
+        
+        u.setCpf(dto.getCpf());
+        u.setTelefone(dto.getTelefone());
+        u.setCargo(dto.getCargo());
+        u.setDataNascimento(dto.getDataNascimento());
+        u.setDepartamento(dto.getDepartamento());
+        u.setFotoUrl(dto.getFotoUrl());
 
         if (dto.getSenha() != null && !dto.getSenha().isEmpty()) {
             u.setSenha(passwordEncoder.encode(dto.getSenha()));
@@ -140,6 +153,12 @@ public class UsuarioController {
         if (u.getPermissoes() != null) {
             dto.setPermissoes(u.getPermissoes().stream().collect(Collectors.toList()));
         }
+        dto.setCpf(u.getCpf());
+        dto.setTelefone(u.getTelefone());
+        dto.setCargo(u.getCargo());
+        dto.setDataNascimento(u.getDataNascimento());
+        dto.setDepartamento(u.getDepartamento());
+        dto.setFotoUrl(u.getFotoUrl());
         
         List<UUID> empIds = usuarioEmpresaRepository.findByUsuarioId(u.getId())
                 .stream().map(UsuarioEmpresa::getEmpresaId).collect(Collectors.toList());

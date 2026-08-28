@@ -29,6 +29,13 @@ public class ClienteServiceImpl implements ClienteService {
         entity.setDocumento(request.documento());
         entity.setEmail(request.email());
         entity.setTelefone(request.telefone());
+        entity.setTipoPessoa(request.tipoPessoa());
+        entity.setRazaoSocial(request.razaoSocial());
+        entity.setInscricaoEstadual(request.inscricaoEstadual());
+        entity.setLimiteCredito(request.limiteCredito());
+        entity.setTabelaPrecoPadrao(request.tabelaPrecoPadrao());
+        entity.setStatus(request.status());
+        entity.setEndereco(request.endereco());
         return mapToResponse(repository.save(entity));
     }
 
@@ -52,6 +59,13 @@ public class ClienteServiceImpl implements ClienteService {
         entity.setDocumento(request.documento());
         entity.setEmail(request.email());
         entity.setTelefone(request.telefone());
+        entity.setTipoPessoa(request.tipoPessoa());
+        entity.setRazaoSocial(request.razaoSocial());
+        entity.setInscricaoEstadual(request.inscricaoEstadual());
+        entity.setLimiteCredito(request.limiteCredito());
+        entity.setTabelaPrecoPadrao(request.tabelaPrecoPadrao());
+        entity.setStatus(request.status());
+        entity.setEndereco(request.endereco());
         return mapToResponse(repository.save(entity));
     }
 
@@ -68,8 +82,13 @@ public class ClienteServiceImpl implements ClienteService {
                 entity.getDocumento(),
                 entity.getEmail(),
                 entity.getTelefone(),
-                null,
-                null
+                entity.getTipoPessoa(),
+                entity.getRazaoSocial(),
+                entity.getInscricaoEstadual(),
+                entity.getLimiteCredito(),
+                entity.getTabelaPrecoPadrao(),
+                entity.getStatus(),
+                entity.getEndereco()
         );
     }
 }

@@ -2,6 +2,7 @@ package com.erp.core.security.dto;
 
 import java.util.List;
 import java.util.UUID;
+import java.time.LocalDate;
 
 public class UsuarioCreateDTO {
     private String nome;
@@ -11,6 +12,13 @@ public class UsuarioCreateDTO {
     private UUID filialPrincipalId;
     private List<String> permissoes;
     private List<UUID> empresaIds;
+
+    private String cpf;
+    private String telefone;
+    private String cargo;
+    private LocalDate dataNascimento;
+    private String departamento;
+    private String fotoUrl;
 
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
@@ -32,4 +40,22 @@ public class UsuarioCreateDTO {
 
     public List<UUID> getEmpresaIds() { return empresaIds; }
     public void setEmpresaIds(List<UUID> empresaIds) { this.empresaIds = empresaIds; }
+
+    public String getCpf() { return cpf; }
+    public void setCpf(String cpf) { this.cpf = cpf; }
+
+    public String getTelefone() { return telefone; }
+    public void setTelefone(String telefone) { this.telefone = telefone; }
+
+    public String getCargo() { return cargo; }
+    public void setCargo(String cargo) { this.cargo = cargo; }
+
+    public LocalDate getDataNascimento() { return dataNascimento; }
+    public void setDataNascimento(LocalDate dataNascimento) { this.dataNascimento = dataNascimento; }
+
+    public String getDepartamento() { return departamento; }
+    public void setDepartamento(String departamento) { this.departamento = departamento; }
+
+    public String getFotoUrl() { return fotoUrl; }
+    public void setFotoUrl(String fotoUrl) { this.fotoUrl = fotoUrl; }
 }

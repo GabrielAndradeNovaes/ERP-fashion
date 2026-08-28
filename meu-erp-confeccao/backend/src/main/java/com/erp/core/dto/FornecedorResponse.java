@@ -8,6 +8,12 @@ public record FornecedorResponse(
     String documento,
     String email,
     String telefone,
-    String tipo,
-    String sigla
+    String tipoPessoa,
+    String razaoSocial,
+    String inscricaoEstadual,
+    String categoriaFornecedor,
+    Integer prazoPagamentoPadrao,
+    String contatoNome,
+    String status,
+    String endereco
 ) {}

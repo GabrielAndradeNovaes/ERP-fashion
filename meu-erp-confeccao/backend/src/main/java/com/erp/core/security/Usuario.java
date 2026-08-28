@@ -14,6 +14,7 @@ import jakarta.persistence.ElementCollection;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.FetchType;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "usuarios", schema = "master")
@@ -46,6 +47,24 @@ public class Usuario {
 
     @Column(name = "filial_principal_id")
     private UUID filialPrincipalId;
+
+    @Column(length = 20)
+    private String cpf;
+
+    @Column(length = 20)
+    private String telefone;
+
+    @Column(length = 100)
+    private String cargo;
+
+    @Column(name = "data_nascimento")
+    private LocalDate dataNascimento;
+
+    @Column(length = 100)
+    private String departamento;
+
+    @Column(name = "foto_url", length = 255)
+    private String fotoUrl;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
@@ -85,4 +104,22 @@ public class Usuario {
 
     public Set<String> getPermissoes() { return permissoes; }
     public void setPermissoes(Set<String> permissoes) { this.permissoes = permissoes; }
+
+    public String getCpf() { return cpf; }
+    public void setCpf(String cpf) { this.cpf = cpf; }
+
+    public String getTelefone() { return telefone; }
+    public void setTelefone(String telefone) { this.telefone = telefone; }
+
+    public String getCargo() { return cargo; }
+    public void setCargo(String cargo) { this.cargo = cargo; }
+
+    public LocalDate getDataNascimento() { return dataNascimento; }
+    public void setDataNascimento(LocalDate dataNascimento) { this.dataNascimento = dataNascimento; }
+
+    public String getDepartamento() { return departamento; }
+    public void setDepartamento(String departamento) { this.departamento = departamento; }
+
+    public String getFotoUrl() { return fotoUrl; }
+    public void setFotoUrl(String fotoUrl) { this.fotoUrl = fotoUrl; }
 }

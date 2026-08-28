@@ -64,7 +64,7 @@ public class FlywayConfiguration {
             ResultSet rs = stmt.executeQuery("SELECT schema_name FROM master.clientes_tenant");
             while (rs.next()) {
                 String schema = rs.getString("schema_name");
-                if (schema != null && !schema.equals("tenant_1")) {
+                if (schema != null && !schema.equals("tenant_1") && !schema.equals("master")) {
                     tenants.add(schema);
                 }
             }
