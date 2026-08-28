@@ -55,6 +55,8 @@ const Usuarios = () => {
   const columns = [
     { key: 'nome', label: 'Nome' },
     { key: 'email', label: 'E-mail' },
+    { key: 'telefone', label: 'Telefone' },
+    { key: 'cargo', label: 'Cargo' },
     {
       key: 'filialPrincipalId',
       label: 'Filial Principal',
@@ -84,7 +86,13 @@ const Usuarios = () => {
     role: 'USER',
     empresaIds: [],
     filialPrincipalId: '',
-    permissoes: []
+    permissoes: [],
+    cpf: '',
+    telefone: '',
+    cargo: '',
+    dataNascimento: '',
+    departamento: '',
+    fotoUrl: ''
   };
 
   const renderForm = (entity: any, setEntity: (val: any) => void) => {
@@ -159,6 +167,56 @@ const Usuarios = () => {
             onChange={handleChange}
             fullWidth
             required={!entity.id}
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            label="CPF"
+            name="cpf"
+            value={entity.cpf || ''}
+            onChange={handleChange}
+            fullWidth
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            label="Telefone"
+            name="telefone"
+            value={entity.telefone || ''}
+            onChange={handleChange}
+            fullWidth
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            label="Cargo"
+            name="cargo"
+            value={entity.cargo || ''}
+            onChange={handleChange}
+            fullWidth
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            label="Departamento"
+            name="departamento"
+            value={entity.departamento || ''}
+            onChange={handleChange}
+            fullWidth
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            label="Data de Nascimento"
+            name="dataNascimento"
+            type="date"
+            InputLabelProps={{ shrink: true }}
+            value={entity.dataNascimento || ''}
+            onChange={handleChange}
+            fullWidth
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            label="URL da Foto"
+            name="fotoUrl"
+            value={entity.fotoUrl || ''}
+            onChange={handleChange}
+            fullWidth
           />
         </Grid>
 
