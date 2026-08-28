@@ -7,6 +7,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,6 +23,7 @@ public class TenantInterceptor implements HandlerInterceptor {
     private List<String> platformSubdomains;
 
     @Autowired
+    @Lazy
     private TenantRepository tenantRepository;
 
     @Override
