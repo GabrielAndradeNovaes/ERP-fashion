@@ -25,6 +25,9 @@ public class Tenant {
     @Column(name = "schema_name", nullable = false, unique = true)
     private String schemaName;
 
+    @Column(name = "slug", nullable = false, unique = true)
+    private String slug;
+
     @Column(name = "ativo")
     private Boolean ativo;
 
@@ -119,6 +122,14 @@ public class Tenant {
 
     public void setSchemaName(String schemaName) {
         this.schemaName = schemaName;
+    }
+
+    public String getSlug() {
+        return slug;
+    }
+
+    public void setSlug(String slug) {
+        this.slug = slug;
     }
 
     public Boolean getAtivo() {

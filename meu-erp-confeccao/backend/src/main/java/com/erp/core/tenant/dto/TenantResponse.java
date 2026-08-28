@@ -9,6 +9,7 @@ public class TenantResponse {
     private UUID id;
     private String nomeEmpresa;
     private String schemaName;
+    private String slug;
     private Boolean ativo;
     private String status;
     private LocalDateTime criadoEm;
@@ -36,6 +37,7 @@ public class TenantResponse {
         this.id = tenant.getId();
         this.nomeEmpresa = tenant.getNomeEmpresa();
         this.schemaName = tenant.getSchemaName();
+        this.slug = tenant.getSlug();
         this.ativo = tenant.getAtivo();
         this.status = tenant.getStatus();
         this.criadoEm = tenant.getCriadoEm();
@@ -64,6 +66,7 @@ public class TenantResponse {
     public UUID getId() { return id; }
     public String getNomeEmpresa() { return nomeEmpresa; }
     public String getSchemaName() { return schemaName; }
+    public String getSlug() { return slug; }
     public Boolean getAtivo() { return ativo; }
     public String getStatus() { return status; }
     public LocalDateTime getCriadoEm() { return criadoEm; }

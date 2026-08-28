@@ -1,7 +1,13 @@
 import axios from 'axios';
 
+// Construct base URL based on the current hostname
+const protocol = window.location.protocol;
+const hostname = window.location.hostname;
+const apiPort = '8088'; // The port where the backend API is running
+const baseURL = `${protocol}//${hostname}:${apiPort}/api`;
+
 const api = axios.create({
-  baseURL: 'http://localhost:8088/api',
+  baseURL: baseURL,
   headers: {
     'Content-Type': 'application/json'
   }

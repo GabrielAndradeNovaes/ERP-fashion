@@ -10,6 +10,7 @@ interface Tenant {
   id: string;
   nomeEmpresa: string;
   schemaName: string;
+  slug: string;
   cnpj: string;
   razaoSocial: string;
   nomeFantasia: string;
@@ -203,9 +204,22 @@ const TenantsList = () => {
 
   const handleCloseSnackbar = () => setSnackbar({ ...snackbar, open: false });
 
-  const handleImpersonate = (schemaName: string) => {
-    setImpersonatedTenant(schemaName);
-    navigate('/');
+  const handleImpersonate = (tenant: Tenant) => {
+    // Navigate to tenant subdomain
+    const protocol = window.location.protocol;
+    let rootDomain = window.location.hostname;
+    // se estiver acessando localhost:3010, queremos manter a porta
+    const port = window.location.port ? ':' + window.location.port : '';
+    
+    // Se estiver usando algo como admin.localhost, temos que tirar o "admin." para obter o root domain
+    if (rootDomain.startsWith('admin.')) {
+        rootDomain = rootDomain.replace('admin.', '');
+    } else if (rootDomain.startsWith('www.')) {
+        rootDomain = rootDomain.replace('www.', '');
+    }
+    
+    const url = `${protocol}//${tenant.slug}.${rootDomain}${port}/`;
+    window.open(url, '_blank');
   };
 
   const getStatusColor = (status: string) => {
@@ -319,7 +333,7 @@ const TenantsList = () => {
                             size="small" 
                             variant="outlined" 
                             startIcon={<LogIn size={16} />}
-                            onClick={() => handleImpersonate(tenant.schemaName)}
+                            onClick={() => handleImpersonate(tenant)}
                           >
                             Acessar
                           </Button>

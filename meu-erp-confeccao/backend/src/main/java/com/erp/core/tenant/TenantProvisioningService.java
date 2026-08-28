@@ -98,6 +98,7 @@ public class TenantProvisioningService {
         tenant.setId(UUID.randomUUID());
         tenant.setNomeEmpresa(request.getNomeEmpresa());
         tenant.setSchemaName(request.getSchemaName());
+        tenant.setSlug(generateSlug(request.getNomeEmpresa()));
         tenant.setStatus(status);
         tenant.setAtivo(true);
         tenant.setCriadoEm(LocalDateTime.now());
@@ -159,5 +160,16 @@ public class TenantProvisioningService {
         usuario.setCriadoEm(LocalDateTime.now());
         
         usuarioRepository.save(usuario);
+    }
+
+    private String generateSlug(String nomeEmpresa) {
+        if (nomeEmpresa == null) return "tenant-" + UUID.randomUUID().toString().substring(0, 8);
+        String slug = java.text.Normalizer.normalize(nomeEmpresa, java.text.Normalizer.Form.NFD)
+                .replaceAll("[\\p{InCombiningDiacriticalMarks}]", "")
+                .toLowerCase()
+                .replaceAll("[^a-z0-9]", "-")
+                .replaceAll("-+", "-")
+                .replaceAll("^-|-$", "");
+        return slug.isEmpty() ? "tenant-" + UUID.randomUUID().toString().substring(0, 8) : slug;
     }
 }
