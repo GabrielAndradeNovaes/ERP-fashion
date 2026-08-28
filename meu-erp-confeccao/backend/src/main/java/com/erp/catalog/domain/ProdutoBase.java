@@ -43,6 +43,36 @@ public class ProdutoBase {
     @Column(name = "preco_custo", precision = 10, scale = 2)
     private java.math.BigDecimal precoCusto;
 
+    @Column(length = 100)
+    private String marca;
+
+    @Column(length = 100)
+    private String categoria;
+
+    @Column(length = 100)
+    private String colecao;
+
+    @Column(length = 20)
+    private String genero;
+
+    @Column(length = 20)
+    private String ncm;
+
+    @Column(length = 20)
+    private String cest;
+
+    @Column(length = 50)
+    private String origem;
+
+    @Column(name = "peso_bruto", precision = 10, scale = 3)
+    private java.math.BigDecimal pesoBruto;
+
+    @Column(name = "peso_liquido", precision = 10, scale = 3)
+    private java.math.BigDecimal pesoLiquido;
+
+    @Column(length = 20)
+    private String status = "ATIVO";
+
     @OneToMany(mappedBy = "produtoBase", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProdutoSku> skus = new ArrayList<>();
 
@@ -111,6 +141,36 @@ public class ProdutoBase {
     public void setPrecoCusto(java.math.BigDecimal precoCusto) {
         this.precoCusto = precoCusto;
     }
+
+    public String getMarca() { return marca; }
+    public void setMarca(String marca) { this.marca = marca; }
+
+    public String getCategoria() { return categoria; }
+    public void setCategoria(String categoria) { this.categoria = categoria; }
+
+    public String getColecao() { return colecao; }
+    public void setColecao(String colecao) { this.colecao = colecao; }
+
+    public String getGenero() { return genero; }
+    public void setGenero(String genero) { this.genero = genero; }
+
+    public String getNcm() { return ncm; }
+    public void setNcm(String ncm) { this.ncm = ncm; }
+
+    public String getCest() { return cest; }
+    public void setCest(String cest) { this.cest = cest; }
+
+    public String getOrigem() { return origem; }
+    public void setOrigem(String origem) { this.origem = origem; }
+
+    public java.math.BigDecimal getPesoBruto() { return pesoBruto; }
+    public void setPesoBruto(java.math.BigDecimal pesoBruto) { this.pesoBruto = pesoBruto; }
+
+    public java.math.BigDecimal getPesoLiquido() { return pesoLiquido; }
+    public void setPesoLiquido(java.math.BigDecimal pesoLiquido) { this.pesoLiquido = pesoLiquido; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 
     public List<ProdutoSku> getSkus() {
         return skus;

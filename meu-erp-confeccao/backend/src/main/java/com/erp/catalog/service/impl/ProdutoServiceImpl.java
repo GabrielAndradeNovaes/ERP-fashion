@@ -32,6 +32,16 @@ public class ProdutoServiceImpl implements ProdutoService {
         produtoBase.setDescricao(request.descricao());
         produtoBase.setPrecoVenda(request.precoVenda());
         produtoBase.setPrecoCusto(request.precoCusto());
+        produtoBase.setMarca(request.marca());
+        produtoBase.setCategoria(request.categoria());
+        produtoBase.setColecao(request.colecao());
+        produtoBase.setGenero(request.genero());
+        produtoBase.setNcm(request.ncm());
+        produtoBase.setCest(request.cest());
+        produtoBase.setOrigem(request.origem());
+        produtoBase.setPesoBruto(request.pesoBruto());
+        produtoBase.setPesoLiquido(request.pesoLiquido());
+        produtoBase.setStatus(request.status());
 
         if (request.skus() != null) {
             request.skus().forEach(skuDto -> {
@@ -75,6 +85,16 @@ public class ProdutoServiceImpl implements ProdutoService {
         produto.setDescricao(request.descricao());
         produto.setPrecoVenda(request.precoVenda());
         produto.setPrecoCusto(request.precoCusto());
+        produto.setMarca(request.marca());
+        produto.setCategoria(request.categoria());
+        produto.setColecao(request.colecao());
+        produto.setGenero(request.genero());
+        produto.setNcm(request.ncm());
+        produto.setCest(request.cest());
+        produto.setOrigem(request.origem());
+        produto.setPesoBruto(request.pesoBruto());
+        produto.setPesoLiquido(request.pesoLiquido());
+        produto.setStatus(request.status());
 
         // Processa as Grades (SKUs)
         if (request.skus() != null) {
@@ -139,6 +159,16 @@ public class ProdutoServiceImpl implements ProdutoService {
                 produtoBase.getDescricao(),
                 produtoBase.getPrecoVenda(),
                 produtoBase.getPrecoCusto(),
+                produtoBase.getMarca(),
+                produtoBase.getCategoria(),
+                produtoBase.getColecao(),
+                produtoBase.getGenero(),
+                produtoBase.getNcm(),
+                produtoBase.getCest(),
+                produtoBase.getOrigem(),
+                produtoBase.getPesoBruto(),
+                produtoBase.getPesoLiquido(),
+                produtoBase.getStatus(),
                 skuResponses,
                 fichaTecnicaResponse
         );
