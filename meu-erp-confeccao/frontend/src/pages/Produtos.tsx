@@ -27,7 +27,8 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Grid
+  Grid,
+  Autocomplete
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 
@@ -96,18 +97,25 @@ const Produtos = () => {
   const [opComprimento, setOpComprimento] = useState('DE_0_A_60');
   
   // Form State (Add SKU Matrix)
-  const [skuCores, setSkuCores] = useState('');
-  const [skuTamanhos, setSkuTamanhos] = useState('');
+  const [skuCores, setSkuCores] = useState<any[]>([]);
+  const [skuTamanhos, setSkuTamanhos] = useState<any[]>([]);
+  const [dbCores, setDbCores] = useState<any[]>([]);
+  const [dbTamanhos, setDbTamanhos] = useState<any[]>([]);
+  const [temporarySkus, setTemporarySkus] = useState<any[]>([]);
 
   const fetchInitialData = async () => {
     try {
       setLoading(true);
-      const [prodRes, matRes] = await Promise.all([
+      const [prodRes, matRes, coresRes, tamRes] = await Promise.all([
         api.get('/catalog/produtos'),
-        api.get('/inventory/materiais')
+        api.get('/inventory/materiais'),
+        api.get('/catalog/cores'),
+        api.get('/catalog/tamanhos')
       ]);
       setProdutos(prodRes.data);
       setEstoque(matRes.data);
+      setDbCores(coresRes.data.filter((c:any) => c.ativo));
+      setDbTamanhos(tamRes.data.filter((t:any) => t.ativo));
       setError(null);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Erro ao buscar dados.');
@@ -186,7 +194,10 @@ const Produtos = () => {
         console.error("Ficha já existe ou erro", err);
         const prodRes = await api.get(`/catalog/produtos/${produto.id}`);
         setSelectedProduto(prodRes.data);
+        setTemporarySkus(prodRes.data.skus || []);
       }
+    } else {
+      setTemporarySkus(produto.skus || []);
     }
   };
 
@@ -195,6 +206,7 @@ const Produtos = () => {
     try {
       const res = await api.get(`/catalog/produtos/${selectedProduto.id}`);
       setSelectedProduto(res.data);
+      setTemporarySkus(res.data.skus || []);
       fetchInitialData();
     } catch (err) {
       console.error(err);
@@ -230,47 +242,65 @@ const Produtos = () => {
 
   const handleGenerateSkus = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedProduto || !skuCores || !skuTamanhos) return;
-
-    const coresList = skuCores.split(',').map(c => c.trim()).filter(c => c);
-    const tamanhosList = skuTamanhos.split(',').map(t => t.trim()).filter(t => t);
-
-    if (coresList.length === 0 || tamanhosList.length === 0) {
-        alert("Preencha ao menos uma cor e um tamanho validos.");
+    if (!selectedProduto || skuCores.length === 0 || skuTamanhos.length === 0) {
+        alert("Selecione ao menos uma cor e um tamanho.");
         return;
     }
 
+    const newSkus: any[] = [];
+    skuCores.forEach(cor => {
+        skuTamanhos.forEach(tamanho => {
+            // Check if it already exists in temporary
+            const exists = temporarySkus.find(ts => ts.cor === cor.nome && ts.tamanho === tamanho.nome);
+            if (!exists) {
+                newSkus.push({ 
+                  cor: cor.nome, 
+                  tamanho: tamanho.nome, 
+                  codigoBarras: '', 
+                  precoVenda: selectedProduto.precoVenda 
+                });
+            }
+        });
+    });
+
+    setTemporarySkus([...temporarySkus, ...newSkus]);
+    setSkuCores([]);
+    setSkuTamanhos([]);
+  };
+
+  const handleAutoGenerateEan = () => {
+    const updated = temporarySkus.map(ts => ({
+      ...ts,
+      codigoBarras: ts.codigoBarras ? ts.codigoBarras : `${selectedProduto?.codigo}-${ts.cor.substring(0,3).toUpperCase()}-${ts.tamanho.toUpperCase()}`
+    }));
+    setTemporarySkus(updated);
+  };
+
+  const handleSaveSkus = async () => {
+    if (!selectedProduto) return;
     try {
       setIsSubmitting(true);
-      
-      // Gera a matriz (produto cartesiano)
-      const newSkus: any[] = [];
-      coresList.forEach(cor => {
-          tamanhosList.forEach(tamanho => {
-              newSkus.push({ cor, tamanho, codigoBarras: null, precoVenda: selectedProduto.precoVenda });
-          });
-      });
-
-      // Junta com os existentes
-      const updatedSkus = [...(selectedProduto.skus || []), ...newSkus];
-      
       await api.put(`/catalog/produtos/${selectedProduto.id}`, {
         codigo: selectedProduto.codigo,
         nome: selectedProduto.nome,
         descricao: selectedProduto.descricao,
         precoVenda: selectedProduto.precoVenda,
         precoCusto: selectedProduto.precoCusto,
-        skus: updatedSkus
+        skus: temporarySkus
       });
-      
-      setSkuCores('');
-      setSkuTamanhos('');
       await refreshSelectedProduto();
+      alert('Grade salva com sucesso!');
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Erro ao gerar grade (SKUs).');
+      alert(err.response?.data?.message || 'Erro ao salvar grade.');
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const updateTemporarySku = (index: number, field: string, value: any) => {
+    const updated = [...temporarySkus];
+    updated[index] = { ...updated[index], [field]: value };
+    setTemporarySkus(updated);
   };
 
   const handleAddMaterial = async (e: React.FormEvent) => {
@@ -561,37 +591,40 @@ const Produtos = () => {
                     <form onSubmit={handleGenerateSkus}>
                       <Grid container spacing={2} alignItems="flex-end">
                         <Grid size={{ xs: 12, sm: 5 }}>
-                          <TextField 
-                            label="Cores Disponíveis (separadas por vírgula)" 
-                            fullWidth 
-                            required 
-                            size="small" 
-                            value={skuCores} 
-                            onChange={e => setSkuCores(e.target.value)} 
-                            placeholder="Ex: Branco, Preto, Azul, Vermelho" 
+                          <Autocomplete
+                            multiple
+                            size="small"
+                            options={dbCores}
+                            getOptionLabel={(option) => option.nome}
+                            value={skuCores}
+                            onChange={(e, newValue) => setSkuCores(newValue)}
+                            renderInput={(params) => (
+                              <TextField {...params} label="Cores (Do Catálogo)" required={skuCores.length === 0} placeholder="Selecione..." />
+                            )}
                           />
                         </Grid>
                         <Grid size={{ xs: 12, sm: 4 }}>
-                          <TextField 
-                            label="Tamanhos (separados por vírgula)" 
-                            fullWidth 
-                            required 
-                            size="small" 
-                            value={skuTamanhos} 
-                            onChange={e => setSkuTamanhos(e.target.value)} 
-                            placeholder="Ex: P, M, G, GG" 
+                          <Autocomplete
+                            multiple
+                            size="small"
+                            options={dbTamanhos}
+                            getOptionLabel={(option) => option.nome}
+                            value={skuTamanhos}
+                            onChange={(e, newValue) => setSkuTamanhos(newValue)}
+                            renderInput={(params) => (
+                              <TextField {...params} label="Tamanhos (Do Catálogo)" required={skuTamanhos.length === 0} placeholder="Selecione..." />
+                            )}
                           />
                         </Grid>
                         <Grid size={{ xs: 12, sm: 3 }}>
                           <Button 
                             type="submit" 
                             variant="contained" 
-                            disabled={isSubmitting} 
                             fullWidth 
                             disableElevation 
                             sx={{ height: 40, bgcolor: 'var(--accent-primary)', '&:hover': { bgcolor: 'var(--accent-hover)' } }}
                           >
-                            {isSubmitting ? 'Gerando...' : 'Gerar Grade'}
+                            Gerar Grade
                           </Button>
                         </Grid>
                       </Grid>
@@ -600,30 +633,59 @@ const Produtos = () => {
                     <Typography color="text.secondary">Você não tem permissão para gerar grade de SKUs.</Typography>
                   )}
                   <Typography variant="caption" sx={{ color: 'var(--text-muted)', display: 'block', mt: 1 }}>
-                    Dica: O sistema fará a combinação automática de todas as cores com todos os tamanhos e salvará na tabela abaixo. SKUs que já existirem não serão duplicados.
+                    Dica: O sistema criará as combinações na tabela abaixo. Edite os preços e códigos de barras e clique em "Salvar Grade".
                   </Typography>
                 </div>
+
+                {temporarySkus.length > 0 && canEdit && (
+                  <Box sx={{ mb: 2, display: 'flex', gap: 2 }}>
+                    <Button variant="outlined" onClick={handleAutoGenerateEan} size="small">
+                      Auto-Gerar EANs/Códigos
+                    </Button>
+                    <Button variant="contained" onClick={handleSaveSkus} size="small" disabled={isSubmitting} color="success">
+                      {isSubmitting ? 'Salvando...' : 'Salvar Grade no Banco'}
+                    </Button>
+                  </Box>
+                )}
+
                 <TableContainer sx={{ border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', bgcolor: 'transparent' }}>
                   <Table size="small">
                     <TableHead sx={{ bgcolor: 'rgba(255,255,255,0.02)' }}>
                       <TableRow>
                         <TableCell sx={{ color: 'var(--text-secondary)', fontWeight: 600, borderColor: 'var(--border-color)' }}>Cor</TableCell>
                         <TableCell sx={{ color: 'var(--text-secondary)', fontWeight: 600, borderColor: 'var(--border-color)' }}>Tamanho</TableCell>
+                        <TableCell sx={{ color: 'var(--text-secondary)', fontWeight: 600, borderColor: 'var(--border-color)' }}>Preço Venda</TableCell>
                         <TableCell sx={{ color: 'var(--text-secondary)', fontWeight: 600, borderColor: 'var(--border-color)' }}>Cód. Barras</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {selectedProduto.skus?.map((sku: any, idx: number) => (
+                      {temporarySkus.map((sku: any, idx: number) => (
                         <TableRow key={idx} sx={{ '&:hover': { bgcolor: 'rgba(255,255,255,0.02)' } }}>
                           <TableCell sx={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>{sku.cor}</TableCell>
                           <TableCell sx={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>{sku.tamanho}</TableCell>
-                          <TableCell sx={{ borderColor: 'var(--border-color)', color: 'var(--text-muted)' }}>{sku.codigoBarras || '-'}</TableCell>
+                          <TableCell sx={{ borderColor: 'var(--border-color)', p: 1 }}>
+                            <TextField 
+                              size="small" 
+                              type="number"
+                              value={sku.precoVenda || ''}
+                              onChange={(e) => updateTemporarySku(idx, 'precoVenda', parseFloat(e.target.value) || 0)}
+                              slotProps={{ htmlInput: { step: '0.01' } }}
+                            />
+                          </TableCell>
+                          <TableCell sx={{ borderColor: 'var(--border-color)', p: 1 }}>
+                            <TextField 
+                              size="small" 
+                              value={sku.codigoBarras || ''}
+                              onChange={(e) => updateTemporarySku(idx, 'codigoBarras', e.target.value)}
+                              placeholder="EAN ou Código"
+                            />
+                          </TableCell>
                         </TableRow>
                       ))}
-                      {(!selectedProduto.skus || selectedProduto.skus.length === 0) && (
+                      {temporarySkus.length === 0 && (
                         <TableRow>
-                          <TableCell colSpan={3} align="center" sx={{ py: 3, color: 'text.secondary' }}>
-                            Nenhum tamanho ou cor (SKU) cadastrado para este produto.
+                          <TableCell colSpan={4} align="center" sx={{ py: 3, color: 'text.secondary' }}>
+                            Nenhum tamanho ou cor (SKU) na grade.
                           </TableCell>
                         </TableRow>
                       )}

@@ -1,4 +1,6 @@
+C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\catalog\repository\TamanhoRepository.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\core\dto\DashboardResumoDTO.java
+C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\catalog\domain\Tamanho.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\production\repository\OcorrenciaRepository.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\core\controller\EmpresaController.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\core\service\impl\CategoriaServiceImpl.java
@@ -19,6 +21,7 @@ C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\producti
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\core\security\JwtAuthenticationFilter.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\core\controller\DashboardController.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\production\repository\CupomRepository.java
+C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\catalog\domain\UnidadeMedida.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\production\controller\FichaTecnicaController.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\core\service\FornecedorService.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\core\service\impl\FornecedorServiceImpl.java
@@ -33,12 +36,14 @@ C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\producti
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\core\tenant\EmpresaContext.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\core\service\impl\ClienteServiceImpl.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\catalog\dto\ProdutoBaseRequest.java
+C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\catalog\controller\CorController.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\core\controller\AuthController.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\core\tenant\TenantRepository.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\production\dto\FichaTecnicaResponse.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\production\dto\OrdemProducaoItemResponse.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\inventory\controller\MaterialController.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\production\service\PcpService.java
+C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\catalog\repository\CorRepository.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\core\service\UnidadeMedidaService.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\production\service\impl\FichaTecnicaServiceImpl.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\catalog\service\impl\ProdutoServiceImpl.java
@@ -58,6 +63,7 @@ C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\inventor
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\production\service\FichaTecnicaService.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\core\domain\Empresa.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\core\tenant\dto\TenantUpdateRequest.java
+C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\catalog\controller\TamanhoController.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\core\domain\UnidadeMedida.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\core\dto\ClienteResponse.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\catalog\dto\ProdutoSkuRequest.java
@@ -68,6 +74,7 @@ C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\core\sec
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\core\security\AuthService.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\production\dto\OrdemProducaoRequest.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\production\repository\TabelaTempoPadraoRepository.java
+C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\catalog\domain\Cor.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\core\security\UsuarioRepository.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\core\dto\CategoriaRequest.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\core\dto\UnidadeMedidaResponse.java
@@ -79,6 +86,7 @@ C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\producti
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\production\dto\ProdutividadeResponse.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\core\domain\Fornecedor.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\core\security\UserDetailsServiceImpl.java
+C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\catalog\controller\UnidadeMedidaController.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\core\service\DashboardService.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\core\repository\FornecedorRepository.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\core\tenant\TenantRoutingDataSource.java
@@ -90,6 +98,7 @@ C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\core\sec
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\core\security\UserDetailsImpl.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\production\domain\FichaTecnica.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\catalog\repository\ProdutoSkuRepository.java
+C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\catalog\repository\UnidadeMedidaRepository.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\production\service\impl\OrdemProducaoServiceImpl.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\core\repository\CategoriaRepository.java
 C:\projetos\fashion-erp\meu-erp-confeccao\backend\src\main\java\com\erp\core\security\UsuarioEmpresaRepository.java

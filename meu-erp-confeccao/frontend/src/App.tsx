@@ -13,9 +13,10 @@ import Clientes from './pages/Clientes';
 import Fornecedores from './pages/Fornecedores';
 import Categorias from './pages/Categorias';
 import UnidadesMedida from './pages/UnidadesMedida';
+import CadastrosAuxiliares from './pages/CadastrosAuxiliares';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
-import { Users, Truck, Tags, Ruler, ScanLine, UserCog, BarChart, FileText } from 'lucide-react';
+import { Users, Truck, Tags, Ruler, ScanLine, UserCog, BarChart, FileText, Tag } from 'lucide-react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useThemeContext } from './contexts/ThemeContext';
 import Empresas from './pages/Empresas';
@@ -81,6 +82,7 @@ const Sidebar = () => {
     {
       title: 'Cadastros Base',
       items: [
+        { path: '/core/cadastros-auxiliares', label: 'Cores e Tamanhos', icon: <Tag size={20} />, perm: 'PRODUTOS_VIEW' },
         { path: '/core/empresas', label: 'Empresas/Filiais', icon: <Building2 size={20} />, perm: 'USUARIOS_ADMIN' },
         { path: '/core/usuarios', label: 'Usuários', icon: <UserCog size={20} />, perm: 'USUARIOS_ADMIN' },
         { path: '/core/clientes', label: 'Clientes', icon: <Users size={20} />, perm: 'CLIENTES_VIEW' },
@@ -233,6 +235,7 @@ const MainApp = () => {
           <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
           <Route path="/core/empresas" element={<PrivateRoute requiredPermission="USUARIOS_ADMIN"><Empresas /></PrivateRoute>} />
           <Route path="/core/usuarios" element={<PrivateRoute requiredPermission="USUARIOS_ADMIN"><Usuarios /></PrivateRoute>} />
+          <Route path="/core/cadastros-auxiliares" element={<PrivateRoute requiredPermission="PRODUTOS_VIEW"><CadastrosAuxiliares /></PrivateRoute>} />
           <Route path="/core/clientes" element={<PrivateRoute requiredPermission="CLIENTES_VIEW"><Clientes /></PrivateRoute>} />
           <Route path="/core/fornecedores" element={<PrivateRoute requiredPermission="CLIENTES_VIEW"><Fornecedores /></PrivateRoute>} />
           <Route path="/core/categorias" element={<PrivateRoute requiredPermission="PRODUTOS_VIEW"><Categorias /></PrivateRoute>} />

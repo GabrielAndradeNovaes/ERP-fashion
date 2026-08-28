@@ -100,10 +100,17 @@ public class ProdutoServiceImpl implements ProdutoService {
         if (request.skus() != null) {
             for (com.erp.catalog.dto.ProdutoSkuRequest skuDto : request.skus()) {
                 // Verifica se a combinação de Cor + Tamanho já existe no produto
-                boolean existe = produto.getSkus().stream()
-                        .anyMatch(s -> s.getCor().equalsIgnoreCase(skuDto.cor()) && s.getTamanho().equalsIgnoreCase(skuDto.tamanho()));
+                java.util.Optional<ProdutoSku> skuExistenteOpt = produto.getSkus().stream()
+                        .filter(s -> s.getCor().equalsIgnoreCase(skuDto.cor()) && s.getTamanho().equalsIgnoreCase(skuDto.tamanho()))
+                        .findFirst();
                 
-                if (!existe) {
+                if (skuExistenteOpt.isPresent()) {
+                    // Atualiza os dados do SKU existente (Preço e Código de Barras)
+                    ProdutoSku skuExistente = skuExistenteOpt.get();
+                    skuExistente.setCodigoBarras(skuDto.codigoBarras());
+                    skuExistente.setPrecoVenda(skuDto.precoVenda());
+                } else {
+                    // Adiciona novo SKU
                     ProdutoSku novoSku = new ProdutoSku();
                     novoSku.setCor(skuDto.cor());
                     novoSku.setTamanho(skuDto.tamanho());
