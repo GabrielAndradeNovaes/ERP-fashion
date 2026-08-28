@@ -60,7 +60,7 @@ const CadastrosAuxiliares = () => {
       const [resCores, resTamanhos, resUnidades] = await Promise.all([
         api.get('/catalog/cores'),
         api.get('/catalog/tamanhos'),
-        api.get('/catalog/unidades-medida')
+        api.get('/core/unidades-medida')
       ]);
       setCores(resCores.data);
       setTamanhos(resTamanhos.data);
@@ -89,7 +89,7 @@ const CadastrosAuxiliares = () => {
   const getEndpoint = () => {
     if (activeTab === 0) return '/catalog/cores';
     if (activeTab === 1) return '/catalog/tamanhos';
-    return '/catalog/unidades-medida';
+    return '/core/unidades-medida';
   };
 
   const handleSave = async (e: React.FormEvent) => {
