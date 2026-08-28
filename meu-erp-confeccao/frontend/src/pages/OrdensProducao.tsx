@@ -310,36 +310,42 @@ const OrdensProducao = () => {
           }
         }}
       >
-        {menuOrdem?.status === 'PENDENTE' && canEdit && [
-          <MenuItem key="edit" onClick={() => handleOpenEditModal(menuOrdem)}>
+        {menuOrdem?.status === 'PENDENTE' && canEdit && (
+          <MenuItem onClick={() => handleOpenEditModal(menuOrdem)}>
             <Edit size={16} /> Editar OP
-          </MenuItem>,
-          <MenuItem key="start" onClick={() => handleAlterarStatus(menuOrdem.id, 'EM_ANDAMENTO')}>
+          </MenuItem>
+        )}
+        {menuOrdem?.status === 'PENDENTE' && canEdit && (
+          <MenuItem onClick={() => handleAlterarStatus(menuOrdem.id, 'EM_ANDAMENTO')}>
             <Play size={16} color="var(--success)" /> Iniciar Produção
           </MenuItem>
-        ]}
+        )}
         
-        {menuOrdem?.status === 'EM_ANDAMENTO' && canEdit && [
-          <MenuItem key="faccao" onClick={() => handleAlterarStatus(menuOrdem.id, 'FACCAO')}>
+        {menuOrdem?.status === 'EM_ANDAMENTO' && canEdit && (
+          <MenuItem onClick={() => handleAlterarStatus(menuOrdem.id, 'FACCAO')}>
             <ChevronRight size={16} /> Enviar p/ Facção
-          </MenuItem>,
-          <MenuItem key="concluir" onClick={() => handleAlterarStatus(menuOrdem.id, 'CONCLUIDA')}>
+          </MenuItem>
+        )}
+        {menuOrdem?.status === 'EM_ANDAMENTO' && canEdit && (
+          <MenuItem onClick={() => handleAlterarStatus(menuOrdem.id, 'CONCLUIDA')}>
             <CheckCircle2 size={16} color="var(--success)" /> Concluir Produção
-          </MenuItem>,
-          <MenuItem key="pacotes" onClick={() => {
+          </MenuItem>
+        )}
+        {menuOrdem?.status === 'EM_ANDAMENTO' && canEdit && (
+          <MenuItem onClick={() => {
             setSelectedOrdem(menuOrdem);
             setIsGerarPacotesModalOpen(true);
             handleCloseMenu();
           }}>
             <Package size={16} color="var(--accent-primary)" /> Gerar Pacotes Físicos
           </MenuItem>
-        ]}
+        )}
 
-        {menuOrdem?.status === 'FACCAO' && canEdit && [
-           <MenuItem key="concluir_faccao" onClick={() => handleAlterarStatus(menuOrdem.id, 'CONCLUIDA')}>
+        {menuOrdem?.status === 'FACCAO' && canEdit && (
+           <MenuItem onClick={() => handleAlterarStatus(menuOrdem.id, 'CONCLUIDA')}>
             <CheckCircle2 size={16} color="var(--success)" /> Concluir Produção
           </MenuItem>
-        ]}
+        )}
 
         {(menuOrdem?.status === 'EM_ANDAMENTO' || menuOrdem?.status === 'FACCAO' || menuOrdem?.status === 'CONCLUIDA') && canEdit && (
           <MenuItem onClick={() => handleEstornar(menuOrdem.id)} sx={{ color: 'var(--danger) !important' }}>
