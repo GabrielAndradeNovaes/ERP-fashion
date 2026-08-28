@@ -12,7 +12,6 @@ import Produtividade from './pages/PCP/Produtividade';
 import Clientes from './pages/Clientes';
 import Fornecedores from './pages/Fornecedores';
 import Categorias from './pages/Categorias';
-import UnidadesMedida from './pages/UnidadesMedida';
 import CadastrosAuxiliares from './pages/CadastrosAuxiliares';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
@@ -69,7 +68,6 @@ const Sidebar = () => {
         { path: '/pcp/bipagem', label: 'Bipagem Rápida', icon: <ScanLine size={20} />, perm: 'PCP_VIEW' },
         { path: '/pcp/produtividade', label: 'Produtividade', icon: <BarChart size={20} />, perm: 'PCP_VIEW' },
         { path: '/pcp/funcionarios', label: 'Funcionários (PCP)', icon: <UserCog size={20} />, perm: 'PCP_VIEW' },
-        { path: '/pcp/tempos', label: 'Tabela de Tempos', icon: <Clock size={20} />, perm: 'PCP_VIEW' },
       ]
     },
     {
@@ -88,7 +86,6 @@ const Sidebar = () => {
         { path: '/core/clientes', label: 'Clientes', icon: <Users size={20} />, perm: 'CLIENTES_VIEW' },
         { path: '/core/fornecedores', label: 'Fornecedores', icon: <Truck size={20} />, perm: 'CLIENTES_VIEW' },
         { path: '/core/categorias', label: 'Categorias', icon: <Tags size={20} />, perm: 'PRODUTOS_VIEW' },
-        { path: '/core/unidades-medida', label: 'Unidades de Medida', icon: <Ruler size={20} />, perm: 'PRODUTOS_VIEW' },
       ]
     }
   ];
@@ -239,9 +236,7 @@ const MainApp = () => {
           <Route path="/core/clientes" element={<PrivateRoute requiredPermission="CLIENTES_VIEW"><Clientes /></PrivateRoute>} />
           <Route path="/core/fornecedores" element={<PrivateRoute requiredPermission="CLIENTES_VIEW"><Fornecedores /></PrivateRoute>} />
           <Route path="/core/categorias" element={<PrivateRoute requiredPermission="PRODUTOS_VIEW"><Categorias /></PrivateRoute>} />
-          <Route path="/core/unidades-medida" element={<PrivateRoute requiredPermission="PRODUTOS_VIEW"><UnidadesMedida /></PrivateRoute>} />
           <Route path="/catalog/produtos" element={<PrivateRoute requiredPermission="PRODUTOS_VIEW"><Produtos /></PrivateRoute>} />
-          <Route path="/pcp/tempos" element={<PrivateRoute requiredPermission="PCP_VIEW"><TabelaTempos /></PrivateRoute>} />
           <Route path="/estoque" element={<PrivateRoute requiredPermission="ESTOQUE_VIEW"><Estoque /></PrivateRoute>} />
           <Route path="/pcp/ordens" element={<PrivateRoute requiredPermission="PCP_VIEW"><OrdensProducao /></PrivateRoute>} />
           <Route path="/pcp/cupons" element={<PrivateRoute requiredPermission="PCP_VIEW"><Cupons /></PrivateRoute>} />
