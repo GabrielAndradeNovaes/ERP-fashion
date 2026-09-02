@@ -20,9 +20,10 @@ const Login = () => {
 
     try {
       const response = await api.post('/auth/login', { email, senha });
-      const { token, nome, role, tenantId, tenantStatus, empresas, filialPrincipalId, permissoes } = response.data;
       
-      login(token, { nome, email, role, tenantId, tenantStatus, empresas, filialPrincipalId, permissoes });
+      const { token, ...userData } = response.data;
+      
+      login(token, userData);
       navigate('/');
     } catch (err: any) {
       setError(err.response?.data?.message || 'E-mail ou senha inválidos.');
