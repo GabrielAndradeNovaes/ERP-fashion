@@ -86,7 +86,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const hasModule = (moduleName: string): boolean => {
     if (user?.role === 'SUPERADMIN') return true;
-    if (!user?.modulosAtivos) return false;
+    if (moduleName === 'CORE') return true; // CORE é base, sempre ativo
+    
+    // Se o usuário tem uma sessão antiga no localStorage sem a propriedade de módulos,
+    // nós podemos forçar um recarregamento, mas por segurança, não exibimos módulos extras
+    if (!user?.modulosAtivos) return false; 
+    
     return user.modulosAtivos.includes(moduleName);
   };
 
