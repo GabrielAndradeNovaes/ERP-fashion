@@ -19,7 +19,15 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await api.post('/auth/login', { email, senha });
+      const hostname = window.location.hostname;
+      let slug = null;
+      if (hostname !== 'localhost' && !hostname.startsWith('admin.') && !hostname.startsWith('www.')) {
+        slug = hostname.split('.')[0];
+      } else if (hostname.startsWith('admin.')) {
+        slug = 'admin';
+      }
+
+      const response = await api.post('/auth/login', { email, senha, slug });
       
       const { token, ...userData } = response.data;
       

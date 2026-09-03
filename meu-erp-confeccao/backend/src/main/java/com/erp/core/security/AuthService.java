@@ -38,6 +38,16 @@ public class AuthService {
         );
 
         UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsService.loadUserByUsername(request.getEmail());
+
+        if (request.getSlug() != null && !request.getSlug().isEmpty() && !request.getSlug().equals("admin") && !request.getSlug().equals("www")) {
+            if (!userDetails.getUsuario().getRole().equals("SUPERADMIN")) {
+                validateTenantSlug(userDetails.getTenantId(), request.getSlug());
+            }
+        } else if ("admin".equals(request.getSlug())) {
+            if (!userDetails.getUsuario().getRole().equals("SUPERADMIN")) {
+                throw new org.springframework.security.authentication.BadCredentialsException("Acesso negado: Apenas SUPERADMIN pode acessar o painel administrativo.");
+            }
+        }
         
         java.util.List<String> empresas = getEmpresas(userDetails.getUsuario().getId().toString(), userDetails.getTenantId());
         userDetails.setEmpresas(empresas);
@@ -120,5 +130,27 @@ public class AuthService {
             System.err.println("Erro ao buscar empresas do usuario: " + e.getMessage());
         }
         return empresas;
+    }
+
+    private void validateTenantSlug(String tenantId, String slug) {
+        String sql = "SELECT slug FROM master.clientes_tenant WHERE schema_name = ?";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, tenantId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    String dbSlug = rs.getString("slug");
+                    if (dbSlug == null || !dbSlug.equals(slug)) {
+                        throw new org.springframework.security.authentication.BadCredentialsException("Acesso negado: Este usuário não pertence a esta empresa.");
+                    }
+                } else {
+                    throw new org.springframework.security.authentication.BadCredentialsException("Acesso negado: Empresa não encontrada.");
+                }
+            }
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Erro ao validar empresa do usuário", e);
+        }
     }
 }
