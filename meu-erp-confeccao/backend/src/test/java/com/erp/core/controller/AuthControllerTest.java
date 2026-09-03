@@ -26,7 +26,7 @@ public class AuthControllerTest {
     @Test
     void testLogin() {
         AuthRequest req = new AuthRequest();
-        AuthResponse res = new AuthResponse("token", "nome", "email", "role", "tenantId", "status", null, null, null);
+        AuthResponse res = new AuthResponse("mocked_token", "Usuário Teste", "teste@empresa.com", "ADMIN", "tenant_teste", "ATIVO", null, null, null, null);
         when(authService.authenticate(req)).thenReturn(res);
 
         ResponseEntity<AuthResponse> result = controller.login(req);

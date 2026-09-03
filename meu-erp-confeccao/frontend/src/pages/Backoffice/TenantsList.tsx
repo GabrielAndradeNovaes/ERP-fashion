@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Card, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, FormControl, Select, MenuItem, Snackbar, Alert, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, CircularProgress, Tabs, Tab, Grid, InputAdornment, IconButton } from '@mui/material';
-import { Building2, CheckCircle2, AlertCircle, XCircle, Plus, LogIn, Search } from 'lucide-react';
+import { Box, Typography, Card, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, FormControl, Select, MenuItem, Snackbar, Alert, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, CircularProgress, Tabs, Tab, Grid, InputAdornment, IconButton, Switch, FormControlLabel } from '@mui/material';
+import { Building2, CheckCircle2, AlertCircle, XCircle, Plus, LogIn, Search, Settings2 } from 'lucide-react';
 import api from '../../api/axios';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -69,6 +69,12 @@ const TenantsList = () => {
   const [tabValue, setTabValue] = useState(0);
   const [fetchingCnpj, setFetchingCnpj] = useState(false);
 
+  // Modules Modal State
+  const [modulesModalOpen, setModulesModalOpen] = useState(false);
+  const [selectedTenantForModules, setSelectedTenantForModules] = useState<string | null>(null);
+  const [tenantModules, setTenantModules] = useState<{moduleName: string, active: boolean}[]>([]);
+  const [savingModules, setSavingModules] = useState(false);
+
   const initialTenantState = {
     nomeEmpresa: '', adminNome: '', adminEmail: '', adminSenha: '',
     cnpj: '', razaoSocial: '', nomeFantasia: '', porte: '', naturezaJuridica: '', statusRfb: '', dataAbertura: '',
@@ -128,6 +134,38 @@ const TenantsList = () => {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleOpenModules = async (schemaName: string) => {
+    try {
+      setSelectedTenantForModules(schemaName);
+      const response = await api.get(`/admin/tenants/${schemaName}/modules`);
+      setTenantModules(response.data);
+      setModulesModalOpen(true);
+    } catch (error) {
+      setSnackbar({ open: true, message: 'Erro ao carregar módulos do cliente.', severity: 'error' });
+    }
+  };
+
+  const handleSaveModules = async () => {
+    if (!selectedTenantForModules) return;
+    try {
+      setSavingModules(true);
+      await api.post(`/admin/tenants/${selectedTenantForModules}/modules`, { modules: tenantModules });
+      setSnackbar({ open: true, message: 'Módulos atualizados com sucesso!', severity: 'success' });
+      setModulesModalOpen(false);
+    } catch (error) {
+      setSnackbar({ open: true, message: 'Erro ao salvar módulos.', severity: 'error' });
+    } finally {
+      setSavingModules(false);
+    }
+  };
+
+  const handleToggleModule = (moduleName: string) => {
+    if (moduleName === 'CORE') return; // CORE cannot be toggled
+    setTenantModules(prev => 
+      prev.map(m => m.moduleName === moduleName ? { ...m, active: !m.active } : m)
+    );
   };
 
   const handleEditClick = (tenant: Tenant) => {
@@ -324,6 +362,15 @@ const TenantsList = () => {
                           <Button 
                             size="small" 
                             variant="outlined" 
+                            color="info"
+                            startIcon={<Settings2 size={16} />}
+                            onClick={() => handleOpenModules(tenant.schemaName)}
+                          >
+                            Módulos
+                          </Button>
+                          <Button 
+                            size="small" 
+                            variant="outlined" 
                             color="primary"
                             onClick={() => handleEditClick(tenant)}
                           >
@@ -500,6 +547,52 @@ const TenantsList = () => {
             disabled={submitting || !newTenant.nomeEmpresa || (!editingSchema && !newTenant.adminEmail) || !newTenant.cnpj}
           >
             {submitting ? <CircularProgress size={24} color="inherit" /> : (editingSchema ? 'Salvar Alterações' : 'Salvar e Provisionar')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Modal de Módulos */}
+      <Dialog open={modulesModalOpen} onClose={() => setModulesModalOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, pb: 2, borderBottom: '1px solid var(--border-color)' }}>
+          <Settings2 size={24} color="var(--primary-main)" />
+          Gerenciar Módulos
+        </DialogTitle>
+        <DialogContent sx={{ pt: '24px !important' }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+            Ative ou desative os módulos do sistema para este cliente. O módulo CORE é obrigatório.
+          </Typography>
+          <Grid container spacing={3}>
+            {tenantModules.map(mod => (
+              <Grid item xs={12} sm={6} key={mod.moduleName}>
+                <Card variant="outlined" sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderRadius: 2 }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                    {mod.moduleName}
+                  </Typography>
+                  <FormControlLabel
+                    control={
+                      <Switch 
+                        checked={mod.active} 
+                        onChange={() => handleToggleModule(mod.moduleName)}
+                        disabled={mod.moduleName === 'CORE'}
+                        color="primary"
+                      />
+                    }
+                    label=""
+                    sx={{ m: 0 }}
+                  />
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 3, pt: 2 }}>
+          <Button onClick={() => setModulesModalOpen(false)} disabled={savingModules}>Cancelar</Button>
+          <Button 
+            variant="contained" 
+            onClick={handleSaveModules} 
+            disabled={savingModules}
+          >
+            {savingModules ? <CircularProgress size={24} color="inherit" /> : 'Salvar Módulos'}
           </Button>
         </DialogActions>
       </Dialog>

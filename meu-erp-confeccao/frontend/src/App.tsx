@@ -58,12 +58,14 @@ const Sidebar = () => {
   const navGroups = [
     {
       title: 'Geral',
+      module: 'CORE',
       items: [
         { path: '/', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
       ]
     },
     {
       title: 'Produção (PCP)',
+      module: 'PCP',
       items: [
         { path: '/pcp/ordens', label: 'Ordens de Produção', icon: <ClipboardList size={20} />, perm: 'PCP_VIEW' },
         { path: '/pcp/faccoes', label: 'Gestão de Facções', icon: <Truck size={20} />, perm: 'PCP_VIEW' },
@@ -75,6 +77,7 @@ const Sidebar = () => {
     },
     {
       title: 'Inventário e Engenharia',
+      module: 'ESTOQUE',
       items: [
         { path: '/catalog/produtos', label: 'Produtos e Fichas', icon: <Package size={20} />, perm: 'PRODUTOS_VIEW' },
         { path: '/estoque', label: 'Estoque', icon: <PackageSearch size={20} />, perm: 'ESTOQUE_VIEW' },
@@ -82,6 +85,7 @@ const Sidebar = () => {
     },
     {
       title: 'Cadastros Base',
+      module: 'CORE',
       items: [
         { path: '/core/cadastros-auxiliares', label: 'Cores e Tamanhos', icon: <Tag size={20} />, perm: 'PRODUTOS_VIEW' },
         { path: '/core/empresas', label: 'Empresas/Filiais', icon: <Building2 size={20} />, perm: 'USUARIOS_ADMIN' },
@@ -92,6 +96,8 @@ const Sidebar = () => {
       ]
     }
   ];
+
+  const { hasModule } = useAuth();
 
   return (
     <div className="sidebar premium-card" style={{ 
@@ -159,6 +165,8 @@ const Sidebar = () => {
         )}
 
         {navGroups.map((group, index) => {
+          if (group.module && !hasModule(group.module)) return null;
+
           const visibleItems = group.items.filter(item => hasPermission(item.perm));
           if (visibleItems.length === 0) return null;
 

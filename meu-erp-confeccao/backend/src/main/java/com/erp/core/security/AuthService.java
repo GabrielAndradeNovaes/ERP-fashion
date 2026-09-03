@@ -50,6 +50,8 @@ public class AuthService {
         java.util.List<String> permissoes = userDetails.getUsuario().getPermissoes() != null 
             ? new java.util.ArrayList<>(userDetails.getUsuario().getPermissoes()) 
             : new java.util.ArrayList<>();
+            
+        java.util.List<String> modulosAtivos = getModulosAtivos(userDetails.getTenantId());
 
         return new AuthResponse(
                 jwtToken,
@@ -60,8 +62,31 @@ public class AuthService {
                 tenantStatus,
                 empresas,
                 filialId,
-                permissoes
+                permissoes,
+                modulosAtivos
         );
+    }
+
+    private java.util.List<String> getModulosAtivos(String schemaName) {
+        java.util.List<String> modulos = new java.util.ArrayList<>();
+        modulos.add("CORE"); // Sempre ativo
+        
+        String sql = "SELECT module_name FROM master.tenant_modules WHERE tenant_id = ? AND is_active = true";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, schemaName);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    String modulo = rs.getString("module_name");
+                    if (!modulo.equals("CORE")) {
+                        modulos.add(modulo);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Erro ao buscar módulos ativos: " + e.getMessage());
+        }
+        return modulos;
     }
 
     private String getTenantStatus(String schemaName) {

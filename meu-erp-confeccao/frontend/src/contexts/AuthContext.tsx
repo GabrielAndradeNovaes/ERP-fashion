@@ -10,6 +10,7 @@ interface User {
   empresas: string[];
   filialPrincipalId?: string;
   permissoes?: string[];
+  modulosAtivos?: string[];
 }
 
 interface AuthContextType {
@@ -21,6 +22,7 @@ interface AuthContextType {
   impersonatedTenantId: string | null;
   setImpersonatedTenant: (tenantId: string | null) => void;
   hasPermission: (permissionKey?: string) => boolean;
+  hasModule: (moduleName: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -82,10 +84,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return false;
   };
 
+  const hasModule = (moduleName: string): boolean => {
+    if (user?.role === 'SUPERADMIN') return true;
+    if (!user?.modulosAtivos) return false;
+    return user.modulosAtivos.includes(moduleName);
+  };
+
   if (loading) return null; // Ou um loading spinner global
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated: !!token, impersonatedTenantId, setImpersonatedTenant, hasPermission }}>
+    <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated: !!token, impersonatedTenantId, setImpersonatedTenant, hasPermission, hasModule }}>
       {children}
     </AuthContext.Provider>
   );

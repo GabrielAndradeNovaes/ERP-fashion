@@ -10,8 +10,9 @@ public class AuthResponse {
     private java.util.List<String> empresas;
     private String filialPrincipalId;
     private java.util.List<String> permissoes;
+    private java.util.List<String> modulosAtivos;
 
-    public AuthResponse(String token, String nome, String email, String role, String tenantId, String tenantStatus, java.util.List<String> empresas, String filialPrincipalId, java.util.List<String> permissoes) {
+    public AuthResponse(String token, String nome, String email, String role, String tenantId, String tenantStatus, java.util.List<String> empresas, String filialPrincipalId, java.util.List<String> permissoes, java.util.List<String> modulosAtivos) {
         this.token = token;
         this.nome = nome;
         this.email = email;
@@ -21,6 +22,7 @@ public class AuthResponse {
         this.empresas = empresas;
         this.filialPrincipalId = filialPrincipalId;
         this.permissoes = permissoes;
+        this.modulosAtivos = modulosAtivos;
     }
 
     public String getToken() { return token; }
@@ -32,4 +34,5 @@ public class AuthResponse {
     public java.util.List<String> getEmpresas() { return empresas; }
     public String getFilialPrincipalId() { return filialPrincipalId; }
     public java.util.List<String> getPermissoes() { return permissoes; }
+    public java.util.List<String> getModulosAtivos() { return modulosAtivos; }
 }
