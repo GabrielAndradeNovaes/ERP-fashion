@@ -12,4 +12,5 @@ public interface TenantRepository extends JpaRepository<Tenant, UUID> {
     Tenant findBySchemaName(String schemaName);
     Optional<Tenant> findBySlug(String slug);
     List<Tenant> findAllByOrderByCriadoEmDesc();
+    long countByStatus(String status);
 }

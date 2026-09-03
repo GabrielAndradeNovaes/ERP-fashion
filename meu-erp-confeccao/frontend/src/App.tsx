@@ -22,6 +22,8 @@ import Empresas from './pages/Empresas';
 import Usuarios from './pages/Usuarios';
 import PaymentPending from './pages/PaymentPending';
 import TenantsList from './pages/Backoffice/TenantsList';
+import AdminDashboard from './pages/Admin/AdminDashboard';
+import LandingPage from './pages/LandingPage';
 
 // Rotas Protegidas
 const PrivateRoute = ({ children, requireSuperAdmin = false, requiredPermission }: { children: React.ReactNode, requireSuperAdmin?: boolean, requiredPermission?: string }) => {
@@ -253,14 +255,119 @@ const MainApp = () => {
   );
 };
 
+const AdminSidebar = () => {
+  const location = useLocation();
+  const { user, logout } = useAuth();
+  const { mode, toggleTheme } = useThemeContext();
+  
+  return (
+    <div className="sidebar premium-card" style={{ 
+      display: 'flex', flexDirection: 'column', height: '100vh',
+      background: 'var(--bg-card)', borderRight: '1px solid var(--border-color)',
+      padding: '24px 16px', width: 'var(--sidebar-width)', boxShadow: '4px 0 24px rgba(0,0,0,0.2)'
+    }}>
+      <div style={{ marginBottom: '1rem', padding: '0 1rem' }}>
+        <h1 className="text-gradient" style={{ fontSize: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: 800 }}>
+          <Building2 size={20} color="var(--accent-primary)" />
+          Fashion ERP <br/><small style={{fontSize: '10px'}}>Master Admin</small>
+        </h1>
+      </div>
+      
+      <nav style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1, overflowY: 'auto', paddingBottom: '1rem', marginTop: '1rem' }}>
+        <Link 
+          to="/"
+          style={{
+            display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.75rem 1rem',
+            borderRadius: 'var(--radius-md)',
+            color: location.pathname === '/' ? 'white' : 'var(--text-secondary)',
+            background: location.pathname === '/' ? 'var(--accent-gradient)' : 'transparent',
+            fontWeight: location.pathname === '/' ? 600 : 500,
+            textDecoration: 'none'
+          }}
+        >
+          <LayoutDashboard size={20} />
+          Painel Master
+        </Link>
+        <Link 
+          to="/tenants"
+          style={{
+            display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.75rem 1rem',
+            borderRadius: 'var(--radius-md)',
+            color: location.pathname === '/tenants' ? 'white' : 'var(--text-secondary)',
+            background: location.pathname === '/tenants' ? 'var(--accent-gradient)' : 'transparent',
+            fontWeight: location.pathname === '/tenants' ? 600 : 500,
+            textDecoration: 'none'
+          }}
+        >
+          <Building2 size={20} />
+          Gestão de Tenants
+        </Link>
+      </nav>
+
+      {/* User Profile & Logout */}
+      <Box sx={{ mt: 'auto', pt: 2, borderTop: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 0.5rem 0' }}>
+        <Box>
+          <Typography variant="subtitle2" sx={{ fontWeight: 700, color: 'var(--text-primary)' }}>{user?.nome}</Typography>
+          <Typography variant="caption" sx={{ color: 'var(--accent-primary)', fontWeight: 600 }}>SUPERADMIN</Typography>
+        </Box>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <button onClick={toggleTheme} style={{ background: 'rgba(99, 102, 241, 0.1)', border: 'none', color: 'var(--accent-primary)', cursor: 'pointer', padding: '0.5rem', borderRadius: 'var(--radius-sm)', display: 'flex' }}><Sun size={18} /></button>
+          <button onClick={logout} style={{ background: 'rgba(239, 68, 68, 0.1)', border: 'none', color: 'var(--danger)', cursor: 'pointer', padding: '0.5rem', borderRadius: 'var(--radius-sm)', display: 'flex' }}><LogOut size={18} /></button>
+        </Box>
+      </Box>
+    </div>
+  );
+};
+
+const AdminApp = () => {
+  return (
+    <div className="app-container">
+      <AdminSidebar />
+      <main className="main-content">
+        <Routes>
+          <Route path="/" element={<PrivateRoute requireSuperAdmin><AdminDashboard /></PrivateRoute>} />
+          <Route path="/tenants" element={<PrivateRoute requireSuperAdmin><TenantsList /></PrivateRoute>} />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </main>
+    </div>
+  );
+};
+
+const AppRouter = () => {
+  const hostname = window.location.hostname;
+  const subdomain = hostname.split('.')[0];
+
+  if (subdomain === 'www') {
+    return (
+      <Routes>
+        <Route path="*" element={<LandingPage />} />
+      </Routes>
+    );
+  }
+
+  if (subdomain === 'admin') {
+    return (
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/*" element={<AdminApp />} />
+      </Routes>
+    );
+  }
+
+  return (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/*" element={<MainApp />} />
+    </Routes>
+  );
+};
+
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/*" element={<MainApp />} />
-        </Routes>
+        <AppRouter />
       </AuthProvider>
     </BrowserRouter>
   );
