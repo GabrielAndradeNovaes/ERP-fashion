@@ -1,7 +1,5 @@
 package com.erp.core.tenant;
 
-import org.hibernate.annotations.Type;
-
 import org.hibernate.annotations.JdbcTypeCode;
 
 import jakarta.persistence.Column;

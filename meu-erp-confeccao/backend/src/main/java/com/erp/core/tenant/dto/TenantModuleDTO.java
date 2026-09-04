@@ -1,6 +1,6 @@
 package com.erp.core.tenant.dto;
 
-import java.util.List;
+import java.util.UUID;
 
 public class TenantModuleDTO {
     private String moduleName;

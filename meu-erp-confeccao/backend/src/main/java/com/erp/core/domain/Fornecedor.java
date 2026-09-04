@@ -3,7 +3,6 @@ package com.erp.core.domain;
 import org.hibernate.annotations.Filter;
 import jakarta.persistence.*;
 import java.util.UUID;
-import java.util.UUID;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;

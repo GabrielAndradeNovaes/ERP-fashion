@@ -2,6 +2,10 @@ package com.erp.core.security;
 
 import com.erp.core.security.dto.AuthRequest;
 import com.erp.core.security.dto.AuthResponse;
+import com.erp.core.security.UserDetailsServiceImpl;
+import com.erp.core.security.JwtService;
+import com.erp.core.security.Usuario;
+import com.erp.core.security.UserDetailsImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
