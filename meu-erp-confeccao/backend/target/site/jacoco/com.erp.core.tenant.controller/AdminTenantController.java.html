@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AdminTenantController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.erp.core.tenant.controller</a> &gt; <span class="el_source">AdminTenantController.java</span></div><h1>AdminTenantController.java</h1><pre class="source lang-java linenums">package com.erp.core.tenant.controller;
+
+import com.erp.core.tenant.Tenant;
+import com.erp.core.tenant.TenantRepository;
+import com.erp.core.tenant.TenantProvisioningService;
+import com.erp.core.tenant.dto.TenantProvisionRequest;
+import com.erp.core.tenant.dto.TenantResponse;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping(&quot;/api/admin/tenants&quot;)
+public class AdminTenantController {
+
+    private final TenantProvisioningService tenantProvisioningService;
+    private final TenantRepository tenantRepository;
+
+<span class="fc" id="L23">    public AdminTenantController(TenantProvisioningService tenantProvisioningService, TenantRepository tenantRepository) {</span>
+<span class="fc" id="L24">        this.tenantProvisioningService = tenantProvisioningService;</span>
+<span class="fc" id="L25">        this.tenantRepository = tenantRepository;</span>
+<span class="fc" id="L26">    }</span>
+
+    // Apenas usuários com role SUPERADMIN ou similar (ajuste conforme a necessidade do negócio)
+    // Para simplificar, vou restringir para &quot;SUPERADMIN&quot; (ou quem quer que tenha a role mestre).
+    // Como a role atual do admin de tenant é &quot;ADMIN&quot;, um super usuário teria &quot;SUPERADMIN&quot;.
+    @PostMapping(&quot;/provision&quot;)
+    @PreAuthorize(&quot;hasRole('SUPERADMIN')&quot;)
+    public ResponseEntity&lt;String&gt; provisionTenant(@RequestBody TenantProvisionRequest request) {
+        
+<span class="fc" id="L35">        String schemaName = request.getSchemaName();</span>
+<span class="pc bpc" id="L36" title="2 of 4 branches missed.">        if (schemaName == null || schemaName.trim().isEmpty()) {</span>
+            // Gera um schemaId baseado em UUID (ex: tenant_4b2a9f)
+<span class="nc" id="L38">            schemaName = &quot;tenant_&quot; + java.util.UUID.randomUUID().toString().replace(&quot;-&quot;, &quot;&quot;).substring(0, 8);</span>
+<span class="nc" id="L39">            request.setSchemaName(schemaName);</span>
+        }
+
+<span class="fc" id="L42">        tenantProvisioningService.startProvisioning(request);</span>
+        
+<span class="fc" id="L44">        return ResponseEntity.accepted().body(&quot;Processo de provisionamento iniciado para &quot; + schemaName);</span>
+    }
+
+    @GetMapping
+    @PreAuthorize(&quot;hasRole('SUPERADMIN')&quot;)
+    public ResponseEntity&lt;List&lt;TenantResponse&gt;&gt; listTenants() {
+<span class="fc" id="L50">        List&lt;Tenant&gt; tenants = tenantRepository.findAllByOrderByCriadoEmDesc();</span>
+<span class="fc" id="L51">        List&lt;TenantResponse&gt; responses = tenants.stream()</span>
+<span class="fc" id="L52">                .map(TenantResponse::new)</span>
+<span class="fc" id="L53">                .collect(Collectors.toList());</span>
+<span class="fc" id="L54">        return ResponseEntity.ok(responses);</span>
+    }
+
+    @PutMapping(&quot;/{schemaName}/status&quot;)
+    @PreAuthorize(&quot;hasRole('SUPERADMIN')&quot;)
+    public ResponseEntity&lt;String&gt; updateStatus(@PathVariable String schemaName, @RequestBody Map&lt;String, String&gt; payload) {
+<span class="fc" id="L60">        String newStatus = payload.get(&quot;status&quot;); // ATIVO, INADIMPLENTE, CANCELADO</span>
+<span class="fc" id="L61">        Tenant tenant = tenantRepository.findBySchemaName(schemaName);</span>
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">        if (tenant != null) {</span>
+<span class="fc" id="L63">            tenant.setStatus(newStatus);</span>
+<span class="fc" id="L64">            tenantRepository.save(tenant);</span>
+<span class="fc" id="L65">            return ResponseEntity.ok(&quot;Status atualizado para &quot; + newStatus);</span>
+        }
+<span class="nc" id="L67">        return ResponseEntity.notFound().build();</span>
+    }
+    @PutMapping(&quot;/{schemaName}&quot;)
+    @PreAuthorize(&quot;hasRole('SUPERADMIN')&quot;)
+    public ResponseEntity&lt;TenantResponse&gt; updateTenant(@PathVariable String schemaName, @RequestBody com.erp.core.tenant.dto.TenantUpdateRequest request) {
+<span class="fc" id="L72">        Tenant tenant = tenantRepository.findBySchemaName(schemaName);</span>
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">        if (tenant == null) {</span>
+<span class="nc" id="L74">            return ResponseEntity.notFound().build();</span>
+        }
+
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">        if (request.getNomeEmpresa() != null) tenant.setNomeEmpresa(request.getNomeEmpresa());</span>
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">        if (request.getCnpj() != null) tenant.setCnpj(request.getCnpj());</span>
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">        if (request.getRazaoSocial() != null) tenant.setRazaoSocial(request.getRazaoSocial());</span>
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">        if (request.getNomeFantasia() != null) tenant.setNomeFantasia(request.getNomeFantasia());</span>
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">        if (request.getPorte() != null) tenant.setPorte(request.getPorte());</span>
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">        if (request.getNaturezaJuridica() != null) tenant.setNaturezaJuridica(request.getNaturezaJuridica());</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">        if (request.getStatusRfb() != null) tenant.setStatusRfb(request.getStatusRfb());</span>
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">        if (request.getDataAbertura() != null) tenant.setDataAbertura(request.getDataAbertura());</span>
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">        if (request.getEmailPrincipal() != null) tenant.setEmailPrincipal(request.getEmailPrincipal());</span>
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">        if (request.getTelefone() != null) tenant.setTelefone(request.getTelefone());</span>
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">        if (request.getCep() != null) tenant.setCep(request.getCep());</span>
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">        if (request.getLogradouro() != null) tenant.setLogradouro(request.getLogradouro());</span>
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">        if (request.getNumero() != null) tenant.setNumero(request.getNumero());</span>
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">        if (request.getComplemento() != null) tenant.setComplemento(request.getComplemento());</span>
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">        if (request.getBairro() != null) tenant.setBairro(request.getBairro());</span>
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">        if (request.getCidade() != null) tenant.setCidade(request.getCidade());</span>
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">        if (request.getEstado() != null) tenant.setEstado(request.getEstado());</span>
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">        if (request.getCnaePrincipalCodigo() != null) tenant.setCnaePrincipalCodigo(request.getCnaePrincipalCodigo());</span>
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">        if (request.getCnaePrincipalDescricao() != null) tenant.setCnaePrincipalDescricao(request.getCnaePrincipalDescricao());</span>
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">        if (request.getSimplesNacional() != null) tenant.setSimplesNacional(request.getSimplesNacional());</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">        if (request.getReceitaFederalRawData() != null) {</span>
+<span class="nc" id="L98">            String rawData = request.getReceitaFederalRawData();</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">            tenant.setReceitaFederalRawData(rawData.trim().isEmpty() ? null : rawData);</span>
+        }
+
+<span class="fc" id="L102">        tenantRepository.save(tenant);</span>
+<span class="fc" id="L103">        return ResponseEntity.ok(new TenantResponse(tenant));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CorController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.erp.catalog.controller</a> &gt; <span class="el_source">CorController.java</span></div><h1>CorController.java</h1><pre class="source lang-java linenums">package com.erp.catalog.controller;
+
+import com.erp.catalog.domain.Cor;
+import com.erp.catalog.repository.CorRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
+
+@RestController
+@RequestMapping(&quot;/api/catalog/cores&quot;)
+public class CorController {
+
+    private final CorRepository corRepository;
+
+<span class="fc" id="L18">    public CorController(CorRepository corRepository) {</span>
+<span class="fc" id="L19">        this.corRepository = corRepository;</span>
+<span class="fc" id="L20">    }</span>
+
+    @PostMapping
+    public ResponseEntity&lt;Cor&gt; create(@RequestBody Cor cor) {
+<span class="fc" id="L24">        return new ResponseEntity&lt;&gt;(corRepository.save(cor), HttpStatus.CREATED);</span>
+    }
+
+    @GetMapping
+    public ResponseEntity&lt;List&lt;Cor&gt;&gt; getAll() {
+<span class="fc" id="L29">        return ResponseEntity.ok(corRepository.findAll());</span>
+    }
+
+    @PutMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;Cor&gt; update(@PathVariable UUID id, @RequestBody Cor corReq) {
+<span class="fc" id="L34">        return corRepository.findById(id).map(cor -&gt; {</span>
+<span class="fc" id="L35">            cor.setNome(corReq.getNome());</span>
+<span class="fc" id="L36">            cor.setCodigoHex(corReq.getCodigoHex());</span>
+<span class="fc" id="L37">            cor.setAtivo(corReq.getAtivo());</span>
+<span class="fc" id="L38">            return ResponseEntity.ok(corRepository.save(cor));</span>
+<span class="fc" id="L39">        }).orElse(ResponseEntity.notFound().build());</span>
+    }
+
+    @DeleteMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;Void&gt; delete(@PathVariable UUID id) {
+<span class="fc bfc" id="L44" title="All 2 branches covered.">        if (corRepository.existsById(id)) {</span>
+<span class="fc" id="L45">            corRepository.deleteById(id);</span>
+<span class="fc" id="L46">            return ResponseEntity.noContent().build();</span>
+        }
+<span class="fc" id="L48">        return ResponseEntity.notFound().build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

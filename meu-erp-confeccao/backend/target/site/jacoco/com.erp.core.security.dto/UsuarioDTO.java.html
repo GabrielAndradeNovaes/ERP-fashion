@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UsuarioDTO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.erp.core.security.dto</a> &gt; <span class="el_source">UsuarioDTO.java</span></div><h1>UsuarioDTO.java</h1><pre class="source lang-java linenums">package com.erp.core.security.dto;
+
+import java.util.List;
+import java.util.UUID;
+import java.time.LocalDateTime;
+import java.time.LocalDate;
+
+<span class="fc" id="L8">public class UsuarioDTO {</span>
+    private UUID id;
+    private String nome;
+    private String email;
+    private String role;
+    private Boolean ativo;
+    private String tenantId;
+    private LocalDateTime criadoEm;
+    private UUID filialPrincipalId;
+    private List&lt;String&gt; permissoes;
+    private List&lt;EmpresaSimpleDTO&gt; empresas;
+
+    private String cpf;
+    private String telefone;
+    private String cargo;
+    private LocalDate dataNascimento;
+    private String departamento;
+    private String fotoUrl;
+
+    // Getters and Setters
+<span class="nc" id="L28">    public UUID getId() { return id; }</span>
+<span class="fc" id="L29">    public void setId(UUID id) { this.id = id; }</span>
+
+<span class="nc" id="L31">    public String getNome() { return nome; }</span>
+<span class="fc" id="L32">    public void setNome(String nome) { this.nome = nome; }</span>
+
+<span class="nc" id="L34">    public String getEmail() { return email; }</span>
+<span class="fc" id="L35">    public void setEmail(String email) { this.email = email; }</span>
+
+<span class="nc" id="L37">    public String getRole() { return role; }</span>
+<span class="fc" id="L38">    public void setRole(String role) { this.role = role; }</span>
+
+<span class="nc" id="L40">    public Boolean getAtivo() { return ativo; }</span>
+<span class="fc" id="L41">    public void setAtivo(Boolean ativo) { this.ativo = ativo; }</span>
+
+<span class="nc" id="L43">    public String getTenantId() { return tenantId; }</span>
+<span class="fc" id="L44">    public void setTenantId(String tenantId) { this.tenantId = tenantId; }</span>
+
+<span class="nc" id="L46">    public LocalDateTime getCriadoEm() { return criadoEm; }</span>
+<span class="fc" id="L47">    public void setCriadoEm(LocalDateTime criadoEm) { this.criadoEm = criadoEm; }</span>
+
+<span class="fc" id="L49">    public List&lt;EmpresaSimpleDTO&gt; getEmpresas() { return empresas; }</span>
+<span class="fc" id="L50">    public void setEmpresas(List&lt;EmpresaSimpleDTO&gt; empresas) { this.empresas = empresas; }</span>
+
+<span class="nc" id="L52">    public UUID getFilialPrincipalId() { return filialPrincipalId; }</span>
+<span class="fc" id="L53">    public void setFilialPrincipalId(UUID filialPrincipalId) { this.filialPrincipalId = filialPrincipalId; }</span>
+
+<span class="nc" id="L55">    public List&lt;String&gt; getPermissoes() { return permissoes; }</span>
+<span class="fc" id="L56">    public void setPermissoes(List&lt;String&gt; permissoes) { this.permissoes = permissoes; }</span>
+
+<span class="nc" id="L58">    public String getCpf() { return cpf; }</span>
+<span class="fc" id="L59">    public void setCpf(String cpf) { this.cpf = cpf; }</span>
+
+<span class="nc" id="L61">    public String getTelefone() { return telefone; }</span>
+<span class="fc" id="L62">    public void setTelefone(String telefone) { this.telefone = telefone; }</span>
+
+<span class="nc" id="L64">    public String getCargo() { return cargo; }</span>
+<span class="fc" id="L65">    public void setCargo(String cargo) { this.cargo = cargo; }</span>
+
+<span class="nc" id="L67">    public LocalDate getDataNascimento() { return dataNascimento; }</span>
+<span class="fc" id="L68">    public void setDataNascimento(LocalDate dataNascimento) { this.dataNascimento = dataNascimento; }</span>
+
+<span class="nc" id="L70">    public String getDepartamento() { return departamento; }</span>
+<span class="fc" id="L71">    public void setDepartamento(String departamento) { this.departamento = departamento; }</span>
+
+<span class="nc" id="L73">    public String getFotoUrl() { return fotoUrl; }</span>
+<span class="fc" id="L74">    public void setFotoUrl(String fotoUrl) { this.fotoUrl = fotoUrl; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

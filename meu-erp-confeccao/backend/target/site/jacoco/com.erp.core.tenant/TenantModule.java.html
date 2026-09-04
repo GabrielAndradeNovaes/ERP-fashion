@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TenantModule.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.erp.core.tenant</a> &gt; <span class="el_source">TenantModule.java</span></div><h1>TenantModule.java</h1><pre class="source lang-java linenums">package com.erp.core.tenant;
+
+import jakarta.persistence.*;
+import java.util.UUID;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = &quot;tenant_modules&quot;, schema = &quot;master&quot;)
+public class TenantModule {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
+
+    @Column(name = &quot;tenant_id&quot;, nullable = false)
+    private String tenantId;
+
+    @Column(name = &quot;module_name&quot;, nullable = false)
+    private String moduleName;
+
+<span class="fc" id="L21">    @Column(name = &quot;is_active&quot;, nullable = false)</span>
+    private boolean isActive = true;
+
+<span class="fc" id="L24">    @Column(name = &quot;criado_em&quot;, updatable = false)</span>
+<span class="fc" id="L25">    private LocalDateTime criadoEm = LocalDateTime.now();</span>
+
+<span class="fc" id="L27">    public TenantModule() {}</span>
+
+<span class="fc" id="L29">    public TenantModule(String tenantId, String moduleName, boolean isActive) {</span>
+<span class="fc" id="L30">        this.tenantId = tenantId;</span>
+<span class="fc" id="L31">        this.moduleName = moduleName;</span>
+<span class="fc" id="L32">        this.isActive = isActive;</span>
+<span class="fc" id="L33">    }</span>
+
+<span class="nc" id="L35">    public UUID getId() { return id; }</span>
+<span class="nc" id="L36">    public void setId(UUID id) { this.id = id; }</span>
+
+<span class="nc" id="L38">    public String getTenantId() { return tenantId; }</span>
+<span class="fc" id="L39">    public void setTenantId(String tenantId) { this.tenantId = tenantId; }</span>
+
+<span class="fc" id="L41">    public String getModuleName() { return moduleName; }</span>
+<span class="fc" id="L42">    public void setModuleName(String moduleName) { this.moduleName = moduleName; }</span>
+
+<span class="nc" id="L44">    public boolean isActive() { return isActive; }</span>
+<span class="fc" id="L45">    public void setActive(boolean active) { isActive = active; }</span>
+
+<span class="nc" id="L47">    public LocalDateTime getCriadoEm() { return criadoEm; }</span>
+<span class="nc" id="L48">    public void setCriadoEm(LocalDateTime criadoEm) { this.criadoEm = criadoEm; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

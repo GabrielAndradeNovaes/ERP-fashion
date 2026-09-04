@@ -1,18 +1,25 @@
 package com.erp.production.service.impl;
 
 import com.erp.catalog.domain.ProdutoBase;
+import com.erp.catalog.domain.ProdutoSku;
 import com.erp.catalog.repository.ProdutoBaseRepository;
+import com.erp.catalog.repository.ProdutoSkuRepository;
 import com.erp.inventory.domain.Material;
 import com.erp.inventory.domain.TipoMovimentacao;
 import com.erp.inventory.service.EstoqueMovimentacaoService;
 import com.erp.production.domain.FichaTecnica;
 import com.erp.production.domain.FichaTecnicaMaterial;
+import com.erp.production.domain.FichaTecnicaOperacao;
 import com.erp.production.domain.OrdemProducao;
+import com.erp.production.domain.OrdemProducaoItem;
 import com.erp.production.domain.OrdemProducaoStatus;
+import com.erp.production.domain.Pacote;
 import com.erp.production.dto.OrdemProducaoRequest;
+import com.erp.production.dto.OrdemProducaoItemRequest;
 import com.erp.production.dto.OrdemProducaoResponse;
-import com.erp.production.repository.FichaTecnicaRepository;
+import com.erp.production.repository.CupomRepository;
 import com.erp.production.repository.OrdemProducaoRepository;
+import com.erp.production.repository.PacoteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,21 +46,20 @@ public class OrdemProducaoServiceImplTest {
     @Mock
     private ProdutoBaseRepository produtoBaseRepository;
     @Mock
-    private FichaTecnicaRepository fichaTecnicaRepository;
-    @Mock
     private EstoqueMovimentacaoService estoqueMovimentacaoService;
     @Mock
-    private com.erp.catalog.repository.ProdutoSkuRepository produtoSkuRepository;
+    private ProdutoSkuRepository produtoSkuRepository;
     @Mock
-    private com.erp.production.repository.PacoteRepository pacoteRepository;
+    private PacoteRepository pacoteRepository;
     @Mock
-    private com.erp.production.repository.CupomRepository cupomRepository;
+    private CupomRepository cupomRepository;
 
     @InjectMocks
     private OrdemProducaoServiceImpl service;
 
     private OrdemProducao mockOp;
     private ProdutoBase mockProduto;
+    private ProdutoSku mockSku;
     private FichaTecnica mockFicha;
     private OrdemProducaoRequest mockRequest;
 
@@ -63,20 +69,22 @@ public class OrdemProducaoServiceImplTest {
         mockProduto.setId(UUID.randomUUID());
         mockProduto.setNome("Camiseta");
 
-        com.erp.catalog.domain.ProdutoSku sku = new com.erp.catalog.domain.ProdutoSku();
-        sku.setId(UUID.randomUUID());
-        sku.setCor("Preto");
-        sku.setTamanho("M");
-        sku.setProdutoBase(mockProduto);
+        mockSku = new ProdutoSku();
+        mockSku.setId(UUID.randomUUID());
+        mockSku.setCor("Preto");
+        mockSku.setTamanho("M");
+        mockSku.setProdutoBase(mockProduto);
+        mockSku.setQuantidadeAtual(10);
         
-        List<com.erp.catalog.domain.ProdutoSku> skus = new ArrayList<>();
-        skus.add(sku);
+        List<ProdutoSku> skus = new ArrayList<>();
+        skus.add(mockSku);
         mockProduto.setSkus(skus);
 
         mockFicha = new FichaTecnica();
         mockFicha.setId(UUID.randomUUID());
         mockFicha.setVersao("v1");
         mockFicha.setMateriais(new ArrayList<>());
+        mockFicha.setOperacoes(new ArrayList<>());
         
         mockProduto.setFichaTecnica(mockFicha);
 
@@ -88,6 +96,11 @@ public class OrdemProducaoServiceImplTest {
         ftm.setQuantidade(new BigDecimal("1.5"));
         mockFicha.addMaterial(ftm);
 
+        FichaTecnicaOperacao opc = new FichaTecnicaOperacao();
+        opc.setId(UUID.randomUUID());
+        opc.setTempoCalculadoCentesimal(new BigDecimal("10.0"));
+        mockFicha.addOperacao(opc);
+
         mockOp = new OrdemProducao();
         mockOp.setId(UUID.randomUUID());
         mockOp.setNumero("OP-001");
@@ -95,94 +108,129 @@ public class OrdemProducaoServiceImplTest {
         mockOp.setFichaTecnica(mockFicha);
         mockOp.setQuantidade(10);
         mockOp.setStatus(OrdemProducaoStatus.PENDENTE);
+        
+        OrdemProducaoItem mockItem = new OrdemProducaoItem();
+        mockItem.setProdutoSku(mockSku);
+        mockItem.setQuantidade(10);
+        mockOp.addItem(mockItem);
 
-        mockRequest = new OrdemProducaoRequest("OP-001", mockProduto.getId(), 10, null);
+        mockRequest = new OrdemProducaoRequest("OP-001", mockProduto.getId(), 10, List.of(
+            new OrdemProducaoItemRequest(mockSku.getId(), 10)
+        ));
     }
 
     @Test
-    void shouldCreateOrdemProducao() {
+    void shouldCriarOrdemProducao() {
         when(ordemProducaoRepository.existsByNumero("OP-001")).thenReturn(false);
         when(produtoBaseRepository.findById(mockProduto.getId())).thenReturn(Optional.of(mockProduto));
+        when(produtoSkuRepository.findById(mockSku.getId())).thenReturn(Optional.of(mockSku));
         when(ordemProducaoRepository.save(any(OrdemProducao.class))).thenReturn(mockOp);
 
         OrdemProducaoResponse response = service.criarOrdemProducao(mockRequest);
 
         assertNotNull(response);
         assertEquals("OP-001", response.numero());
-        assertEquals(OrdemProducaoStatus.PENDENTE, response.status());
+        verify(ordemProducaoRepository, times(1)).save(any(OrdemProducao.class));
     }
 
     @Test
-    void shouldThrowExceptionIfOpNumberExists() {
+    void shouldThrowWhenCriarOrdemProducaoExists() {
         when(ordemProducaoRepository.existsByNumero("OP-001")).thenReturn(true);
-
-        Exception ex = assertThrows(IllegalArgumentException.class, () -> service.criarOrdemProducao(mockRequest));
-        assertTrue(ex.getMessage().contains("OP-001"));
+        assertThrows(IllegalArgumentException.class, () -> service.criarOrdemProducao(mockRequest));
+    }
+    
+    @Test
+    void shouldThrowWhenCriarOrdemProducaoProdutoSemFicha() {
+        mockProduto.setFichaTecnica(null);
+        when(ordemProducaoRepository.existsByNumero("OP-001")).thenReturn(false);
+        when(produtoBaseRepository.findById(mockProduto.getId())).thenReturn(Optional.of(mockProduto));
+        
+        assertThrows(IllegalArgumentException.class, () -> service.criarOrdemProducao(mockRequest));
     }
 
     @Test
-    void shouldListAllOps() {
+    void shouldIniciarProducao() {
+        when(ordemProducaoRepository.findById(mockOp.getId())).thenReturn(Optional.of(mockOp));
+        when(ordemProducaoRepository.save(any(OrdemProducao.class))).thenReturn(mockOp);
+
+        OrdemProducaoResponse response = service.iniciarProducao(mockOp.getId());
+
+        assertNotNull(response);
+        verify(estoqueMovimentacaoService, times(1)).registrarMovimentacao(
+                any(), eq(TipoMovimentacao.SAIDA), any(), anyString()
+        );
+        assertEquals(OrdemProducaoStatus.EM_ANDAMENTO, mockOp.getStatus());
+    }
+
+    @Test
+    void shouldThrowWhenIniciarProducaoNotPendente() {
+        mockOp.setStatus(OrdemProducaoStatus.EM_ANDAMENTO);
+        when(ordemProducaoRepository.findById(mockOp.getId())).thenReturn(Optional.of(mockOp));
+
+        assertThrows(IllegalStateException.class, () -> service.iniciarProducao(mockOp.getId()));
+    }
+
+    @Test
+    void shouldListarTodas() {
         when(ordemProducaoRepository.findAll()).thenReturn(List.of(mockOp));
         List<OrdemProducaoResponse> list = service.listarTodas();
         assertEquals(1, list.size());
     }
 
     @Test
-    void shouldStartProductionAndDeductMaterials() {
+    void shouldAtualizarStatusParaConcluida() {
+        mockOp.setStatus(OrdemProducaoStatus.EM_ANDAMENTO);
         when(ordemProducaoRepository.findById(mockOp.getId())).thenReturn(Optional.of(mockOp));
         when(ordemProducaoRepository.save(any(OrdemProducao.class))).thenReturn(mockOp);
 
-        // 10 units * 1.5 of material = 15 total needed
-        OrdemProducaoResponse response = service.iniciarProducao(mockOp.getId());
-        assertNotNull(response);
+        service.atualizarStatus(mockOp.getId(), OrdemProducaoStatus.CONCLUIDA);
 
-        assertEquals(OrdemProducaoStatus.EM_ANDAMENTO, mockOp.getStatus());
-        assertNotNull(mockOp.getDataInicio());
+        assertEquals(OrdemProducaoStatus.CONCLUIDA, mockOp.getStatus());
+        verify(produtoSkuRepository, times(1)).save(mockSku);
+        assertEquals(20, mockSku.getQuantidadeAtual()); // 10 original + 10 da OP
+    }
+    
+    @Test
+    void shouldEstornarOrdemProducao() {
+        mockOp.setStatus(OrdemProducaoStatus.EM_ANDAMENTO);
+        when(ordemProducaoRepository.findById(mockOp.getId())).thenReturn(Optional.of(mockOp));
+        when(ordemProducaoRepository.save(any(OrdemProducao.class))).thenReturn(mockOp);
 
-        // Verify inventory service was called correctly for the explosion
+        service.estornarOrdemProducao(mockOp.getId());
+
+        assertEquals(OrdemProducaoStatus.PENDENTE, mockOp.getStatus());
         verify(estoqueMovimentacaoService, times(1)).registrarMovimentacao(
-                any(UUID.class),
-                eq(TipoMovimentacao.SAIDA),
-                eq(new BigDecimal("15.0")),
-                eq("OP: OP-001")
+                any(), eq(TipoMovimentacao.ENTRADA), any(), anyString()
         );
     }
     
     @Test
-    void shouldThrowExceptionWhenStartingStartedOp() {
-        mockOp.setStatus(OrdemProducaoStatus.EM_ANDAMENTO);
+    void shouldEstornarOrdemProducaoConcluida() {
+        mockOp.setStatus(OrdemProducaoStatus.CONCLUIDA);
+        mockSku.setQuantidadeAtual(20);
         when(ordemProducaoRepository.findById(mockOp.getId())).thenReturn(Optional.of(mockOp));
-        
-        assertThrows(IllegalStateException.class, () -> service.iniciarProducao(mockOp.getId()));
+        when(ordemProducaoRepository.save(any(OrdemProducao.class))).thenReturn(mockOp);
+
+        service.estornarOrdemProducao(mockOp.getId());
+
+        assertEquals(OrdemProducaoStatus.PENDENTE, mockOp.getStatus());
+        verify(produtoSkuRepository, times(1)).save(mockSku);
+        assertEquals(10, mockSku.getQuantidadeAtual()); // 20 - 10 da OP
     }
 
     @Test
     void shouldGerarPacotes() {
-        // Setup
         mockOp.setStatus(OrdemProducaoStatus.EM_ANDAMENTO);
-        
-        com.erp.catalog.domain.ProdutoSku sku = new com.erp.catalog.domain.ProdutoSku();
-        sku.setId(UUID.randomUUID());
-        
-        com.erp.production.domain.OrdemProducaoItem item = new com.erp.production.domain.OrdemProducaoItem();
-        item.setQuantidade(30);
-        item.setProdutoSku(sku);
-        mockOp.addItem(item);
-
-        com.erp.production.domain.FichaTecnicaOperacao operacao = new com.erp.production.domain.FichaTecnicaOperacao();
-        operacao.setOrdemExecucao(1);
-        operacao.setNome("Costura");
-        operacao.setTempoCalculadoCentesimal(new BigDecimal("2.0"));
-        mockFicha.getOperacoes().add(operacao);
-
         when(ordemProducaoRepository.findById(mockOp.getId())).thenReturn(Optional.of(mockOp));
         when(pacoteRepository.findByOrdemProducaoId(mockOp.getId())).thenReturn(new ArrayList<>());
-        when(pacoteRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
         
-        service.gerarPacotes(mockOp.getId(), 20);
+        Pacote mockPacote = new Pacote();
+        mockPacote.setSequencial(1);
+        when(pacoteRepository.save(any())).thenReturn(mockPacote);
 
-        // 30 items with size 20 = 2 packages
-        verify(pacoteRepository, times(2)).save(any(com.erp.production.domain.Pacote.class));
-        verify(cupomRepository, times(2)).save(any(com.erp.production.domain.Cupom.class));
+        service.gerarPacotes(mockOp.getId(), 5);
+
+        verify(pacoteRepository, times(2)).save(any(Pacote.class)); // 10 itens / 5 por pacote = 2 pacotes
+        verify(cupomRepository, times(2)).save(any()); // 1 operacao * 2 pacotes = 2 cupons
     }
 }

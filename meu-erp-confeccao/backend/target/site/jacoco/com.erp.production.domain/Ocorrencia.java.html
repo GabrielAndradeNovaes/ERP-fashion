@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Ocorrencia.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.erp.production.domain</a> &gt; <span class="el_source">Ocorrencia.java</span></div><h1>Ocorrencia.java</h1><pre class="source lang-java linenums">package com.erp.production.domain;
+
+import com.erp.core.domain.Empresa;
+import org.hibernate.annotations.Filter;
+import com.erp.core.domain.Funcionario;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+@Entity
+@Table(name = &quot;ocorrencias&quot;)
+@Filter(name = &quot;empresaFilter&quot;, condition = &quot;empresa_id IN (:empresaIds)&quot;)
+<span class="fc" id="L14">public class Ocorrencia {</span>
+
+    @jakarta.persistence.ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
+    @jakarta.persistence.JoinColumn(name = &quot;empresa_id&quot;)
+    private Empresa empresa;
+    
+<span class="fc" id="L20">    public Empresa getEmpresa() { return empresa; }</span>
+<span class="fc" id="L21">    public void setEmpresa(Empresa empresa) { this.empresa = empresa; }</span>
+
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = &quot;funcionario_id&quot;, nullable = false)
+    private Funcionario funcionario;
+
+    @Column(nullable = false, length = 255)
+    private String motivo;
+
+    @Column(name = &quot;tempo_descontado_centesimal&quot;, nullable = false, precision = 5, scale = 2)
+    private BigDecimal tempoDescontadoCentesimal;
+
+    @Column(name = &quot;data_hora&quot;, nullable = false)
+    private LocalDateTime dataHora;
+
+    @PrePersist
+    protected void onCreate() {
+<span class="nc bnc" id="L43" title="All 2 branches missed.">        if (this.dataHora == null) {</span>
+<span class="nc" id="L44">            this.dataHora = LocalDateTime.now();</span>
+        }
+<span class="nc" id="L46">    }</span>
+
+<span class="nc" id="L48">    public UUID getId() { return id; }</span>
+<span class="nc" id="L49">    public void setId(UUID id) { this.id = id; }</span>
+<span class="nc" id="L50">    public Funcionario getFuncionario() { return funcionario; }</span>
+<span class="fc" id="L51">    public void setFuncionario(Funcionario funcionario) { this.funcionario = funcionario; }</span>
+<span class="nc" id="L52">    public String getMotivo() { return motivo; }</span>
+<span class="fc" id="L53">    public void setMotivo(String motivo) { this.motivo = motivo; }</span>
+<span class="fc" id="L54">    public BigDecimal getTempoDescontadoCentesimal() { return tempoDescontadoCentesimal; }</span>
+<span class="fc" id="L55">    public void setTempoDescontadoCentesimal(BigDecimal tempoDescontadoCentesimal) { this.tempoDescontadoCentesimal = tempoDescontadoCentesimal; }</span>
+<span class="nc" id="L56">    public LocalDateTime getDataHora() { return dataHora; }</span>
+<span class="nc" id="L57">    public void setDataHora(LocalDateTime dataHora) { this.dataHora = dataHora; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

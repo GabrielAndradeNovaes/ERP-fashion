@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FornecedorServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.erp.core.service.impl</a> &gt; <span class="el_source">FornecedorServiceImpl.java</span></div><h1>FornecedorServiceImpl.java</h1><pre class="source lang-java linenums">package com.erp.core.service.impl;
+
+import com.erp.core.domain.Fornecedor;
+import com.erp.core.dto.FornecedorRequest;
+import com.erp.core.dto.FornecedorResponse;
+import com.erp.core.repository.FornecedorRepository;
+import com.erp.core.service.FornecedorService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+@Service
+public class FornecedorServiceImpl implements FornecedorService {
+
+    private final FornecedorRepository repository;
+
+<span class="fc" id="L20">    public FornecedorServiceImpl(FornecedorRepository repository) {</span>
+<span class="fc" id="L21">        this.repository = repository;</span>
+<span class="fc" id="L22">    }</span>
+
+    @Override
+    @Transactional
+    public FornecedorResponse create(FornecedorRequest request) {
+<span class="fc" id="L27">        Fornecedor entity = new Fornecedor();</span>
+<span class="fc" id="L28">        entity.setNome(request.nome());</span>
+<span class="fc" id="L29">        entity.setDocumento(request.documento());</span>
+<span class="fc" id="L30">        entity.setEmail(request.email());</span>
+<span class="fc" id="L31">        entity.setTelefone(request.telefone());</span>
+<span class="fc" id="L32">        entity.setTipoPessoa(request.tipoPessoa());</span>
+<span class="fc" id="L33">        entity.setRazaoSocial(request.razaoSocial());</span>
+<span class="fc" id="L34">        entity.setInscricaoEstadual(request.inscricaoEstadual());</span>
+<span class="fc" id="L35">        entity.setCategoriaFornecedor(request.categoriaFornecedor());</span>
+<span class="fc" id="L36">        entity.setPrazoPagamentoPadrao(request.prazoPagamentoPadrao());</span>
+<span class="fc" id="L37">        entity.setContatoNome(request.contatoNome());</span>
+<span class="fc" id="L38">        entity.setStatus(request.status());</span>
+<span class="fc" id="L39">        entity.setEndereco(request.endereco());</span>
+<span class="fc" id="L40">        return mapToResponse(repository.save(entity));</span>
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List&lt;FornecedorResponse&gt; getAll() {
+<span class="fc" id="L46">        return repository.findAll().stream().map(this::mapToResponse).collect(Collectors.toList());</span>
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public FornecedorResponse getById(UUID id) {
+<span class="fc" id="L52">        return repository.findById(id).map(this::mapToResponse).orElseThrow(() -&gt; new IllegalArgumentException(&quot;Not found&quot;));</span>
+    }
+
+    @Override
+    @Transactional
+    public FornecedorResponse update(UUID id, FornecedorRequest request) {
+<span class="pc" id="L58">        Fornecedor entity = repository.findById(id).orElseThrow(() -&gt; new IllegalArgumentException(&quot;Not found&quot;));</span>
+<span class="fc" id="L59">        entity.setNome(request.nome());</span>
+<span class="fc" id="L60">        entity.setDocumento(request.documento());</span>
+<span class="fc" id="L61">        entity.setEmail(request.email());</span>
+<span class="fc" id="L62">        entity.setTelefone(request.telefone());</span>
+<span class="fc" id="L63">        entity.setTipoPessoa(request.tipoPessoa());</span>
+<span class="fc" id="L64">        entity.setRazaoSocial(request.razaoSocial());</span>
+<span class="fc" id="L65">        entity.setInscricaoEstadual(request.inscricaoEstadual());</span>
+<span class="fc" id="L66">        entity.setCategoriaFornecedor(request.categoriaFornecedor());</span>
+<span class="fc" id="L67">        entity.setPrazoPagamentoPadrao(request.prazoPagamentoPadrao());</span>
+<span class="fc" id="L68">        entity.setContatoNome(request.contatoNome());</span>
+<span class="fc" id="L69">        entity.setStatus(request.status());</span>
+<span class="fc" id="L70">        entity.setEndereco(request.endereco());</span>
+<span class="fc" id="L71">        return mapToResponse(repository.save(entity));</span>
+    }
+
+    @Override
+    @Transactional
+    public void delete(UUID id) {
+<span class="fc" id="L77">        repository.deleteById(id);</span>
+<span class="fc" id="L78">    }</span>
+
+    private FornecedorResponse mapToResponse(Fornecedor entity) {
+<span class="fc" id="L81">        return new FornecedorResponse(</span>
+<span class="fc" id="L82">                entity.getId(),</span>
+<span class="fc" id="L83">                entity.getNome(),</span>
+<span class="fc" id="L84">                entity.getDocumento(),</span>
+<span class="fc" id="L85">                entity.getEmail(),</span>
+<span class="fc" id="L86">                entity.getTelefone(),</span>
+<span class="fc" id="L87">                entity.getTipoPessoa(),</span>
+<span class="fc" id="L88">                entity.getRazaoSocial(),</span>
+<span class="fc" id="L89">                entity.getInscricaoEstadual(),</span>
+<span class="fc" id="L90">                entity.getCategoriaFornecedor(),</span>
+<span class="fc" id="L91">                entity.getPrazoPagamentoPadrao(),</span>
+<span class="fc" id="L92">                entity.getContatoNome(),</span>
+<span class="fc" id="L93">                entity.getStatus(),</span>
+<span class="fc" id="L94">                entity.getEndereco()</span>
+        );
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UnidadeMedidaServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.erp.core.service.impl</a> &gt; <span class="el_source">UnidadeMedidaServiceImpl.java</span></div><h1>UnidadeMedidaServiceImpl.java</h1><pre class="source lang-java linenums">package com.erp.core.service.impl;
+
+import com.erp.core.domain.UnidadeMedida;
+import com.erp.core.dto.UnidadeMedidaRequest;
+import com.erp.core.dto.UnidadeMedidaResponse;
+import com.erp.core.repository.UnidadeMedidaRepository;
+import com.erp.core.service.UnidadeMedidaService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+@Service
+public class UnidadeMedidaServiceImpl implements UnidadeMedidaService {
+
+    private final UnidadeMedidaRepository repository;
+
+<span class="fc" id="L20">    public UnidadeMedidaServiceImpl(UnidadeMedidaRepository repository) {</span>
+<span class="fc" id="L21">        this.repository = repository;</span>
+<span class="fc" id="L22">    }</span>
+
+    @Override
+    @Transactional
+    public UnidadeMedidaResponse create(UnidadeMedidaRequest request) {
+<span class="fc" id="L27">        UnidadeMedida entity = new UnidadeMedida();</span>
+<span class="fc" id="L28">        entity.setNome(request.nome());</span>
+<span class="fc" id="L29">        entity.setSigla(request.sigla());</span>
+<span class="fc" id="L30">        return mapToResponse(repository.save(entity));</span>
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List&lt;UnidadeMedidaResponse&gt; getAll() {
+<span class="fc" id="L36">        return repository.findAll().stream().map(this::mapToResponse).collect(Collectors.toList());</span>
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UnidadeMedidaResponse getById(UUID id) {
+<span class="fc" id="L42">        return repository.findById(id).map(this::mapToResponse).orElseThrow(() -&gt; new IllegalArgumentException(&quot;Not found&quot;));</span>
+    }
+
+    @Override
+    @Transactional
+    public UnidadeMedidaResponse update(UUID id, UnidadeMedidaRequest request) {
+<span class="pc" id="L48">        UnidadeMedida entity = repository.findById(id).orElseThrow(() -&gt; new IllegalArgumentException(&quot;Not found&quot;));</span>
+<span class="fc" id="L49">        entity.setNome(request.nome());</span>
+<span class="fc" id="L50">        entity.setSigla(request.sigla());</span>
+<span class="fc" id="L51">        return mapToResponse(repository.save(entity));</span>
+    }
+
+    @Override
+    @Transactional
+    public void delete(UUID id) {
+<span class="fc" id="L57">        repository.deleteById(id);</span>
+<span class="fc" id="L58">    }</span>
+
+    private UnidadeMedidaResponse mapToResponse(UnidadeMedida entity) {
+<span class="fc" id="L61">        return new UnidadeMedidaResponse(</span>
+<span class="fc" id="L62">                entity.getId(),</span>
+<span class="fc" id="L63">                entity.getNome(),</span>
+                null,
+                null,
+                null,
+                null,
+<span class="fc" id="L68">                entity.getSigla()</span>
+        );
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

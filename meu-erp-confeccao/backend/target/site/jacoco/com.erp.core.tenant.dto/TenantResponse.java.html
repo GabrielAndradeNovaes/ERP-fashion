@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TenantResponse.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.erp.core.tenant.dto</a> &gt; <span class="el_source">TenantResponse.java</span></div><h1>TenantResponse.java</h1><pre class="source lang-java linenums">package com.erp.core.tenant.dto;
+
+import com.erp.core.tenant.Tenant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+public class TenantResponse {
+    private UUID id;
+    private String nomeEmpresa;
+    private String schemaName;
+    private String slug;
+    private Boolean ativo;
+    private String status;
+    private LocalDateTime criadoEm;
+    private String cnpj;
+    private String razaoSocial;
+    private String nomeFantasia;
+    private String porte;
+    private String naturezaJuridica;
+    private String statusRfb;
+    private LocalDate dataAbertura;
+    private String emailPrincipal;
+    private String telefone;
+    private String cep;
+    private String logradouro;
+    private String numero;
+    private String complemento;
+    private String bairro;
+    private String cidade;
+    private String estado;
+    private String cnaePrincipalCodigo;
+    private String cnaePrincipalDescricao;
+    private Boolean simplesNacional;
+    
+<span class="fc" id="L36">    public TenantResponse(Tenant tenant) {</span>
+<span class="fc" id="L37">        this.id = tenant.getId();</span>
+<span class="fc" id="L38">        this.nomeEmpresa = tenant.getNomeEmpresa();</span>
+<span class="fc" id="L39">        this.schemaName = tenant.getSchemaName();</span>
+<span class="fc" id="L40">        this.slug = tenant.getSlug();</span>
+<span class="fc" id="L41">        this.ativo = tenant.getAtivo();</span>
+<span class="fc" id="L42">        this.status = tenant.getStatus();</span>
+<span class="fc" id="L43">        this.criadoEm = tenant.getCriadoEm();</span>
+<span class="fc" id="L44">        this.cnpj = tenant.getCnpj();</span>
+<span class="fc" id="L45">        this.razaoSocial = tenant.getRazaoSocial();</span>
+<span class="fc" id="L46">        this.nomeFantasia = tenant.getNomeFantasia();</span>
+<span class="fc" id="L47">        this.porte = tenant.getPorte();</span>
+<span class="fc" id="L48">        this.naturezaJuridica = tenant.getNaturezaJuridica();</span>
+<span class="fc" id="L49">        this.statusRfb = tenant.getStatusRfb();</span>
+<span class="fc" id="L50">        this.dataAbertura = tenant.getDataAbertura();</span>
+<span class="fc" id="L51">        this.emailPrincipal = tenant.getEmailPrincipal();</span>
+<span class="fc" id="L52">        this.telefone = tenant.getTelefone();</span>
+<span class="fc" id="L53">        this.cep = tenant.getCep();</span>
+<span class="fc" id="L54">        this.logradouro = tenant.getLogradouro();</span>
+<span class="fc" id="L55">        this.numero = tenant.getNumero();</span>
+<span class="fc" id="L56">        this.complemento = tenant.getComplemento();</span>
+<span class="fc" id="L57">        this.bairro = tenant.getBairro();</span>
+<span class="fc" id="L58">        this.cidade = tenant.getCidade();</span>
+<span class="fc" id="L59">        this.estado = tenant.getEstado();</span>
+<span class="fc" id="L60">        this.cnaePrincipalCodigo = tenant.getCnaePrincipalCodigo();</span>
+<span class="fc" id="L61">        this.cnaePrincipalDescricao = tenant.getCnaePrincipalDescricao();</span>
+<span class="fc" id="L62">        this.simplesNacional = tenant.getSimplesNacional();</span>
+<span class="fc" id="L63">    }</span>
+
+    // Getters
+<span class="nc" id="L66">    public UUID getId() { return id; }</span>
+<span class="nc" id="L67">    public String getNomeEmpresa() { return nomeEmpresa; }</span>
+<span class="nc" id="L68">    public String getSchemaName() { return schemaName; }</span>
+<span class="nc" id="L69">    public String getSlug() { return slug; }</span>
+<span class="nc" id="L70">    public Boolean getAtivo() { return ativo; }</span>
+<span class="nc" id="L71">    public String getStatus() { return status; }</span>
+<span class="nc" id="L72">    public LocalDateTime getCriadoEm() { return criadoEm; }</span>
+<span class="nc" id="L73">    public String getCnpj() { return cnpj; }</span>
+<span class="nc" id="L74">    public String getRazaoSocial() { return razaoSocial; }</span>
+<span class="nc" id="L75">    public String getNomeFantasia() { return nomeFantasia; }</span>
+<span class="nc" id="L76">    public String getPorte() { return porte; }</span>
+<span class="nc" id="L77">    public String getNaturezaJuridica() { return naturezaJuridica; }</span>
+<span class="nc" id="L78">    public String getStatusRfb() { return statusRfb; }</span>
+<span class="nc" id="L79">    public LocalDate getDataAbertura() { return dataAbertura; }</span>
+<span class="nc" id="L80">    public String getEmailPrincipal() { return emailPrincipal; }</span>
+<span class="nc" id="L81">    public String getTelefone() { return telefone; }</span>
+<span class="nc" id="L82">    public String getCep() { return cep; }</span>
+<span class="nc" id="L83">    public String getLogradouro() { return logradouro; }</span>
+<span class="nc" id="L84">    public String getNumero() { return numero; }</span>
+<span class="nc" id="L85">    public String getComplemento() { return complemento; }</span>
+<span class="nc" id="L86">    public String getBairro() { return bairro; }</span>
+<span class="nc" id="L87">    public String getCidade() { return cidade; }</span>
+<span class="nc" id="L88">    public String getEstado() { return estado; }</span>
+<span class="nc" id="L89">    public String getCnaePrincipalCodigo() { return cnaePrincipalCodigo; }</span>
+<span class="nc" id="L90">    public String getCnaePrincipalDescricao() { return cnaePrincipalDescricao; }</span>
+<span class="nc" id="L91">    public Boolean getSimplesNacional() { return simplesNacional; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

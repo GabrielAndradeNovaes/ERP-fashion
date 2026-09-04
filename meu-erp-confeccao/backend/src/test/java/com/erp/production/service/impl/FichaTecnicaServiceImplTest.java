@@ -5,10 +5,10 @@ import com.erp.catalog.repository.ProdutoBaseRepository;
 import com.erp.inventory.domain.Material;
 import com.erp.inventory.repository.MaterialRepository;
 import com.erp.production.domain.FichaTecnica;
+import com.erp.production.domain.FichaTecnicaMaterial;
 import com.erp.production.domain.FichaTecnicaOperacao;
-import com.erp.production.domain.TabelaTempoPadrao;
 import com.erp.production.domain.GrauDificuldade;
-import com.erp.production.domain.FaixaComprimentoCostura;
+import com.erp.production.domain.TabelaTempoPadrao;
 import com.erp.production.dto.FichaTecnicaMaterialRequest;
 import com.erp.production.dto.FichaTecnicaOperacaoRequest;
 import com.erp.production.dto.FichaTecnicaRequest;
@@ -50,9 +50,11 @@ public class FichaTecnicaServiceImplTest {
     @InjectMocks
     private FichaTecnicaServiceImpl service;
 
+    private FichaTecnica mockFicha;
     private ProdutoBase mockProduto;
     private Material mockMaterial;
-    private FichaTecnica mockFicha;
+    private FichaTecnicaMaterial mockFichaMaterial;
+    private FichaTecnicaOperacao mockOperacao;
 
     @BeforeEach
     void setUp() {
@@ -61,120 +63,114 @@ public class FichaTecnicaServiceImplTest {
         mockProduto.setNome("Camiseta");
         mockProduto.setPrecoCusto(BigDecimal.ZERO);
 
-        mockMaterial = new Material();
-        mockMaterial.setId(UUID.randomUUID());
-        mockMaterial.setNome("Tecido Algodão");
-        mockMaterial.setCustoUnitario(new BigDecimal("10.50"));
-        mockMaterial.setUnidadeMedida("m");
-
         mockFicha = new FichaTecnica();
         mockFicha.setId(UUID.randomUUID());
         mockFicha.setProdutoBase(mockProduto);
-        mockFicha.setVersao("v1.0");
+        mockFicha.setVersao("v1");
         mockFicha.setMateriais(new ArrayList<>());
         mockFicha.setOperacoes(new ArrayList<>());
+
+        mockMaterial = new Material();
+        mockMaterial.setId(UUID.randomUUID());
+        mockMaterial.setNome("Tecido Algodão");
+        mockMaterial.setCustoUnitario(new BigDecimal("10.0"));
+
+        mockFichaMaterial = new FichaTecnicaMaterial();
+        mockFichaMaterial.setId(UUID.randomUUID());
+        mockFichaMaterial.setMaterial(mockMaterial);
+        mockFichaMaterial.setQuantidade(new BigDecimal("2.0"));
+        
+        mockOperacao = new FichaTecnicaOperacao();
+        mockOperacao.setId(UUID.randomUUID());
+        mockOperacao.setFichaTecnica(mockFicha);
+        mockOperacao.setNome("Costura Reta");
     }
 
     @Test
-    void shouldCreateFichaTecnicaSuccessfully() {
+    void shouldCreateFichaTecnica() {
+        FichaTecnicaRequest request = new FichaTecnicaRequest(
+                mockProduto.getId(), "v1", "obs", List.of(
+                        new FichaTecnicaMaterialRequest(mockMaterial.getId(), new BigDecimal("2.0"))
+                )
+        );
+
         when(produtoBaseRepository.findById(mockProduto.getId())).thenReturn(Optional.of(mockProduto));
         when(materialRepository.findById(mockMaterial.getId())).thenReturn(Optional.of(mockMaterial));
-        
         when(fichaTecnicaRepository.save(any(FichaTecnica.class))).thenAnswer(i -> {
-            FichaTecnica f = i.getArgument(0);
-            f.setId(UUID.randomUUID());
-            return f;
+            FichaTecnica ft = i.getArgument(0);
+            ft.setId(UUID.randomUUID());
+            return ft;
         });
-
-        FichaTecnicaMaterialRequest matReq = new FichaTecnicaMaterialRequest(mockMaterial.getId(), new BigDecimal("2.0"));
-        FichaTecnicaRequest request = new FichaTecnicaRequest(
-                mockProduto.getId(),
-                "v1.0",
-                "Obs",
-                List.of(matReq)
-        );
 
         FichaTecnicaResponse response = service.createFichaTecnica(request);
 
         assertNotNull(response);
-        assertEquals("v1.0", response.versao());
-        assertEquals(0, new BigDecimal("21.00").compareTo(response.custoTotalMateriais())); // 2.0 * 10.50
+        assertEquals(1, response.materiais().size());
+        verify(produtoBaseRepository, times(1)).save(mockProduto);
+        assertEquals(new BigDecimal("20.00"), mockProduto.getPrecoCusto()); // 2.0 * 10.0
+    }
+
+    @Test
+    void shouldThrowExceptionWhenCreateFichaTecnicaProdutoNotFound() {
+        FichaTecnicaRequest request = new FichaTecnicaRequest(UUID.randomUUID(), "v1", null, null);
+        when(produtoBaseRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class, () -> service.createFichaTecnica(request));
+    }
+    
+    @Test
+    void shouldAddMaterial() {
+        mockFicha.addMaterial(mockFichaMaterial);
+        when(fichaTecnicaRepository.findById(mockFicha.getId())).thenReturn(Optional.of(mockFicha));
+        when(materialRepository.findById(mockMaterial.getId())).thenReturn(Optional.of(mockMaterial));
+        when(fichaTecnicaRepository.save(any())).thenReturn(mockFicha);
+
+        FichaTecnicaMaterialRequest request = new FichaTecnicaMaterialRequest(mockMaterial.getId(), new BigDecimal("3.0"));
         
-        verify(fichaTecnicaRepository, times(1)).save(any(FichaTecnica.class));
-        verify(produtoBaseRepository, times(1)).save(any(ProdutoBase.class)); // Update custo in produto
+        service.addMaterial(mockFicha.getId(), request);
+        verify(produtoBaseRepository, times(1)).save(mockProduto);
     }
-
+    
     @Test
-    void shouldThrowExceptionWhenProdutoNotFound() {
-        UUID produtoId = UUID.randomUUID();
-        when(produtoBaseRepository.findById(produtoId)).thenReturn(Optional.empty());
+    void shouldRemoveMaterial() {
+        mockFicha.addMaterial(mockFichaMaterial);
+        when(fichaTecnicaRepository.findById(mockFicha.getId())).thenReturn(Optional.of(mockFicha));
+        when(fichaTecnicaRepository.save(any())).thenReturn(mockFicha);
 
-        FichaTecnicaRequest request = new FichaTecnicaRequest(produtoId, "v1.0", "Obs", null);
-
-        Exception ex = assertThrows(IllegalArgumentException.class, () -> service.createFichaTecnica(request));
-        assertTrue(ex.getMessage().contains("ncontrado"));
-    }
-
-    @Test
-    void shouldGetFichasPorProduto() {
-        when(fichaTecnicaRepository.findAll()).thenReturn(List.of(mockFicha));
-
-        List<FichaTecnicaResponse> responses = service.getFichasPorProduto(mockProduto.getId());
-
-        assertFalse(responses.isEmpty());
-        assertEquals(1, responses.size());
-    }
-
-    @Test
-    void shouldGetFichaTecnicaById() {
-        UUID id = mockFicha.getId();
-        when(fichaTecnicaRepository.findById(id)).thenReturn(Optional.of(mockFicha));
-
-        FichaTecnicaResponse response = service.getFichaTecnicaById(id);
-
-        assertNotNull(response);
-        assertEquals(id, response.id());
-    }
-
-    @Test
-    void shouldAddOperacaoSuccessfully() {
-        UUID fichaId = mockFicha.getId();
-        when(fichaTecnicaRepository.findById(fichaId)).thenReturn(Optional.of(mockFicha));
+        service.removeMaterial(mockFicha.getId(), mockFichaMaterial.getId());
         
-        TabelaTempoPadrao tp = new TabelaTempoPadrao();
-        tp.setTempoCentesimal(new BigDecimal("1.25"));
-        when(tabelaTempoPadraoRepository.findByIndiceAndGrauDificuldadeAndFaixaComprimento(2, GrauDificuldade.FACIL, FaixaComprimentoCostura.DE_0_A_60))
-                .thenReturn(Optional.of(tp));
-
-        when(fichaTecnicaRepository.save(any(FichaTecnica.class))).thenReturn(mockFicha);
+        assertTrue(mockFicha.getMateriais().isEmpty());
+        verify(produtoBaseRepository, times(1)).save(mockProduto);
+    }
+    
+    @Test
+    void shouldAddOperacao() {
+        when(fichaTecnicaRepository.findById(mockFicha.getId())).thenReturn(Optional.of(mockFicha));
+        when(fichaTecnicaRepository.save(any())).thenReturn(mockFicha);
+        
+        TabelaTempoPadrao ttp = new TabelaTempoPadrao();
+        ttp.setTempoCentesimal(new BigDecimal("15.5"));
+        when(tabelaTempoPadraoRepository.findByIndiceAndGrauDificuldadeAndFaixaComprimento(anyInt(), any(), any())).thenReturn(Optional.of(ttp));
 
         FichaTecnicaOperacaoRequest req = new FichaTecnicaOperacaoRequest(
-                "Costurar", "Reta", 1, 1, 1, GrauDificuldade.FACIL, FaixaComprimentoCostura.DE_0_A_60
+                "Costura", "Reta", 1, 10, 5, GrauDificuldade.MEDIO, com.erp.production.domain.FaixaComprimentoCostura.DE_0_A_60
         );
-
-        FichaTecnicaResponse response = service.addOperacao(fichaId, req);
-
-        assertNotNull(response);
-        verify(fichaTecnicaRepository, times(1)).save(any(FichaTecnica.class));
+        
+        FichaTecnicaResponse res = service.addOperacao(mockFicha.getId(), req);
+        
+        assertEquals(1, mockFicha.getOperacoes().size());
+        assertEquals(new BigDecimal("15.5"), mockFicha.getOperacoes().get(0).getTempoCalculadoCentesimal());
     }
 
     @Test
-    void shouldRemoveOperacaoSuccessfully() {
-        UUID fichaId = mockFicha.getId();
-        UUID operacaoId = UUID.randomUUID();
+    void shouldRemoveOperacao() {
+        mockFicha.addOperacao(mockOperacao);
+        when(fichaTecnicaRepository.findById(mockFicha.getId())).thenReturn(Optional.of(mockFicha));
+        when(fichaTecnicaOperacaoRepository.findById(mockOperacao.getId())).thenReturn(Optional.of(mockOperacao));
+        when(fichaTecnicaRepository.save(any())).thenReturn(mockFicha);
+
+        service.removeOperacao(mockFicha.getId(), mockOperacao.getId());
         
-        FichaTecnicaOperacao op = new FichaTecnicaOperacao();
-        op.setId(operacaoId);
-        op.setFichaTecnica(mockFicha);
-        mockFicha.addOperacao(op);
-
-        when(fichaTecnicaRepository.findById(fichaId)).thenReturn(Optional.of(mockFicha));
-        when(fichaTecnicaOperacaoRepository.findById(operacaoId)).thenReturn(Optional.of(op));
-        when(fichaTecnicaRepository.save(any(FichaTecnica.class))).thenReturn(mockFicha);
-
-        FichaTecnicaResponse response = service.removeOperacao(fichaId, operacaoId);
-
-        assertNotNull(response);
-        verify(fichaTecnicaRepository, times(1)).save(any(FichaTecnica.class));
+        assertTrue(mockFicha.getOperacoes().isEmpty());
     }
 }

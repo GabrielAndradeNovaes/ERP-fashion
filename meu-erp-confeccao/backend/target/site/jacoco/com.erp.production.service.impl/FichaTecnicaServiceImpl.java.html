@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FichaTecnicaServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.erp.production.service.impl</a> &gt; <span class="el_source">FichaTecnicaServiceImpl.java</span></div><h1>FichaTecnicaServiceImpl.java</h1><pre class="source lang-java linenums">package com.erp.production.service.impl;
+
+import com.erp.catalog.domain.ProdutoBase;
+import com.erp.catalog.repository.ProdutoBaseRepository;
+import com.erp.inventory.domain.Material;
+import com.erp.inventory.repository.MaterialRepository;
+import com.erp.production.domain.FichaTecnica;
+import com.erp.production.domain.FichaTecnicaMaterial;
+import com.erp.production.domain.FichaTecnicaOperacao;
+import com.erp.production.domain.TabelaTempoPadrao;
+import com.erp.production.dto.*;
+import com.erp.production.repository.FichaTecnicaOperacaoRepository;
+import com.erp.production.repository.FichaTecnicaRepository;
+import com.erp.production.repository.TabelaTempoPadraoRepository;
+import com.erp.production.service.FichaTecnicaService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+@Service
+public class FichaTecnicaServiceImpl implements FichaTecnicaService {
+
+    private final FichaTecnicaRepository fichaTecnicaRepository;
+    private final ProdutoBaseRepository produtoBaseRepository;
+    private final MaterialRepository materialRepository;
+    private final TabelaTempoPadraoRepository tabelaTempoPadraoRepository;
+    private final FichaTecnicaOperacaoRepository fichaTecnicaOperacaoRepository;
+
+    public FichaTecnicaServiceImpl(FichaTecnicaRepository fichaTecnicaRepository, 
+                                   ProdutoBaseRepository produtoBaseRepository, 
+                                   MaterialRepository materialRepository,
+                                   TabelaTempoPadraoRepository tabelaTempoPadraoRepository,
+<span class="fc" id="L38">                                   FichaTecnicaOperacaoRepository fichaTecnicaOperacaoRepository) {</span>
+<span class="fc" id="L39">        this.fichaTecnicaRepository = fichaTecnicaRepository;</span>
+<span class="fc" id="L40">        this.produtoBaseRepository = produtoBaseRepository;</span>
+<span class="fc" id="L41">        this.materialRepository = materialRepository;</span>
+<span class="fc" id="L42">        this.tabelaTempoPadraoRepository = tabelaTempoPadraoRepository;</span>
+<span class="fc" id="L43">        this.fichaTecnicaOperacaoRepository = fichaTecnicaOperacaoRepository;</span>
+<span class="fc" id="L44">    }</span>
+
+    @Override
+    @Transactional
+    public FichaTecnicaResponse createFichaTecnica(FichaTecnicaRequest request) {
+<span class="fc" id="L49">        ProdutoBase produtoBase = produtoBaseRepository.findById(request.produtoBaseId())</span>
+<span class="fc" id="L50">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Produto Base não encontrado com ID: &quot; + request.produtoBaseId()));</span>
+
+<span class="fc" id="L52">        FichaTecnica fichaTecnica = new FichaTecnica();</span>
+<span class="fc" id="L53">        fichaTecnica.setProdutoBase(produtoBase);</span>
+<span class="fc" id="L54">        fichaTecnica.setVersao(request.versao());</span>
+<span class="fc" id="L55">        fichaTecnica.setObservacoes(request.observacoes());</span>
+
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">        if (request.materiais() != null) {</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">            for (FichaTecnicaMaterialRequest matReq : request.materiais()) {</span>
+<span class="fc" id="L59">                Material material = materialRepository.findById(matReq.materialId())</span>
+<span class="pc" id="L60">                        .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Material não encontrado com ID: &quot; + matReq.materialId()));</span>
+
+<span class="fc" id="L62">                FichaTecnicaMaterial fctMaterial = new FichaTecnicaMaterial();</span>
+<span class="fc" id="L63">                fctMaterial.setMaterial(material);</span>
+<span class="fc" id="L64">                fctMaterial.setQuantidade(matReq.quantidade());</span>
+                
+<span class="fc" id="L66">                fichaTecnica.addMaterial(fctMaterial);</span>
+<span class="fc" id="L67">            }</span>
+        }
+
+<span class="fc" id="L70">        FichaTecnica saved = fichaTecnicaRepository.save(fichaTecnica);</span>
+        
+        // Atualizar o precoCusto do ProdutoBase
+<span class="fc" id="L73">        BigDecimal custoTotal = BigDecimal.ZERO;</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">        if (saved.getMateriais() != null) {</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">            for (FichaTecnicaMaterial mat : saved.getMateriais()) {</span>
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">                BigDecimal custoUnit = mat.getMaterial().getCustoUnitario() != null ? mat.getMaterial().getCustoUnitario() : BigDecimal.ZERO;</span>
+<span class="fc" id="L77">                custoTotal = custoTotal.add(mat.getQuantidade().multiply(custoUnit));</span>
+<span class="fc" id="L78">            }</span>
+        }
+<span class="fc" id="L80">        produtoBase.setPrecoCusto(custoTotal);</span>
+<span class="fc" id="L81">        produtoBaseRepository.save(produtoBase);</span>
+
+<span class="fc" id="L83">        return mapToResponse(saved);</span>
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List&lt;FichaTecnicaResponse&gt; getFichasPorProduto(UUID produtoBaseId) {
+<span class="nc" id="L89">        return fichaTecnicaRepository.findAll().stream()</span>
+<span class="nc" id="L90">                .filter(f -&gt; f.getProdutoBase().getId().equals(produtoBaseId))</span>
+<span class="nc" id="L91">                .map(this::mapToResponse)</span>
+<span class="nc" id="L92">                .collect(Collectors.toList());</span>
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public FichaTecnicaResponse getFichaTecnicaById(UUID id) {
+<span class="nc" id="L98">        FichaTecnica fichaTecnica = fichaTecnicaRepository.findById(id)</span>
+<span class="nc" id="L99">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Ficha Técnica não encontrada com ID: &quot; + id));</span>
+<span class="nc" id="L100">        return mapToResponse(fichaTecnica);</span>
+    }
+
+    @Override
+    @Transactional
+    public FichaTecnicaResponse addOperacao(UUID fichaTecnicaId, FichaTecnicaOperacaoRequest request) {
+<span class="fc" id="L106">        FichaTecnica fichaTecnica = fichaTecnicaRepository.findById(fichaTecnicaId)</span>
+<span class="pc" id="L107">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Ficha Técnica não encontrada com ID: &quot; + fichaTecnicaId));</span>
+
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">        Integer qFolhas = request.quantidadeFolhas() != null ? request.quantidadeFolhas() : 0;</span>
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">        Integer qParadas = request.quantidadeParadas() != null ? request.quantidadeParadas() : 0;</span>
+<span class="fc" id="L111">        Integer indice = qFolhas + qParadas;</span>
+
+<span class="fc" id="L113">        TabelaTempoPadrao tempoPadrao = tabelaTempoPadraoRepository.findByIndiceAndGrauDificuldadeAndFaixaComprimento(</span>
+<span class="fc" id="L114">                indice, request.grauDificuldade(), request.faixaComprimento()</span>
+<span class="fc" id="L115">        ).orElse(null);</span>
+
+<span class="fc" id="L117">        FichaTecnicaOperacao operacao = new FichaTecnicaOperacao();</span>
+<span class="fc" id="L118">        operacao.setNome(request.nome());</span>
+<span class="fc" id="L119">        operacao.setMaquina(request.maquina());</span>
+<span class="fc" id="L120">        operacao.setOrdemExecucao(request.ordemExecucao());</span>
+<span class="fc" id="L121">        operacao.setQuantidadeFolhas(qFolhas);</span>
+<span class="fc" id="L122">        operacao.setQuantidadeParadas(qParadas);</span>
+<span class="fc" id="L123">        operacao.setGrauDificuldade(request.grauDificuldade());</span>
+<span class="fc" id="L124">        operacao.setFaixaComprimento(request.faixaComprimento());</span>
+<span class="pc bpc" id="L125" title="1 of 2 branches missed.">        operacao.setTempoCalculadoCentesimal(tempoPadrao != null ? tempoPadrao.getTempoCentesimal() : BigDecimal.ZERO);</span>
+
+<span class="fc" id="L127">        fichaTecnica.addOperacao(operacao);</span>
+        
+<span class="fc" id="L129">        FichaTecnica saved = fichaTecnicaRepository.save(fichaTecnica);</span>
+<span class="fc" id="L130">        return mapToResponse(saved);</span>
+    }
+
+    @Override
+    @Transactional
+    public FichaTecnicaResponse removeOperacao(UUID fichaTecnicaId, UUID operacaoId) {
+<span class="fc" id="L136">        FichaTecnica fichaTecnica = fichaTecnicaRepository.findById(fichaTecnicaId)</span>
+<span class="pc" id="L137">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Ficha Técnica não encontrada com ID: &quot; + fichaTecnicaId));</span>
+
+<span class="fc" id="L139">        FichaTecnicaOperacao operacao = fichaTecnicaOperacaoRepository.findById(operacaoId)</span>
+<span class="pc" id="L140">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Operação não encontrada com ID: &quot; + operacaoId));</span>
+
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">        if (!operacao.getFichaTecnica().getId().equals(fichaTecnicaId)) {</span>
+<span class="nc" id="L143">            throw new IllegalArgumentException(&quot;A operação não pertence a esta Ficha Técnica.&quot;);</span>
+        }
+
+<span class="fc" id="L146">        fichaTecnica.removeOperacao(operacao);</span>
+<span class="fc" id="L147">        FichaTecnica saved = fichaTecnicaRepository.save(fichaTecnica);</span>
+<span class="fc" id="L148">        return mapToResponse(saved);</span>
+    }
+
+    @Override
+    @Transactional
+    public FichaTecnicaResponse addMaterial(UUID fichaTecnicaId, com.erp.production.dto.FichaTecnicaMaterialRequest request) {
+<span class="fc" id="L154">        FichaTecnica fichaTecnica = fichaTecnicaRepository.findById(fichaTecnicaId)</span>
+<span class="pc" id="L155">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Ficha Técnica não encontrada com ID: &quot; + fichaTecnicaId));</span>
+
+<span class="fc" id="L157">        Material material = materialRepository.findById(request.materialId())</span>
+<span class="pc" id="L158">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Material não encontrado com ID: &quot; + request.materialId()));</span>
+
+<span class="fc" id="L160">        FichaTecnicaMaterial fctMaterial = new FichaTecnicaMaterial();</span>
+<span class="fc" id="L161">        fctMaterial.setMaterial(material);</span>
+<span class="fc" id="L162">        fctMaterial.setQuantidade(request.quantidade());</span>
+
+<span class="fc" id="L164">        fichaTecnica.addMaterial(fctMaterial);</span>
+        
+<span class="fc" id="L166">        FichaTecnica saved = fichaTecnicaRepository.save(fichaTecnica);</span>
+        
+        // Atualizar precoCusto do ProdutoBase
+<span class="fc" id="L169">        atualizarPrecoCustoProdutoBase(saved);</span>
+
+<span class="fc" id="L171">        return mapToResponse(saved);</span>
+    }
+
+    @Override
+    @Transactional
+    public FichaTecnicaResponse removeMaterial(UUID fichaTecnicaId, UUID materialId) {
+<span class="fc" id="L177">        FichaTecnica fichaTecnica = fichaTecnicaRepository.findById(fichaTecnicaId)</span>
+<span class="pc" id="L178">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Ficha Técnica não encontrada com ID: &quot; + fichaTecnicaId));</span>
+
+<span class="fc" id="L180">        FichaTecnicaMaterial materialToRemove = fichaTecnica.getMateriais().stream()</span>
+<span class="fc" id="L181">                .filter(m -&gt; m.getId().equals(materialId))</span>
+<span class="fc" id="L182">                .findFirst()</span>
+<span class="pc" id="L183">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Material não encontrado na Ficha Técnica&quot;));</span>
+
+<span class="fc" id="L185">        fichaTecnica.removeMaterial(materialToRemove);</span>
+<span class="fc" id="L186">        FichaTecnica saved = fichaTecnicaRepository.save(fichaTecnica);</span>
+        
+        // Atualizar precoCusto do ProdutoBase
+<span class="fc" id="L189">        atualizarPrecoCustoProdutoBase(saved);</span>
+
+<span class="fc" id="L191">        return mapToResponse(saved);</span>
+    }
+
+    private void atualizarPrecoCustoProdutoBase(FichaTecnica ficha) {
+<span class="fc" id="L195">        ProdutoBase produto = ficha.getProdutoBase();</span>
+<span class="fc" id="L196">        BigDecimal custoTotal = BigDecimal.ZERO;</span>
+<span class="pc bpc" id="L197" title="1 of 2 branches missed.">        if (ficha.getMateriais() != null) {</span>
+<span class="fc bfc" id="L198" title="All 2 branches covered.">            for (FichaTecnicaMaterial mat : ficha.getMateriais()) {</span>
+<span class="pc bpc" id="L199" title="1 of 2 branches missed.">                BigDecimal custoUnit = mat.getMaterial().getCustoUnitario() != null ? mat.getMaterial().getCustoUnitario() : BigDecimal.ZERO;</span>
+<span class="fc" id="L200">                custoTotal = custoTotal.add(mat.getQuantidade().multiply(custoUnit));</span>
+<span class="fc" id="L201">            }</span>
+        }
+<span class="fc" id="L203">        produto.setPrecoCusto(custoTotal);</span>
+<span class="fc" id="L204">        produtoBaseRepository.save(produto);</span>
+<span class="fc" id="L205">    }</span>
+
+    private FichaTecnicaResponse mapToResponse(FichaTecnica fichaTecnica) {
+<span class="fc" id="L208">        List&lt;FichaTecnicaMaterialResponse&gt; materiais = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L209">        BigDecimal custoTotalMateriais = BigDecimal.ZERO;</span>
+        
+<span class="pc bpc" id="L211" title="1 of 2 branches missed.">        if (fichaTecnica.getMateriais() != null) {</span>
+<span class="fc bfc" id="L212" title="All 2 branches covered.">            for (FichaTecnicaMaterial mat : fichaTecnica.getMateriais()) {</span>
+<span class="pc bpc" id="L213" title="1 of 2 branches missed.">                BigDecimal custoUnit = mat.getMaterial().getCustoUnitario() != null ? mat.getMaterial().getCustoUnitario() : BigDecimal.ZERO;</span>
+<span class="fc" id="L214">                custoTotalMateriais = custoTotalMateriais.add(mat.getQuantidade().multiply(custoUnit));</span>
+                
+<span class="fc" id="L216">                materiais.add(new FichaTecnicaMaterialResponse(</span>
+<span class="fc" id="L217">                        mat.getId(),</span>
+<span class="fc" id="L218">                        mat.getMaterial().getId(),</span>
+<span class="fc" id="L219">                        mat.getMaterial().getNome(),</span>
+<span class="fc" id="L220">                        mat.getMaterial().getUnidadeMedida(),</span>
+<span class="fc" id="L221">                        mat.getQuantidade()</span>
+                ));
+<span class="fc" id="L223">            }</span>
+        }
+
+<span class="fc" id="L226">        List&lt;FichaTecnicaOperacaoResponse&gt; operacoes = new ArrayList&lt;&gt;();</span>
+<span class="pc bpc" id="L227" title="1 of 2 branches missed.">        if (fichaTecnica.getOperacoes() != null) {</span>
+<span class="fc" id="L228">            operacoes = fichaTecnica.getOperacoes().stream()</span>
+<span class="fc" id="L229">                    .map(op -&gt; new FichaTecnicaOperacaoResponse(</span>
+<span class="fc" id="L230">                            op.getId(),</span>
+<span class="fc" id="L231">                            op.getNome(),</span>
+<span class="fc" id="L232">                            op.getMaquina(),</span>
+<span class="fc" id="L233">                            op.getOrdemExecucao(),</span>
+<span class="fc" id="L234">                            op.getQuantidadeFolhas(),</span>
+<span class="fc" id="L235">                            op.getQuantidadeParadas(),</span>
+<span class="fc" id="L236">                            op.getGrauDificuldade(),</span>
+<span class="fc" id="L237">                            op.getFaixaComprimento(),</span>
+<span class="fc" id="L238">                            op.getTempoCalculadoCentesimal()</span>
+<span class="fc" id="L239">                    )).collect(Collectors.toList());</span>
+        }
+
+<span class="fc" id="L242">        BigDecimal tempoPadraoTotal = fichaTecnica.getTempoPadraoTotalCentesimal();</span>
+<span class="pc bpc" id="L243" title="1 of 2 branches missed.">        if (tempoPadraoTotal == null) tempoPadraoTotal = BigDecimal.ZERO;</span>
+
+<span class="fc" id="L245">        return new FichaTecnicaResponse(</span>
+<span class="fc" id="L246">                fichaTecnica.getId(),</span>
+<span class="fc" id="L247">                fichaTecnica.getProdutoBase().getId(),</span>
+<span class="fc" id="L248">                fichaTecnica.getProdutoBase().getNome(),</span>
+<span class="fc" id="L249">                fichaTecnica.getVersao(),</span>
+<span class="fc" id="L250">                fichaTecnica.getObservacoes(),</span>
+                tempoPadraoTotal,
+                custoTotalMateriais,
+                materiais,
+                operacoes
+        );
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UsuarioController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.erp.core.controller</a> &gt; <span class="el_source">UsuarioController.java</span></div><h1>UsuarioController.java</h1><pre class="source lang-java linenums">package com.erp.core.controller;
+
+import com.erp.core.security.Usuario;
+import com.erp.core.security.UsuarioRepository;
+import com.erp.core.security.UsuarioEmpresa;
+import com.erp.core.security.UsuarioEmpresaRepository;
+import com.erp.core.repository.EmpresaRepository;
+import com.erp.core.tenant.TenantContext;
+import com.erp.core.security.dto.UsuarioDTO;
+import com.erp.core.security.dto.UsuarioCreateDTO;
+import com.erp.core.security.dto.EmpresaSimpleDTO;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.time.LocalDateTime;
+
+@RestController
+@RequestMapping(&quot;/api/usuarios&quot;)
+public class UsuarioController {
+
+    private final UsuarioRepository usuarioRepository;
+    private final UsuarioEmpresaRepository usuarioEmpresaRepository;
+    private final EmpresaRepository empresaRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    public UsuarioController(UsuarioRepository usuarioRepository, 
+                             UsuarioEmpresaRepository usuarioEmpresaRepository,
+                             EmpresaRepository empresaRepository,
+<span class="fc" id="L36">                             PasswordEncoder passwordEncoder) {</span>
+<span class="fc" id="L37">        this.usuarioRepository = usuarioRepository;</span>
+<span class="fc" id="L38">        this.usuarioEmpresaRepository = usuarioEmpresaRepository;</span>
+<span class="fc" id="L39">        this.empresaRepository = empresaRepository;</span>
+<span class="fc" id="L40">        this.passwordEncoder = passwordEncoder;</span>
+<span class="fc" id="L41">    }</span>
+
+    @GetMapping
+    public List&lt;UsuarioDTO&gt; listarUsuarios() {
+<span class="fc" id="L45">        return usuarioRepository.findAll().stream()</span>
+<span class="fc" id="L46">                .filter(u -&gt; u.getTenantId().equals(TenantContext.getCurrentTenant()))</span>
+<span class="fc" id="L47">                .map(this::toDTO)</span>
+<span class="fc" id="L48">                .collect(Collectors.toList());</span>
+    }
+
+    @Transactional
+    @PostMapping
+    public ResponseEntity&lt;UsuarioDTO&gt; criarUsuario(@RequestBody UsuarioCreateDTO dto) {
+<span class="fc" id="L54">        Usuario u = new Usuario();</span>
+<span class="fc" id="L55">        u.setNome(dto.getNome());</span>
+<span class="fc" id="L56">        u.setEmail(dto.getEmail());</span>
+<span class="fc" id="L57">        u.setSenha(passwordEncoder.encode(dto.getSenha()));</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">        if (&quot;SUPERADMIN&quot;.equalsIgnoreCase(dto.getRole())) {</span>
+<span class="nc" id="L59">            throw new IllegalArgumentException(&quot;Não é permitido atribuir a role SUPERADMIN.&quot;);</span>
+        }
+<span class="fc" id="L61">        u.setRole(dto.getRole());</span>
+<span class="fc" id="L62">        u.setAtivo(true);</span>
+<span class="fc" id="L63">        u.setTenantId(TenantContext.getCurrentTenant());</span>
+<span class="fc" id="L64">        u.setCriadoEm(LocalDateTime.now());</span>
+<span class="fc" id="L65">        u.setFilialPrincipalId(dto.getFilialPrincipalId());</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">        if (dto.getPermissoes() != null) {</span>
+<span class="fc" id="L67">            u.setPermissoes(new HashSet&lt;&gt;(dto.getPermissoes()));</span>
+        }
+<span class="fc" id="L69">        u.setCpf(dto.getCpf());</span>
+<span class="fc" id="L70">        u.setTelefone(dto.getTelefone());</span>
+<span class="fc" id="L71">        u.setCargo(dto.getCargo());</span>
+<span class="fc" id="L72">        u.setDataNascimento(dto.getDataNascimento());</span>
+<span class="fc" id="L73">        u.setDepartamento(dto.getDepartamento());</span>
+<span class="fc" id="L74">        u.setFotoUrl(dto.getFotoUrl());</span>
+        
+<span class="fc" id="L76">        Usuario salvo = usuarioRepository.save(u);</span>
+        
+<span class="fc" id="L78">        atribuirEmpresas(salvo.getId(), dto.getEmpresaIds());</span>
+        
+<span class="fc" id="L80">        return ResponseEntity.ok(toDTO(salvo));</span>
+    }
+
+    @Transactional
+    @PutMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;UsuarioDTO&gt; atualizarUsuario(@PathVariable UUID id, @RequestBody UsuarioCreateDTO dto) {
+<span class="fc" id="L86">        Optional&lt;Usuario&gt; opt = usuarioRepository.findById(id);</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        if (opt.isEmpty()) return ResponseEntity.notFound().build();</span>
+        
+<span class="fc" id="L89">        Usuario u = opt.get();</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        if (!u.getTenantId().equals(TenantContext.getCurrentTenant())) return ResponseEntity.status(403).build();</span>
+
+<span class="fc" id="L92">        u.setNome(dto.getNome());</span>
+<span class="fc" id="L93">        u.setEmail(dto.getEmail());</span>
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">        if (&quot;SUPERADMIN&quot;.equalsIgnoreCase(dto.getRole())) {</span>
+<span class="nc" id="L95">            throw new IllegalArgumentException(&quot;Não é permitido atribuir a role SUPERADMIN.&quot;);</span>
+        }
+<span class="fc" id="L97">        u.setRole(dto.getRole());</span>
+<span class="fc" id="L98">        u.setFilialPrincipalId(dto.getFilialPrincipalId());</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">        if (dto.getPermissoes() != null) {</span>
+<span class="fc" id="L100">            u.setPermissoes(new HashSet&lt;&gt;(dto.getPermissoes()));</span>
+        }
+        
+<span class="fc" id="L103">        u.setCpf(dto.getCpf());</span>
+<span class="fc" id="L104">        u.setTelefone(dto.getTelefone());</span>
+<span class="fc" id="L105">        u.setCargo(dto.getCargo());</span>
+<span class="fc" id="L106">        u.setDataNascimento(dto.getDataNascimento());</span>
+<span class="fc" id="L107">        u.setDepartamento(dto.getDepartamento());</span>
+<span class="fc" id="L108">        u.setFotoUrl(dto.getFotoUrl());</span>
+
+<span class="pc bpc" id="L110" title="2 of 4 branches missed.">        if (dto.getSenha() != null &amp;&amp; !dto.getSenha().isEmpty()) {</span>
+<span class="fc" id="L111">            u.setSenha(passwordEncoder.encode(dto.getSenha()));</span>
+        }
+        
+<span class="fc" id="L114">        Usuario salvo = usuarioRepository.save(u);</span>
+        
+<span class="fc" id="L116">        atribuirEmpresas(salvo.getId(), dto.getEmpresaIds());</span>
+        
+<span class="fc" id="L118">        return ResponseEntity.ok(toDTO(salvo));</span>
+    }
+
+    @Transactional
+    @PostMapping(&quot;/{usuarioId}/empresas&quot;)
+    public ResponseEntity&lt;Void&gt; salvarEmpresas(@PathVariable UUID usuarioId, @RequestBody List&lt;UUID&gt; empresaIds) {
+<span class="fc" id="L124">        atribuirEmpresas(usuarioId, empresaIds);</span>
+<span class="fc" id="L125">        return ResponseEntity.ok().build();</span>
+    }
+    
+    private void atribuirEmpresas(UUID usuarioId, List&lt;UUID&gt; empresaIds) {
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">        if (empresaIds == null) return;</span>
+<span class="fc" id="L130">        List&lt;UsuarioEmpresa&gt; antigas = usuarioEmpresaRepository.findByUsuarioId(usuarioId);</span>
+<span class="fc" id="L131">        usuarioEmpresaRepository.deleteAll(antigas);</span>
+
+<span class="fc" id="L133">        List&lt;UsuarioEmpresa&gt; novas = empresaIds.stream().map(empId -&gt; {</span>
+<span class="fc" id="L134">            UsuarioEmpresa ue = new UsuarioEmpresa();</span>
+<span class="fc" id="L135">            ue.setUsuarioId(usuarioId);</span>
+<span class="fc" id="L136">            ue.setEmpresaId(empId);</span>
+<span class="fc" id="L137">            return ue;</span>
+<span class="fc" id="L138">        }).collect(Collectors.toList());</span>
+        
+<span class="fc" id="L140">        usuarioEmpresaRepository.saveAll(novas);</span>
+<span class="fc" id="L141">    }</span>
+
+    private UsuarioDTO toDTO(Usuario u) {
+<span class="fc" id="L144">        UsuarioDTO dto = new UsuarioDTO();</span>
+<span class="fc" id="L145">        dto.setId(u.getId());</span>
+<span class="fc" id="L146">        dto.setNome(u.getNome());</span>
+<span class="fc" id="L147">        dto.setEmail(u.getEmail());</span>
+<span class="fc" id="L148">        dto.setRole(u.getRole());</span>
+<span class="fc" id="L149">        dto.setAtivo(u.getAtivo());</span>
+<span class="fc" id="L150">        dto.setTenantId(u.getTenantId());</span>
+<span class="fc" id="L151">        dto.setCriadoEm(u.getCriadoEm());</span>
+<span class="fc" id="L152">        dto.setFilialPrincipalId(u.getFilialPrincipalId());</span>
+<span class="pc bpc" id="L153" title="1 of 2 branches missed.">        if (u.getPermissoes() != null) {</span>
+<span class="fc" id="L154">            dto.setPermissoes(u.getPermissoes().stream().collect(Collectors.toList()));</span>
+        }
+<span class="fc" id="L156">        dto.setCpf(u.getCpf());</span>
+<span class="fc" id="L157">        dto.setTelefone(u.getTelefone());</span>
+<span class="fc" id="L158">        dto.setCargo(u.getCargo());</span>
+<span class="fc" id="L159">        dto.setDataNascimento(u.getDataNascimento());</span>
+<span class="fc" id="L160">        dto.setDepartamento(u.getDepartamento());</span>
+<span class="fc" id="L161">        dto.setFotoUrl(u.getFotoUrl());</span>
+        
+<span class="fc" id="L163">        List&lt;UUID&gt; empIds = usuarioEmpresaRepository.findByUsuarioId(u.getId())</span>
+<span class="fc" id="L164">                .stream().map(UsuarioEmpresa::getEmpresaId).collect(Collectors.toList());</span>
+                
+<span class="fc" id="L166">        List&lt;EmpresaSimpleDTO&gt; empresas = empresaRepository.findAllById(empIds).stream()</span>
+<span class="pc bnc" id="L167" title="All 2 branches missed.">            .map(e -&gt; new EmpresaSimpleDTO(e.getId(), e.getNomeFantasia() != null ? e.getNomeFantasia() : e.getRazaoSocial()))</span>
+<span class="fc" id="L168">            .collect(Collectors.toList());</span>
+            
+<span class="fc" id="L170">        dto.setEmpresas(empresas);</span>
+<span class="fc" id="L171">        return dto;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

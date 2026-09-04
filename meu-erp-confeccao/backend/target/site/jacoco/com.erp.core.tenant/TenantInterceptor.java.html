@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TenantInterceptor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">backend</a> &gt; <a href="index.source.html" class="el_package">com.erp.core.tenant</a> &gt; <span class="el_source">TenantInterceptor.java</span></div><h1>TenantInterceptor.java</h1><pre class="source lang-java linenums">package com.erp.core.tenant;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.HandlerInterceptor;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import java.util.List;
+import java.util.Optional;
+
+@Component
+<span class="fc" id="L15">public class TenantInterceptor implements HandlerInterceptor {</span>
+
+    private static final String TENANT_HEADER = &quot;X-TenantID&quot;;
+
+    @Value(&quot;${erp.root-domain:localhost}&quot;)
+    private String rootDomain;
+
+    @Value(&quot;${erp.platform-subdomains:admin,www,api,app}&quot;)
+    private List&lt;String&gt; platformSubdomains;
+
+    @Autowired
+    @Lazy
+    private TenantRepository tenantRepository;
+
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+<span class="fc" id="L31">        String host = request.getServerName(); // e.g. &quot;empresa1.localhost&quot; or &quot;admin.localhost&quot;</span>
+<span class="fc" id="L32">        String resolvedTenantId = null;</span>
+
+<span class="pc bpc" id="L34" title="3 of 4 branches missed.">        if (host != null &amp;&amp; host.endsWith(&quot;.&quot; + rootDomain)) {</span>
+<span class="nc" id="L35">            String subdomain = host.substring(0, host.indexOf(&quot;.&quot; + rootDomain));</span>
+<span class="nc bnc" id="L36" title="All 2 branches missed.">            if (!platformSubdomains.contains(subdomain.toLowerCase())) {</span>
+<span class="nc" id="L37">                Optional&lt;Tenant&gt; tenantOpt = tenantRepository.findBySlug(subdomain.toLowerCase());</span>
+<span class="nc bnc" id="L38" title="All 2 branches missed.">                if (tenantOpt.isPresent()) {</span>
+<span class="nc" id="L39">                    resolvedTenantId = tenantOpt.get().getSchemaName();</span>
+                } else {
+                    // Subdomain not found in tenants, maybe throw 404? 
+                    // For now, let it fall back or go to master.
+                }
+            }
+        }
+
+        // Fallback para header caso nao tenha resolvido via subdominio
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">        if (resolvedTenantId == null) {</span>
+<span class="fc" id="L49">            String headerTenantId = request.getHeader(TENANT_HEADER);</span>
+<span class="pc bpc" id="L50" title="1 of 4 branches missed.">            if (headerTenantId != null &amp;&amp; !headerTenantId.trim().isEmpty()) {</span>
+<span class="fc" id="L51">                resolvedTenantId = headerTenantId;</span>
+            }
+        }
+
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        if (resolvedTenantId != null) {</span>
+<span class="fc" id="L56">            TenantContext.setCurrentTenant(resolvedTenantId);</span>
+        } else {
+<span class="fc" id="L58">            TenantContext.setCurrentTenant(TenantContext.MASTER_TENANT);</span>
+        }
+
+<span class="fc" id="L61">        return true;</span>
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+<span class="fc" id="L66">        TenantContext.clear();</span>
+<span class="fc" id="L67">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

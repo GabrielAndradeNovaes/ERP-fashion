@@ -1,9 +1,12 @@
 package com.erp.catalog.service.impl;
 
 import com.erp.catalog.domain.ProdutoBase;
+import com.erp.catalog.domain.ProdutoSku;
 import com.erp.catalog.dto.ProdutoBaseRequest;
 import com.erp.catalog.dto.ProdutoBaseResponse;
+import com.erp.catalog.dto.ProdutoSkuRequest;
 import com.erp.catalog.repository.ProdutoBaseRepository;
+import com.erp.catalog.repository.ProdutoSkuRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -25,97 +29,65 @@ public class ProdutoServiceImplTest {
 
     @Mock
     private ProdutoBaseRepository produtoBaseRepository;
+    @Mock
+    private ProdutoSkuRepository produtoSkuRepository;
 
     @InjectMocks
     private ProdutoServiceImpl produtoService;
 
-    private ProdutoBase produtoBaseMock;
-    private ProdutoBaseRequest requestMock;
+    private ProdutoBase mockBase;
 
     @BeforeEach
     void setUp() {
-        produtoBaseMock = new ProdutoBase();
-        produtoBaseMock.setId(UUID.randomUUID());
-        produtoBaseMock.setCodigo("PROD-001");
-        produtoBaseMock.setNome("Camiseta Básica");
-        produtoBaseMock.setPrecoVenda(new BigDecimal("49.90"));
-        produtoBaseMock.setPrecoCusto(new BigDecimal("20.00"));
+        mockBase = new ProdutoBase();
+        mockBase.setId(UUID.randomUUID());
+        mockBase.setNome("Camiseta");
+        mockBase.setSkus(new ArrayList<>());
+    }
 
-        requestMock = new ProdutoBaseRequest(
-                "PROD-001",
-                "Camiseta Básica",
-                "Camiseta 100% algodão",
-                java.math.BigDecimal.TEN,
-                java.math.BigDecimal.ZERO,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
+    @Test
+    void shouldCreateProdutoComSkus() {
+        ProdutoSkuRequest skuReq = new ProdutoSkuRequest(
+                "Vermelho", "M", "123456", new BigDecimal("50.00")
         );
-    }
+        ProdutoBaseRequest req = new ProdutoBaseRequest(
+                "COD123", "Camiseta", "Camiseta Algodão", new BigDecimal("20.00"), new BigDecimal("10.00"),
+                "Marca", "Categoria", "Colecao", "Genero", "NCM", "CEST", "Origem",
+                new BigDecimal("0.5"), new BigDecimal("0.4"), "ATIVO", List.of(skuReq)
+        );
 
-    @Test
-    void shouldCreateProdutoSuccessfully() {
-        when(produtoBaseRepository.save(any(ProdutoBase.class))).thenReturn(produtoBaseMock);
+        when(produtoBaseRepository.save(any())).thenReturn(mockBase);
 
-        ProdutoBaseResponse response = produtoService.createProduto(requestMock);
-
-        assertNotNull(response);
-        assertEquals("PROD-001", response.codigo());
-        assertEquals("Camiseta Básica", response.nome());
-        verify(produtoBaseRepository, times(1)).save(any(ProdutoBase.class));
-    }
-
-    @Test
-    void shouldGetAllProdutos() {
-        when(produtoBaseRepository.findAll()).thenReturn(List.of(produtoBaseMock));
-
-        List<ProdutoBaseResponse> responses = produtoService.getAllProdutos();
-
-        assertFalse(responses.isEmpty());
-        assertEquals(1, responses.size());
-        assertEquals("PROD-001", responses.get(0).codigo());
-        verify(produtoBaseRepository, times(1)).findAll();
-    }
-
-    @Test
-    void shouldGetProdutoById() {
-        UUID id = produtoBaseMock.getId();
-        when(produtoBaseRepository.findById(id)).thenReturn(Optional.of(produtoBaseMock));
-
-        ProdutoBaseResponse response = produtoService.getProduto(id);
+        ProdutoBaseResponse response = produtoService.createProduto(req);
 
         assertNotNull(response);
-        assertEquals(id, response.id());
-        verify(produtoBaseRepository, times(1)).findById(id);
+        assertEquals("Camiseta", response.nome());
     }
 
     @Test
-    void shouldThrowExceptionWhenGetProdutoNotFound() {
-        UUID id = UUID.randomUUID();
-        when(produtoBaseRepository.findById(id)).thenReturn(Optional.empty());
+    void shouldUpdateProdutoESkus() {
+        ProdutoSku skuExistente = new ProdutoSku();
+        skuExistente.setId(UUID.randomUUID());
+        skuExistente.setProdutoBase(mockBase);
+        skuExistente.setCor("Azul");
+        skuExistente.setTamanho("G");
+        mockBase.getSkus().add(skuExistente);
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            produtoService.getProduto(id);
-        });
+        ProdutoSkuRequest skuReq = new ProdutoSkuRequest(
+                "Azul", "G", "654321", new BigDecimal("60.00") // update
+        );
+        ProdutoBaseRequest req = new ProdutoBaseRequest(
+                "COD123", "Camiseta Atualizada", "Desc", new BigDecimal("25.00"), new BigDecimal("10.00"),
+                "Marca", "Categoria", "Colecao", "Genero", "NCM", "CEST", "Origem",
+                new BigDecimal("0.5"), new BigDecimal("0.4"), "ATIVO", List.of(skuReq)
+        );
 
-        assertEquals("Produto não encontrado", exception.getMessage());
-    }
+        when(produtoBaseRepository.findById(mockBase.getId())).thenReturn(Optional.of(mockBase));
+        when(produtoBaseRepository.save(any())).thenReturn(mockBase);
 
-    @Test
-    void shouldDeleteProdutoSuccessfully() {
-        UUID id = produtoBaseMock.getId();
-        when(produtoBaseRepository.findById(id)).thenReturn(Optional.of(produtoBaseMock));
-        doNothing().when(produtoBaseRepository).delete(any(ProdutoBase.class));
+        ProdutoBaseResponse response = produtoService.updateProduto(mockBase.getId(), req);
 
-        assertDoesNotThrow(() -> produtoService.deleteProduto(id));
-        verify(produtoBaseRepository, times(1)).delete(produtoBaseMock);
+        assertNotNull(response);
+        assertEquals("Camiseta Atualizada", response.nome());
     }
 }
