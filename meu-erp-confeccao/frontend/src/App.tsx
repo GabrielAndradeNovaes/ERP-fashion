@@ -263,6 +263,10 @@ const MainApp = () => {
   );
 };
 
+import AdminBilling from './pages/Admin/AdminBilling';
+import AdminSettings from './pages/Admin/AdminSettings';
+import { CreditCard, Settings } from 'lucide-react';
+
 const AdminSidebar = () => {
   const location = useLocation();
   const { user, logout } = useAuth();
@@ -310,6 +314,34 @@ const AdminSidebar = () => {
           <Building2 size={20} />
           Gestão de Tenants
         </Link>
+        <Link 
+          to="/billing"
+          style={{
+            display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.75rem 1rem',
+            borderRadius: 'var(--radius-md)',
+            color: location.pathname === '/billing' ? 'white' : 'var(--text-secondary)',
+            background: location.pathname === '/billing' ? 'var(--accent-gradient)' : 'transparent',
+            fontWeight: location.pathname === '/billing' ? 600 : 500,
+            textDecoration: 'none'
+          }}
+        >
+          <CreditCard size={20} />
+          Faturamento Global
+        </Link>
+        <Link 
+          to="/settings"
+          style={{
+            display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.75rem 1rem',
+            borderRadius: 'var(--radius-md)',
+            color: location.pathname === '/settings' ? 'white' : 'var(--text-secondary)',
+            background: location.pathname === '/settings' ? 'var(--accent-gradient)' : 'transparent',
+            fontWeight: location.pathname === '/settings' ? 600 : 500,
+            textDecoration: 'none'
+          }}
+        >
+          <Settings size={20} />
+          Configurações
+        </Link>
       </nav>
 
       {/* User Profile & Logout */}
@@ -335,6 +367,8 @@ const AdminApp = () => {
         <Routes>
           <Route path="/" element={<PrivateRoute requireSuperAdmin><AdminDashboard /></PrivateRoute>} />
           <Route path="/tenants" element={<PrivateRoute requireSuperAdmin><TenantsList /></PrivateRoute>} />
+          <Route path="/billing" element={<PrivateRoute requireSuperAdmin><AdminBilling /></PrivateRoute>} />
+          <Route path="/settings" element={<PrivateRoute requireSuperAdmin><AdminSettings /></PrivateRoute>} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>
