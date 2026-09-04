@@ -31,14 +31,17 @@ public class AdminDashboardControllerTest {
         when(tenantRepository.countByStatus("PENDENTE")).thenReturn(0L);
         when(tenantRepository.countByStatus("CRIANDO_INFRA")).thenReturn(0L);
 
-        ResponseEntity<AdminDashboardMetricsDTO> response = controller.getDashboardMetrics();
+        ResponseEntity<java.util.Map<String, Object>> response = controller.getDashboardMetrics();
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals(10L, response.getBody().getTotalTenants());
-        assertEquals(8L, response.getBody().getActiveTenants());
-        assertEquals(2L, response.getBody().getInactiveTenants());
-        assertEquals(0L, response.getBody().getPendingTenants());
-        assertEquals(8L * 499.90, response.getBody().getEstimatedMRR());
+        
+        java.util.Map<String, Object> metrics = (java.util.Map<String, Object>) response.getBody().get("metrics");
+        assertNotNull(metrics);
+        assertEquals(10L, metrics.get("totalTenants"));
+        assertEquals(8L, metrics.get("activeTenants"));
+        assertEquals(2L, metrics.get("inactiveTenants"));
+        assertEquals(0L, metrics.get("pendingTenants"));
+        assertEquals(8L * 499.90, (Double) metrics.get("estimatedMRR"), 0.01);
     }
 }
