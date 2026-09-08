@@ -17,7 +17,8 @@ const Produtividade: React.FC = () => {
   const [metaMinima, setMetaMinima] = useState(75);
   const [premio100, setPremio100] = useState(1000);
   const [resumos, setResumos] = useState<ResumoProdutividade[]>([]);
-  const [horasReais, setHorasReais] = useState<Record<string, number>>({});
+  const [tempoTeorico, setTempoTeorico] = useState(10000); // Ex: 10 mil minutos
+  const [ocorrencias, setOcorrencias] = useState<Record<string, number>>({});
   
   const { hasPermission } = useAuth();
   const canEdit = hasPermission('PCP_EDIT');
@@ -31,14 +32,13 @@ const Produtividade: React.FC = () => {
         }
       });
       setResumos(res.data);
-      // Pre-fill hours real with empty or standard 220
-      const newHoras = { ...horasReais };
+      const newOcorrencias = { ...ocorrencias };
       res.data.forEach((r: ResumoProdutividade) => {
-        if (!newHoras[r.funcionarioId]) {
-          newHoras[r.funcionarioId] = 220; // Padrão mensal
+        if (newOcorrencias[r.funcionarioId] === undefined) {
+          newOcorrencias[r.funcionarioId] = 0; // Padrão 0 minutos
         }
       });
-      setHorasReais(newHoras);
+      setOcorrencias(newOcorrencias);
     } catch (err) {
       console.error(err);
       alert('Erro ao carregar produtividade');
@@ -46,8 +46,8 @@ const Produtividade: React.FC = () => {
   };
 
   const calcularValorDevido = (resumo: ResumoProdutividade) => {
-    const horasTrabalhadas = horasReais[resumo.funcionarioId] || 220;
-    const minutosTrabalhados = horasTrabalhadas * 60;
+    const minutosOcorrencia = ocorrencias[resumo.funcionarioId] || 0;
+    const minutosTrabalhados = tempoTeorico - minutosOcorrencia;
     
     if (minutosTrabalhados <= 0) return { produtividade: 0, valorPagar: 0 };
 
@@ -112,6 +112,9 @@ const Produtividade: React.FC = () => {
             <TextField label="Data Final" type="date" fullWidth value={dataFim} onChange={e => setDataFim(e.target.value)} slotProps={{ inputLabel: { shrink: true } }} />
           </Grid>
           <Grid size={{ xs: 12, sm: 2 }}>
+            <TextField label="Tempo Teórico (Minutos)" type="number" fullWidth value={tempoTeorico} onChange={e => setTempoTeorico(Number(e.target.value))} />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 2 }}>
             <TextField label="Meta Mínima (%)" type="number" fullWidth value={metaMinima} onChange={e => setMetaMinima(Number(e.target.value))} />
           </Grid>
           <Grid size={{ xs: 12, sm: 2 }}>
@@ -140,7 +143,7 @@ const Produtividade: React.FC = () => {
                   <TableCell>Funcionária</TableCell>
                   <TableCell>Cupons Bipados</TableCell>
                   <TableCell>Tempo Padrão (Minutos)</TableCell>
-                  <TableCell>Horas Reais Trabalhadas</TableCell>
+                  <TableCell>Ocorrências (Minutos)</TableCell>
                   <TableCell>Produtividade (%)</TableCell>
                   <TableCell>Valor a Pagar (R$)</TableCell>
                 </TableRow>
@@ -158,8 +161,8 @@ const Produtividade: React.FC = () => {
                           type="number" 
                           size="small" 
                           sx={{ width: 100 }}
-                          value={horasReais[r.funcionarioId] || ''}
-                          onChange={(e) => setHorasReais({...horasReais, [r.funcionarioId]: Number(e.target.value)})}
+                          value={ocorrencias[r.funcionarioId] !== undefined ? ocorrencias[r.funcionarioId] : 0}
+                          onChange={(e) => setOcorrencias({...ocorrencias, [r.funcionarioId]: Number(e.target.value)})}
                         />
                       </TableCell>
                       <TableCell>

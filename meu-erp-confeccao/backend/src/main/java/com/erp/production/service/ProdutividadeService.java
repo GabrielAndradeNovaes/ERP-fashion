@@ -28,7 +28,21 @@ public class ProdutividadeService {
     }
 
     public List<ProdutividadeResumo> getResumo(LocalDateTime start, LocalDateTime end) {
-        return apontamentoRepository.getProdutividadeResumo(start, end);
+        List<Funcionario> costureiras = funcionarioRepository.findByAtivoTrue();
+        List<ProdutividadeResumo> comApontamentos = apontamentoRepository.getProdutividadeResumo(start, end);
+        
+        java.util.Map<UUID, ProdutividadeResumo> mapa = new java.util.HashMap<>();
+        for (ProdutividadeResumo r : comApontamentos) {
+            mapa.put(r.funcionarioId(), r);
+        }
+
+        return costureiras.stream().map(f -> {
+            ProdutividadeResumo r = mapa.get(f.getId());
+            if (r != null) {
+                return new ProdutividadeResumo(f.getId(), f.getNome(), r.totalCupons(), r.tempoPadraoProduzido() != null ? r.tempoPadraoProduzido() : BigDecimal.ZERO);
+            }
+            return new ProdutividadeResumo(f.getId(), f.getNome(), 0L, BigDecimal.ZERO);
+        }).toList();
     }
 
     @Transactional

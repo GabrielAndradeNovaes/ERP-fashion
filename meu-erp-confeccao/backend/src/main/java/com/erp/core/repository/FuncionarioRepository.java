@@ -10,4 +10,5 @@ import java.util.UUID;
 @Repository
 public interface FuncionarioRepository extends JpaRepository<Funcionario, UUID> {
     Optional<Funcionario> findByMatricula(String matricula);
+    java.util.List<Funcionario> findByAtivoTrue();
 }
