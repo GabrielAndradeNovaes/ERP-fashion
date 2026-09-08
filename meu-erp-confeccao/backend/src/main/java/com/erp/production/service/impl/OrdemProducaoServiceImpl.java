@@ -342,7 +342,7 @@ public class OrdemProducaoServiceImpl implements OrdemProducaoService {
 
         // Opcional: deletar pacotes e cupons se houver, ou deixá-los órfãos/cancelados.
         // Como o sistema gera pacotes e cupons a parte, vamos deletá-los para não duplicar se iniciar de novo.
-        List<Pacote> pacotesExistentes = pacoteRepository.findByOrdemProducaoId(id);
+        pacotesExistentes = pacoteRepository.findByOrdemProducaoId(id);
         if (!pacotesExistentes.isEmpty()) {
             for (Pacote p : pacotesExistentes) {
                 cupomRepository.deleteAll(cupomRepository.findByPacoteId(p.getId()));

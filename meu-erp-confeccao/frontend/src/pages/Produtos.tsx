@@ -180,9 +180,58 @@ const Produtos = () => {
     }
   };
 
+  const handleUpdateProduto = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedProduto) return;
+    try {
+      setIsSubmitting(true);
+      const res = await api.put(`/catalog/produtos/${selectedProduto.id}`, {
+        codigo,
+        nome,
+        descricao,
+        precoVenda: parseFloat(precoVenda) || null,
+        precoCusto: selectedProduto.precoCusto,
+        marca,
+        categoria,
+        colecao,
+        genero,
+        ncm,
+        cest,
+        origem,
+        pesoBruto: parseFloat(pesoBruto) || null,
+        pesoLiquido: parseFloat(pesoLiquido) || null,
+        status,
+        skus: selectedProduto.skus || []
+      });
+      setSelectedProduto(res.data);
+      fetchInitialData();
+      alert("Produto atualizado com sucesso!");
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Erro ao atualizar produto.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const openEditModal = async (produto: ProdutoBase) => {
     setSelectedProduto(produto);
     setActiveTab(0);
+    
+    setCodigo(produto.codigo || '');
+    setNome(produto.nome || '');
+    setDescricao(produto.descricao || '');
+    setPrecoVenda(produto.precoVenda ? produto.precoVenda.toString() : '');
+    setMarca((produto as any).marca || '');
+    setCategoria((produto as any).categoria || '');
+    setColecao((produto as any).colecao || '');
+    setGenero((produto as any).genero || '');
+    setNcm((produto as any).ncm || '');
+    setCest((produto as any).cest || '');
+    setOrigem((produto as any).origem || '');
+    setPesoBruto((produto as any).pesoBruto ? (produto as any).pesoBruto.toString() : '');
+    setPesoLiquido((produto as any).pesoLiquido ? (produto as any).pesoLiquido.toString() : '');
+    setStatus((produto as any).status || 'ATIVO');
+
     setIsEditModalOpen(true);
     
     // Auto-create Ficha Se não existir
@@ -434,11 +483,9 @@ const Produtos = () => {
         icon={<Info size={28} />}
         action={
           canEdit && (
-            <Button 
-              variant="contained" 
+            <Button
+              variant="contained"
               startIcon={<AddIcon />}
-              onClick={() => setIsAddModalOpen(true)}
-              size="large"
               sx={{
                 background: 'var(--accent-gradient)',
                 borderRadius: 'var(--radius-md)',
@@ -611,14 +658,61 @@ const Produtos = () => {
 
             {/* TAB INFO */}
             {activeTab === 0 && (
-              <Stack spacing={2}>
-                <Typography><strong>Ref:</strong> {selectedProduto.codigo}</Typography>
-                <Typography><strong>Descrição:</strong> {selectedProduto.descricao}</Typography>
-                <Typography><strong>Preço Venda:</strong> {formatCurrency(selectedProduto.precoVenda)}</Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-                  A edição completa das informações do produto será disponibilizada em breve.
-                </Typography>
-              </Stack>
+              <form onSubmit={handleUpdateProduto}>
+                <Stack spacing={3} sx={{ mt: 1 }}>
+                  <Grid container spacing={2}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <TextField label="Código (Referência)" variant="outlined" fullWidth required value={codigo} onChange={(e) => setCodigo(e.target.value)} placeholder="Ex: REF-100" />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <TextField label="Nome do Produto" variant="outlined" fullWidth required value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex: Calcinha Algodão" />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <TextField label="Preço de Venda (R$)" type="number" variant="outlined" fullWidth required slotProps={{ htmlInput: { step: "0.01", min: "0" } }} value={precoVenda} onChange={(e) => setPrecoVenda(e.target.value)} />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <TextField label="Marca" fullWidth value={marca} onChange={e => setMarca(e.target.value)} />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 4 }}>
+                      <TextField label="Categoria" fullWidth value={categoria} onChange={e => setCategoria(e.target.value)} />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 4 }}>
+                      <TextField label="Coleção" fullWidth value={colecao} onChange={e => setColecao(e.target.value)} />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 4 }}>
+                      <TextField label="Gênero" fullWidth value={genero} onChange={e => setGenero(e.target.value)} />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 4 }}>
+                      <TextField label="NCM" fullWidth value={ncm} onChange={e => setNcm(e.target.value)} />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 4 }}>
+                      <TextField label="CEST" fullWidth value={cest} onChange={e => setCest(e.target.value)} />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 4 }}>
+                      <TextField label="Origem" fullWidth value={origem} onChange={e => setOrigem(e.target.value)} />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <TextField label="Peso Bruto" type="number" fullWidth value={pesoBruto} onChange={e => setPesoBruto(e.target.value)} />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <TextField label="Peso Líquido" type="number" fullWidth value={pesoLiquido} onChange={e => setPesoLiquido(e.target.value)} />
+                    </Grid>
+                  </Grid>
+                  <TextField label="Descrição (Opcional)" variant="outlined" fullWidth multiline rows={2} value={descricao} onChange={(e) => setDescricao(e.target.value)} />
+                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 2 }}>
+                    <Button 
+                      type="submit" 
+                      variant="contained" 
+                      disabled={isSubmitting}
+                      startIcon={isSubmitting && <CircularProgress size={20} color="inherit" />}
+                      sx={{ bgcolor: 'var(--accent-primary)', '&:hover': { bgcolor: 'var(--accent-hover)' } }}
+                      disableElevation
+                    >
+                      Salvar Alterações
+                    </Button>
+                  </Box>
+                </Stack>
+              </form>
             )}
 
             {/* TAB SKUS */}

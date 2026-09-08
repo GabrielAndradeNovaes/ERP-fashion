@@ -29,7 +29,7 @@ public class CupomControllerTest {
     @Test
     void testListarPorOrdemProducao() {
         UUID id = UUID.randomUUID();
-        List<CupomResponse> list = Collections.singletonList(new CupomResponse(null, null, null, null, null, null, null, null));
+        List<CupomResponse> list = Collections.singletonList(new CupomResponse(null, null, null, null, null, null, null, null, null, null));
         when(service.listarPorOrdemProducao(id)).thenReturn(list);
         ResponseEntity<List<CupomResponse>> result = controller.listarPorOrdemProducao(id);
         assertEquals(HttpStatus.OK, result.getStatusCode());
