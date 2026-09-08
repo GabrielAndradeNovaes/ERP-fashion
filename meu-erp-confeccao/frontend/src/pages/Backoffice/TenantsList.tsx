@@ -5,7 +5,9 @@ import api from '../../api/axios';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-
+import PageHeader from '../../components/PageHeader';
+import PremiumCard from '../../components/PremiumCard';
+import StatusChip from '../../components/StatusChip';
 interface Tenant {
   id: string;
   nomeEmpresa: string;
@@ -260,56 +262,29 @@ const TenantsList = () => {
     window.open(url, '_blank');
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'ATIVO': return 'success';
-      case 'INADIMPLENTE': return 'warning';
-      case 'CANCELADO': return 'error';
-      default: return 'default';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'ATIVO': return <CheckCircle2 size={16} />;
-      case 'INADIMPLENTE': return <AlertCircle size={16} />;
-      case 'CANCELADO': return <XCircle size={16} />;
-      case 'PENDENTE':
-      case 'CRIANDO_INFRA': return <CircularProgress size={16} color="inherit" />;
-      case 'FALHA': return <XCircle size={16} />;
-      default: return undefined;
-    }
-  };
-
   const isProcessing = (status: string) => status === 'PENDENTE' || status === 'CRIANDO_INFRA';
 
   if (loading) return <Typography>Carregando...</Typography>;
 
   return (
     <Box sx={{ p: 3 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, gap: 2 }}>
-        <Box sx={{ p: 1.5, bgcolor: 'primary.main', borderRadius: 2, color: 'white', display: 'flex' }}>
-          <Building2 size={28} />
-        </Box>
-        <Box>
-          <Typography variant="h4" sx={{ fontWeight: 800, color: 'var(--text-primary)' }}>
-            Gestão de Clientes (Tenants)
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Visão administrativa do Control Plane (Mestre)
-          </Typography>
-        </Box>
-        <Button 
-          variant="contained" 
-          startIcon={<Plus size={18} />}
-          onClick={() => { setOpenModal(true); setTabValue(0); setNewTenant(initialTenantState); setEditingSchema(null); }}
-          sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 600, ml: 'auto' }}
-        >
-          Novo Cliente
-        </Button>
-      </Box>
+      <PageHeader 
+        title="Gestão de Clientes (Tenants)"
+        subtitle="Visão administrativa do Control Plane (Mestre)"
+        icon={<Building2 size={28} />}
+        action={
+          <Button 
+            variant="contained" 
+            startIcon={<Plus size={18} />}
+            onClick={() => { setOpenModal(true); setTabValue(0); setNewTenant(initialTenantState); setEditingSchema(null); }}
+            sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 600 }}
+          >
+            Novo Cliente
+          </Button>
+        }
+      />
 
-      <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
+      <PremiumCard>
         <TableContainer>
           <Table>
             <TableHead sx={{ bgcolor: 'var(--bg-card)' }}>
@@ -337,13 +312,7 @@ const TenantsList = () => {
                   <TableCell>{tenant.criadoEm ? new Date(tenant.criadoEm).toLocaleDateString() : ''}</TableCell>
                   <TableCell>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                      <Chip 
-                        icon={getStatusIcon(tenant.status)} 
-                        label={isProcessing(tenant.status) ? 'Criando Ambiente...' : tenant.status} 
-                        color={getStatusColor(tenant.status) as any} 
-                        size="small" 
-                        sx={{ fontWeight: 'bold' }}
-                      />
+                      <StatusChip status={isProcessing(tenant.status) ? 'CRIANDO_INFRA' : tenant.status} label={isProcessing(tenant.status) ? 'Criando Ambiente...' : tenant.status} />
                       {!isProcessing(tenant.status) && tenant.status !== 'FALHA' && (
                         <FormControl size="small" sx={{ minWidth: 140 }}>
                           <Select
@@ -400,7 +369,7 @@ const TenantsList = () => {
             </TableBody>
           </Table>
         </TableContainer>
-      </Card>
+      </PremiumCard>
 
       {/* Modal de Provisionamento / Edição */}
       <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="md" fullWidth>

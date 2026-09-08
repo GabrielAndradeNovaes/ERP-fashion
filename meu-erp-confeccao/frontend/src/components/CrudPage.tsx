@@ -6,6 +6,8 @@ import { EmpresaSelect } from './EmpresaSelect';
 import { useAuth } from '../contexts/AuthContext';
 import type { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from './DataTable';
+import PageHeader from './PageHeader';
+import PremiumCard from './PremiumCard';
 import {
   Box,
   Typography,
@@ -28,7 +30,7 @@ interface CrudPageProps {
   title: string;
   description: string;
   endpoint: string;
-  columns: { key: string; label: string; format?: (val: any) => string }[];
+  columns: { key: string; label: string; format?: (val: any) => React.ReactNode }[];
   emptyEntity: any;
   renderForm: (entity: any, setEntity: (val: any) => void) => React.ReactNode;
   hideEmpresa?: boolean;
@@ -165,30 +167,27 @@ const CrudPage: React.FC<CrudPageProps> = ({ title, description, endpoint, colum
 
   return (
     <Box className="animate-fade-in">
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Box>
-          <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 'bold' }}>
-            {title}
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            {description}
-          </Typography>
-        </Box>
-        {canEdit && (
-          <Button 
-            variant="contained" 
-            color="primary" 
-            startIcon={<AddIcon />}
-            onClick={openNewModal}
-            size="large"
-            disableElevation
-          >
-            Novo Cadastro
-          </Button>
-        )}
-      </Box>
+      <PageHeader 
+        title={title}
+        subtitle={description}
+        icon={<Info size={28} />}
+        action={
+          canEdit && (
+            <Button 
+              variant="contained" 
+              color="primary" 
+              startIcon={<AddIcon />}
+              onClick={openNewModal}
+              size="large"
+              disableElevation
+            >
+              Novo Cadastro
+            </Button>
+          )
+        }
+      />
 
-      <Card variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
+      <PremiumCard>
         <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <TextField
             placeholder="Pesquisar..."
@@ -226,7 +225,7 @@ const CrudPage: React.FC<CrudPageProps> = ({ title, description, endpoint, colum
         ) : (
           <DataTable columns={dataTableColumns} data={filteredData} />
         )}
-      </Card>
+      </PremiumCard>
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={currentEntity.id ? `Editar ${title}` : `Novo ${title}`} width="600px">
         <form onSubmit={handleSave}>

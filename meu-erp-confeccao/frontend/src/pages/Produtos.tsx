@@ -3,6 +3,8 @@ import { Info } from 'lucide-react';
 import api from '../api/axios';
 import Modal from '../components/Modal';
 import { DataTable } from '../components/DataTable';
+import PageHeader from '../components/PageHeader';
+import PremiumCard from '../components/PremiumCard';
 import { useAuth } from '../contexts/AuthContext';
 import type { ColumnDef } from '@tanstack/react-table';
 import {
@@ -384,38 +386,35 @@ const Produtos = () => {
 
   return (
     <Box className="animate-fade-in-up">
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Box>
-          <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>
-            Produtos e <span className="text-gradient">Fichas Técnicas</span>
-          </Typography>
-          <Typography variant="body1" sx={{ color: 'var(--text-secondary)' }}>
-            Gerencie os produtos e suas estruturas (BOM e Operações).
-          </Typography>
-        </Box>
-        {canEdit && (
-          <Button 
-            variant="contained" 
-            startIcon={<AddIcon />}
-            onClick={() => setIsAddModalOpen(true)}
-            size="large"
-            sx={{
-              background: 'var(--accent-gradient)',
-              borderRadius: 'var(--radius-md)',
-              textTransform: 'none',
-              fontWeight: 600,
-              boxShadow: '0 4px 14px 0 rgba(99, 102, 241, 0.39)',
-              '&:hover': {
-                boxShadow: '0 6px 20px rgba(99, 102, 241, 0.23)'
-              }
-            }}
-          >
-            Novo Produto
-          </Button>
-        )}
-      </Box>
+      <PageHeader 
+        title="Produtos e Fichas Técnicas"
+        subtitle="Gerencie os produtos e suas estruturas (BOM e Operações)."
+        icon={<Info size={28} />}
+        action={
+          canEdit && (
+            <Button 
+              variant="contained" 
+              startIcon={<AddIcon />}
+              onClick={() => setIsAddModalOpen(true)}
+              size="large"
+              sx={{
+                background: 'var(--accent-gradient)',
+                borderRadius: 'var(--radius-md)',
+                textTransform: 'none',
+                fontWeight: 600,
+                boxShadow: '0 4px 14px 0 rgba(99, 102, 241, 0.39)',
+                '&:hover': {
+                  boxShadow: '0 6px 20px rgba(99, 102, 241, 0.23)'
+                }
+              }}
+            >
+              Novo Produto
+            </Button>
+          )
+        }
+      />
 
-      <div className="premium-card">
+      <PremiumCard>
         <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="h6" sx={{ fontWeight: 600, color: 'var(--text-primary)' }}>Catálogo</Typography>
           <Chip label={`${produtos.length} Itens`} sx={{ bgcolor: 'rgba(99, 102, 241, 0.1)', color: 'var(--accent-primary)', fontWeight: 600 }} size="small" />
@@ -448,7 +447,7 @@ const Produtos = () => {
             />
           </Box>
         )}
-      </div>
+      </PremiumCard>
 
       {/* Modal Adicionar Produto */}
       <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} title="Novo Produto" width="500px">

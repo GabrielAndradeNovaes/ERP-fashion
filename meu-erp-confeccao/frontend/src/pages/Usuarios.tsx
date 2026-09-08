@@ -136,7 +136,7 @@ const Usuarios = () => {
 
     return (
       <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
             <ShieldCheck size={20} /> Dados do Usuário
           </Typography>
@@ -205,7 +205,7 @@ const Usuarios = () => {
             label="Data de Nascimento"
             name="dataNascimento"
             type="date"
-            InputLabelProps={{ shrink: true }}
+            slotProps={{ inputLabel: { shrink: true } }}
             value={entity.dataNascimento || ''}
             onChange={handleChange}
             fullWidth
@@ -220,7 +220,7 @@ const Usuarios = () => {
           />
         </Grid>
 
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
             <Building2 size={20} /> Acesso às Filiais
           </Typography>
@@ -231,7 +231,7 @@ const Usuarios = () => {
               ) : (
                 <Grid container spacing={2}>
                   {empresas.map(emp => (
-                    <Grid item xs={12} key={emp.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Grid size={{ xs: 12 }} key={emp.id} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <FormControlLabel
                         control={
                           <Checkbox 
@@ -253,7 +253,7 @@ const Usuarios = () => {
                       )}
                     </Grid>
                   ))}
-                  <Grid item xs={12}>
+                  <Grid size={{ xs: 12 }}>
                     <Typography variant="caption" color="text.secondary">
                       * O botão redondo define a <b>Filial Principal</b> do usuário.
                     </Typography>
@@ -264,14 +264,14 @@ const Usuarios = () => {
           </Card>
         </Grid>
 
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
             <ShieldCheck size={20} /> Permissões do Sistema
           </Typography>
           
           <Grid container spacing={2}>
             {modulos.map(modulo => (
-              <Grid item xs={12} sm={6} md={4} key={modulo}>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={modulo}>
                 <Card variant="outlined" sx={{ height: '100%' }}>
                   <CardContent>
                     <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold', color: 'primary.main' }}>
