@@ -102,7 +102,6 @@ const Cupons = () => {
             >
               Imprimir {layout === 'A4' ? 'A4' : 'Térmica'}
             </Button>
-          </Box>
         </Box>
 
         <Card className="premium-card" sx={{ p: 3, mb: 4 }}>
