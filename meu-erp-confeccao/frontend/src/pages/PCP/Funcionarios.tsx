@@ -38,6 +38,11 @@ const Funcionarios: React.FC = () => {
   }, []);
 
   const handleSalvar = () => {
+    if (!editingFuncionario.nome || !editingFuncionario.matricula) {
+      alert("Nome e Matrícula são obrigatórios!");
+      return;
+    }
+    
     if (editingFuncionario.id) {
       api.put(`/funcionarios/${editingFuncionario.id}`, editingFuncionario)
         .then(() => { setOpen(false); carregarFuncionarios(); })
