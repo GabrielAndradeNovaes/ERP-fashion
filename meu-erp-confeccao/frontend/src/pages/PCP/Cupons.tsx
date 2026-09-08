@@ -184,7 +184,7 @@ const Cupons = () => {
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                               <Box sx={{ background: '#fff', padding: '4px', borderRadius: '4px' }}>
                                 <Barcode 
-                                  value={cupom.codigoBarras} 
+                                  value={cupom.codigoBarras || '000'} 
                                   width={1.2} 
                                   height={30} 
                                   fontSize={10}
@@ -238,7 +238,7 @@ const Cupons = () => {
                    </Typography>
                    <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                      <Barcode 
-                        value={cupom.codigoBarras} 
+                        value={cupom.codigoBarras || '000'} 
                         width={1.8} 
                         height={50} 
                         fontSize={12}
