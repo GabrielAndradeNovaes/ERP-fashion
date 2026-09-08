@@ -158,7 +158,7 @@ const AdminDashboard = () => {
         <Grid item xs={12} sm={6} md={3}>
           <StatCard 
             title="Receita Recorrente (MRR)" 
-            value={new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(metrics.estimatedMRR)} 
+            value={new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(metrics?.estimatedMRR || 0)} 
             icon={<DollarSign size={28} />} 
             gradient="linear-gradient(135deg, #10b981 0%, #059669 100%)"
           />
@@ -166,7 +166,7 @@ const AdminDashboard = () => {
         <Grid item xs={12} sm={6} md={3}>
           <StatCard 
             title="Tenants Ativos" 
-            value={metrics.activeTenants} 
+            value={metrics?.activeTenants || 0} 
             icon={<CheckCircle size={28} />} 
             gradient="linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)"
           />
@@ -174,7 +174,7 @@ const AdminDashboard = () => {
         <Grid item xs={12} sm={6} md={3}>
           <StatCard 
             title="Tenants Pendentes" 
-            value={metrics.pendingTenants} 
+            value={metrics?.pendingTenants || 0} 
             icon={<AlertTriangle size={28} />} 
             color="245, 158, 11" // Amber
           />
@@ -182,7 +182,7 @@ const AdminDashboard = () => {
         <Grid item xs={12} sm={6} md={3}>
           <StatCard 
             title="Total de Tenants" 
-            value={metrics.totalTenants} 
+            value={metrics?.totalTenants || 0} 
             icon={<Building2 size={28} />} 
             color="139, 92, 246" // Violet
           />
@@ -195,7 +195,7 @@ const AdminDashboard = () => {
           <GlassPanel title="Crescimento de Receita (MRR)">
             <Box sx={{ height: 350, width: '100%', mt: 2 }}>
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={mrrHistory} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                <LineChart data={mrrHistory || []} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
                   <XAxis dataKey="name" stroke="var(--text-secondary)" tick={{ fill: 'var(--text-secondary)' }} axisLine={false} tickLine={false} />
                   <YAxis stroke="var(--text-secondary)" tick={{ fill: 'var(--text-secondary)' }} axisLine={false} tickLine={false} tickFormatter={(val) => `R$ ${val/1000}k`} />
@@ -218,7 +218,7 @@ const AdminDashboard = () => {
           <GlassPanel title="Aquisição de Tenants">
             <Box sx={{ height: 350, width: '100%', mt: 2 }}>
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={tenantSignups} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+                <BarChart data={tenantSignups || []} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
                   <XAxis dataKey="name" stroke="var(--text-secondary)" tick={{ fill: 'var(--text-secondary)' }} axisLine={false} tickLine={false} />
                   <YAxis stroke="var(--text-secondary)" tick={{ fill: 'var(--text-secondary)' }} axisLine={false} tickLine={false} />
@@ -245,7 +245,7 @@ const AdminDashboard = () => {
               <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                   <Typography variant="body2" sx={{ color: 'text.secondary', display: 'flex', alignItems: 'center', gap: 1 }}><Clock size={16} /> Uptime</Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 800, color: '#10b981' }}>{systemHealth.uptime}</Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 800, color: '#10b981' }}>{systemHealth?.uptime}</Typography>
                 </Box>
                 <Box sx={{ w: '100%', height: 6, bgcolor: 'rgba(16,185,129,0.2)', borderRadius: 3, overflow: 'hidden' }}>
                   <Box sx={{ width: '99.98%', height: '100%', bgcolor: '#10b981' }} />
@@ -255,27 +255,27 @@ const AdminDashboard = () => {
               <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                   <Typography variant="body2" sx={{ color: 'text.secondary', display: 'flex', alignItems: 'center', gap: 1 }}><Server size={16} /> Uso de CPU</Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 800, color: systemHealth.cpuUsage > 80 ? '#ef4444' : '#3b82f6' }}>{systemHealth.cpuUsage}%</Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 800, color: systemHealth?.cpuUsage > 80 ? '#ef4444' : '#3b82f6' }}>{systemHealth?.cpuUsage}%</Typography>
                 </Box>
                 <Box sx={{ w: '100%', height: 6, bgcolor: 'rgba(59,130,246,0.2)', borderRadius: 3, overflow: 'hidden' }}>
-                  <Box sx={{ width: `${systemHealth.cpuUsage}%`, height: '100%', bgcolor: '#3b82f6' }} />
+                  <Box sx={{ width: `${systemHealth?.cpuUsage}%`, height: '100%', bgcolor: '#3b82f6' }} />
                 </Box>
               </Box>
 
               <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                   <Typography variant="body2" sx={{ color: 'text.secondary', display: 'flex', alignItems: 'center', gap: 1 }}><Activity size={16} /> Consumo de Memória</Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 800, color: systemHealth.memoryUsage > 85 ? '#ef4444' : '#8b5cf6' }}>{systemHealth.memoryUsage}%</Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 800, color: systemHealth?.memoryUsage > 85 ? '#ef4444' : '#8b5cf6' }}>{systemHealth?.memoryUsage}%</Typography>
                 </Box>
                 <Box sx={{ w: '100%', height: 6, bgcolor: 'rgba(139,92,246,0.2)', borderRadius: 3, overflow: 'hidden' }}>
-                  <Box sx={{ width: `${systemHealth.memoryUsage}%`, height: '100%', bgcolor: '#8b5cf6' }} />
+                  <Box sx={{ width: `${systemHealth?.memoryUsage}%`, height: '100%', bgcolor: '#8b5cf6' }} />
                 </Box>
               </Box>
 
               <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                   <Typography variant="body2" sx={{ color: 'text.secondary', display: 'flex', alignItems: 'center', gap: 1 }}><Database size={16} /> Latência Banco (Leitura)</Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 800 }}>{systemHealth.dbLatency}</Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 800 }}>{systemHealth?.dbLatency}</Typography>
                 </Box>
               </Box>
 
@@ -286,7 +286,7 @@ const AdminDashboard = () => {
         <Grid item xs={12} md={8}>
           <GlassPanel title="Audit Log (Atividades Recentes)">
             <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 0 }}>
-              {recentActivities.map((act, index) => (
+              {(recentActivities || []).map((act, index) => (
                 <Box key={act.id} sx={{ 
                   display: 'flex', 
                   gap: 3, 
