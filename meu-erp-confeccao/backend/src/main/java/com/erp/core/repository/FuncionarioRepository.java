@@ -13,6 +13,6 @@ public interface FuncionarioRepository extends JpaRepository<Funcionario, UUID> 
     java.util.List<Funcionario> findByAtivoTrue();
     java.util.List<Funcionario> findByGrupoId(UUID grupoId);
     
-    @org.springframework.data.jpa.repository.Query("SELECT f FROM Funcionario f WHERE LOWER(f.grupo.nome) = 'produção'")
+    @org.springframework.data.jpa.repository.Query("SELECT f FROM Funcionario f WHERE LOWER(f.grupo.nome) LIKE '%produ%'")
     java.util.List<Funcionario> findByGrupoProducao();
 }

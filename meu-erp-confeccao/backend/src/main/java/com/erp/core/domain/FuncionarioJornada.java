@@ -14,6 +14,7 @@ public class FuncionarioJornada {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "funcionario_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private Funcionario funcionario;
 
     @Column(name = "dia_semana", nullable = false)
