@@ -1,5 +1,6 @@
 import React from 'react';
-import { Card, CardProps } from '@mui/material';
+import { Card } from '@mui/material';
+import type { CardProps } from '@mui/material';
 
 const PremiumCard: React.FC<CardProps> = ({ children, sx, ...props }) => {
   return (

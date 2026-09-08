@@ -1,5 +1,6 @@
 import React from 'react';
-import { Chip, CircularProgress, ChipProps } from '@mui/material';
+import { Chip, CircularProgress } from '@mui/material';
+import type { ChipProps } from '@mui/material';
 import { CheckCircle2, AlertCircle, XCircle } from 'lucide-react';
 
 interface StatusChipProps extends Omit<ChipProps, 'color' | 'icon' | 'label'> {
