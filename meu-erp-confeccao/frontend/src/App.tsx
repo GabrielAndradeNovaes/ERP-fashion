@@ -25,6 +25,8 @@ import TenantsList from './pages/Backoffice/TenantsList';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import LandingPage from './pages/LandingPage';
 
+const isMasterDomain = window.location.hostname === 'localhost' || window.location.hostname.startsWith('admin.') || window.location.hostname.startsWith('www.');
+
 // Rotas Protegidas
 const PrivateRoute = ({ children, requireSuperAdmin = false, requiredPermission }: { children: React.ReactNode, requireSuperAdmin?: boolean, requiredPermission?: string }) => {
   const { isAuthenticated, user, hasPermission } = useAuth();
@@ -128,7 +130,13 @@ const Sidebar = () => {
             Acessando: {impersonatedTenantId}
           </Typography>
           <button 
-            onClick={() => { setImpersonatedTenant(null); window.location.href = '/admin/tenants'; }}
+            onClick={() => { 
+              setImpersonatedTenant(null); 
+              const port = window.location.port ? ':' + window.location.port : '';
+              const parts = window.location.hostname.split('.');
+              const rootDomain = parts.length > 1 ? parts.slice(1).join('.') : 'localhost';
+              window.location.href = window.location.protocol + '//admin.' + rootDomain + port + '/tenants'; 
+            }}
             style={{ width: '100%', background: 'var(--danger)', color: 'white', border: 'none', padding: '6px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}
           >
             Voltar ao Master
@@ -138,7 +146,7 @@ const Sidebar = () => {
       
       <nav style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1, overflowY: 'auto', paddingBottom: '1rem' }}>
         
-        {user?.role === 'SUPERADMIN' && (
+        {user?.role === 'SUPERADMIN' && isMasterDomain && (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
             <Typography variant="overline" sx={{ px: 2, color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.5px' }}>
               Backoffice (Admin)
@@ -256,7 +264,15 @@ const MainApp = () => {
           <Route path="/pcp/funcionarios" element={<PrivateRoute requiredPermission="PCP_VIEW"><Funcionarios /></PrivateRoute>} />
           <Route path="/pcp/produtividade" element={<PrivateRoute requiredPermission="PCP_VIEW"><Produtividade /></PrivateRoute>} />
           
-          <Route path="/admin/tenants" element={<PrivateRoute requireSuperAdmin><TenantsList /></PrivateRoute>} />
+          <Route path="/admin/tenants" element={
+            isMasterDomain ? (
+              <PrivateRoute requireSuperAdmin><TenantsList /></PrivateRoute>
+            ) : (
+              <Navigate to="/" />
+            )
+          } />
+          
+          <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>
     </div>
