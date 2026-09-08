@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Info } from 'lucide-react';
+import { Info, Edit, Trash2 } from 'lucide-react';
 import api from '../api/axios';
 import Modal from '../components/Modal';
 import { DataTable } from '../components/DataTable';
@@ -30,7 +30,8 @@ import {
   TableRow,
   Paper,
   Grid,
-  Autocomplete
+  Autocomplete,
+  IconButton
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 
@@ -97,6 +98,7 @@ const Produtos = () => {
   const [opParadas, setOpParadas] = useState('1');
   const [opDificuldade, setOpDificuldade] = useState('MEDIO');
   const [opComprimento, setOpComprimento] = useState('DE_0_A_60');
+  const [editingOperacaoId, setEditingOperacaoId] = useState<string | null>(null);
   
   // Form State (Add SKU Matrix)
   const [skuCores, setSkuCores] = useState<any[]>([]);
@@ -221,7 +223,7 @@ const Produtos = () => {
 
     try {
       setIsSubmitting(true);
-      await api.post(`/production/fichas-tecnicas/${selectedProduto.fichaTecnica.id}/operacoes`, {
+      const payload = {
         nome: opNome,
         maquina: opMaquina,
         ordemExecucao: parseInt(opOrdem) || 1,
@@ -229,17 +231,57 @@ const Produtos = () => {
         quantidadeParadas: parseInt(opParadas) || 0,
         grauDificuldade: opDificuldade,
         faixaComprimento: opComprimento
-      });
+      };
+
+      if (editingOperacaoId) {
+        await api.put(`/production/fichas-tecnicas/${selectedProduto.fichaTecnica.id}/operacoes/${editingOperacaoId}`, payload);
+      } else {
+        await api.post(`/production/fichas-tecnicas/${selectedProduto.fichaTecnica.id}/operacoes`, payload);
+      }
       
       setOpNome('');
       setOpMaquina('');
-      setOpOrdem((parseInt(opOrdem) + 1).toString());
+      setOpOrdem(editingOperacaoId ? opOrdem : (parseInt(opOrdem) + 1).toString());
+      setEditingOperacaoId(null);
       await refreshSelectedProduto();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Erro ao adicionar operação.');
+      alert(err.response?.data?.message || 'Erro ao salvar operação.');
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleEditOperacao = (op: any) => {
+    setEditingOperacaoId(op.id);
+    setOpNome(op.nome);
+    setOpMaquina(op.maquina || '');
+    setOpOrdem(op.ordemExecucao.toString());
+    setOpFolhas(op.quantidadeFolhas.toString());
+    setOpParadas(op.quantidadeParadas.toString());
+    setOpDificuldade(op.grauDificuldade);
+    setOpComprimento(op.faixaComprimento);
+  };
+
+  const handleRemoveOperacao = async (operacaoId: string) => {
+    if (!selectedProduto?.fichaTecnica) return;
+    if (!window.confirm("Deseja realmente excluir esta operação?")) return;
+    try {
+      await api.delete(`/production/fichas-tecnicas/${selectedProduto.fichaTecnica.id}/operacoes/${operacaoId}`);
+      await refreshSelectedProduto();
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Erro ao remover operação.');
+    }
+  };
+
+  const handleCancelEditOperacao = () => {
+    setEditingOperacaoId(null);
+    setOpNome('');
+    setOpMaquina('');
+    setOpOrdem((selectedProduto?.fichaTecnica?.operacoes?.length ? selectedProduto.fichaTecnica.operacoes.length + 1 : 1).toString());
+    setOpFolhas('2');
+    setOpParadas('1');
+    setOpDificuldade('MEDIO');
+    setOpComprimento('DE_0_A_60');
   };
 
   const handleGenerateSkus = async (e: React.FormEvent) => {
@@ -835,8 +877,19 @@ const Produtos = () => {
                             disableElevation 
                             sx={{ height: 40, bgcolor: 'var(--accent-primary)', '&:hover': { bgcolor: 'var(--accent-hover)' } }}
                           >
-                            {isSubmitting ? '...' : '+ Operação'}
+                            {isSubmitting ? '...' : editingOperacaoId ? 'Salvar' : '+ Operação'}
                           </Button>
+                          {editingOperacaoId && (
+                            <Button 
+                              variant="text" 
+                              onClick={handleCancelEditOperacao} 
+                              fullWidth 
+                              size="small" 
+                              sx={{ mt: 1, color: 'var(--text-secondary)' }}
+                            >
+                              Cancelar
+                            </Button>
+                          )}
                         </Grid>
                       </Grid>
                     </form>
@@ -851,15 +904,24 @@ const Produtos = () => {
                         <TableCell sx={{ color: 'var(--text-secondary)', fontWeight: 600, borderColor: 'var(--border-color)' }}>Operação</TableCell>
                         <TableCell sx={{ color: 'var(--text-secondary)', fontWeight: 600, borderColor: 'var(--border-color)' }}>Máquina</TableCell>
                         <TableCell align="right" sx={{ color: 'var(--text-secondary)', fontWeight: 600, borderColor: 'var(--border-color)' }}>Tempo Padrão</TableCell>
+                        <TableCell align="right" sx={{ color: 'var(--text-secondary)', fontWeight: 600, borderColor: 'var(--border-color)' }}>Ações</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {selectedProduto.fichaTecnica.operacoes?.sort((a:any, b:any) => a.ordemExecucao - b.ordemExecucao).map((op: any) => (
-                        <TableRow key={op.id} sx={{ '&:hover': { bgcolor: 'rgba(255,255,255,0.02)' } }}>
+                        <TableRow key={op.id} sx={{ '&:hover': { bgcolor: 'rgba(255,255,255,0.02)' }, bgcolor: editingOperacaoId === op.id ? 'rgba(99, 102, 241, 0.1)' : 'inherit' }}>
                           <TableCell sx={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>{op.ordemExecucao}</TableCell>
                           <TableCell sx={{ fontWeight: 500, borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>{op.nome}</TableCell>
                           <TableCell sx={{ color: 'var(--text-muted)', borderColor: 'var(--border-color)' }}>{op.maquina}</TableCell>
                           <TableCell align="right" sx={{ fontWeight: 700, color: 'var(--warning)', borderColor: 'var(--border-color)' }}>{op.tempoCalculadoCentesimal}m</TableCell>
+                          <TableCell align="right" sx={{ borderColor: 'var(--border-color)' }}>
+                            <IconButton size="small" onClick={() => handleEditOperacao(op)} sx={{ color: 'var(--accent-primary)', mr: 1 }}>
+                              <Edit size={16} />
+                            </IconButton>
+                            <IconButton size="small" onClick={() => handleRemoveOperacao(op.id)} sx={{ color: 'var(--danger)' }}>
+                              <Trash2 size={16} />
+                            </IconButton>
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

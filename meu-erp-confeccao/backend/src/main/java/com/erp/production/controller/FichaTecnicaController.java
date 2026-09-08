@@ -46,6 +46,15 @@ public class FichaTecnicaController {
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping("/{fichaTecnicaId}/operacoes/{operacaoId}")
+    public ResponseEntity<FichaTecnicaResponse> updateOperacao(
+            @PathVariable UUID fichaTecnicaId, 
+            @PathVariable UUID operacaoId,
+            @RequestBody com.erp.production.dto.FichaTecnicaOperacaoRequest request) {
+        FichaTecnicaResponse response = fichaTecnicaService.updateOperacao(fichaTecnicaId, operacaoId, request);
+        return ResponseEntity.ok(response);
+    }
+
     @DeleteMapping("/{fichaTecnicaId}/operacoes/{operacaoId}")
     public ResponseEntity<FichaTecnicaResponse> removeOperacao(
             @PathVariable UUID fichaTecnicaId, 

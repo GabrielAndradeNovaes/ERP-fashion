@@ -132,6 +132,40 @@ public class FichaTecnicaServiceImpl implements FichaTecnicaService {
 
     @Override
     @Transactional
+    public FichaTecnicaResponse updateOperacao(UUID fichaTecnicaId, UUID operacaoId, FichaTecnicaOperacaoRequest request) {
+        FichaTecnica fichaTecnica = fichaTecnicaRepository.findById(fichaTecnicaId)
+                .orElseThrow(() -> new IllegalArgumentException("Ficha Técnica não encontrada com ID: " + fichaTecnicaId));
+
+        FichaTecnicaOperacao operacao = fichaTecnicaOperacaoRepository.findById(operacaoId)
+                .orElseThrow(() -> new IllegalArgumentException("Operação não encontrada com ID: " + operacaoId));
+
+        if (!operacao.getFichaTecnica().getId().equals(fichaTecnicaId)) {
+            throw new IllegalArgumentException("A operação não pertence a esta Ficha Técnica.");
+        }
+
+        Integer qFolhas = request.quantidadeFolhas() != null ? request.quantidadeFolhas() : 0;
+        Integer qParadas = request.quantidadeParadas() != null ? request.quantidadeParadas() : 0;
+        Integer indice = qFolhas + qParadas;
+
+        TabelaTempoPadrao tempoPadrao = tabelaTempoPadraoRepository.findByIndiceAndGrauDificuldadeAndFaixaComprimento(
+                indice, request.grauDificuldade(), request.faixaComprimento()
+        ).orElse(null);
+
+        operacao.setNome(request.nome());
+        operacao.setMaquina(request.maquina());
+        operacao.setOrdemExecucao(request.ordemExecucao());
+        operacao.setQuantidadeFolhas(qFolhas);
+        operacao.setQuantidadeParadas(qParadas);
+        operacao.setGrauDificuldade(request.grauDificuldade());
+        operacao.setFaixaComprimento(request.faixaComprimento());
+        operacao.setTempoCalculadoCentesimal(tempoPadrao != null ? tempoPadrao.getTempoCentesimal() : BigDecimal.ZERO);
+
+        FichaTecnica saved = fichaTecnicaRepository.save(fichaTecnica);
+        return mapToResponse(saved);
+    }
+
+    @Override
+    @Transactional
     public FichaTecnicaResponse removeOperacao(UUID fichaTecnicaId, UUID operacaoId) {
         FichaTecnica fichaTecnica = fichaTecnicaRepository.findById(fichaTecnicaId)
                 .orElseThrow(() -> new IllegalArgumentException("Ficha Técnica não encontrada com ID: " + fichaTecnicaId));

@@ -13,6 +13,7 @@ public interface FichaTecnicaService {
     FichaTecnicaResponse getFichaTecnicaById(UUID id);
     
     FichaTecnicaResponse addOperacao(UUID fichaTecnicaId, FichaTecnicaOperacaoRequest request);
+    FichaTecnicaResponse updateOperacao(UUID fichaTecnicaId, UUID operacaoId, FichaTecnicaOperacaoRequest request);
     FichaTecnicaResponse removeOperacao(UUID fichaTecnicaId, UUID operacaoId);
     
     FichaTecnicaResponse addMaterial(UUID fichaTecnicaId, com.erp.production.dto.FichaTecnicaMaterialRequest request);
