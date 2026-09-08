@@ -157,7 +157,7 @@ const Produtividade: React.FC = () => {
                         />
                       </TableCell>
                       <TableCell>
-                        <Typography sx={{ color: produtividade >= 100 ? 'success.main' : (produtividade >= resumo.metaMinima ? 'warning.main' : 'error.main'), fontWeight: 'bold' }}>
+                        <Typography sx={{ color: produtividade >= 100 ? 'success.main' : (produtividade >= r.metaMinima ? 'warning.main' : 'error.main'), fontWeight: 'bold' }}>
                           {produtividade.toFixed(2)}%
                         </Typography>
                       </TableCell>
