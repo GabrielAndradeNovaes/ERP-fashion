@@ -37,7 +37,9 @@ public class CupomServiceImpl implements CupomService {
                 cupom.getCodigoBarras(),
                 cupom.getTempoTotalCentesimal(),
                 cupom.getPacote().getQuantidadePecas(),
-                cupom.getStatus()
+                cupom.getStatus(),
+                cupom.getPacote().getCodigoBarras(),
+                cupom.getPacote().getProdutoSku().getProdutoBase().getNome()
         );
     }
 }

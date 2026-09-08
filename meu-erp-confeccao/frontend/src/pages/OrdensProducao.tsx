@@ -25,7 +25,8 @@ import {
   TableRow,
   Paper,
   Chip,
-  Menu
+  Menu,
+  LinearProgress
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -43,6 +44,7 @@ interface OrdemProducao {
   produtoBaseId: string;
   fichaTecnicaVersao: string;
   quantidade: number;
+  quantidadeProduzida: number;
   status: string;
   criadoEm: string;
 }
@@ -224,7 +226,7 @@ const OrdensProducao = () => {
               <TableRow sx={{ '& th': { borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontWeight: 600 } }}>
                 <TableCell>Número</TableCell>
                 <TableCell>Produto Base</TableCell>
-                <TableCell align="right">Qtd</TableCell>
+                <TableCell align="center">Andamento (Peças)</TableCell>
                 <TableCell>Data de Criação</TableCell>
                 <TableCell>Status</TableCell>
                 <TableCell align="right">Ações</TableCell>
@@ -247,7 +249,25 @@ const OrdensProducao = () => {
                       Ficha: {op.fichaTecnicaVersao}
                     </Typography>
                   </TableCell>
-                  <TableCell align="right" sx={{ color: 'var(--text-primary)' }}>{op.quantidade} un</TableCell>
+                  <TableCell align="center" sx={{ color: 'var(--text-primary)', minWidth: 150 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                      <Typography variant="caption" sx={{ fontWeight: 600 }}>{op.quantidadeProduzida || 0} prod.</Typography>
+                      <Typography variant="caption" sx={{ color: 'var(--text-secondary)' }}>{op.quantidade} total</Typography>
+                    </Box>
+                    <LinearProgress 
+                      variant="determinate" 
+                      value={op.quantidade > 0 ? Math.min(100, ((op.quantidadeProduzida || 0) / op.quantidade) * 100) : 0} 
+                      sx={{ 
+                        height: 8, 
+                        borderRadius: 4,
+                        bgcolor: 'rgba(0,0,0,0.05)',
+                        '& .MuiLinearProgress-bar': {
+                          borderRadius: 4,
+                          backgroundImage: 'var(--accent-gradient)'
+                        }
+                      }} 
+                    />
+                  </TableCell>
                   <TableCell sx={{ color: 'var(--text-primary)' }}>{new Date(op.criadoEm).toLocaleDateString()}</TableCell>
                   <TableCell>
                     {STATUS_COLORS[op.status] ? (
@@ -285,23 +305,22 @@ const OrdensProducao = () => {
         )}
       </PremiumCard>
 
-      {/* Menu de Ações */}
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={handleCloseMenu}
-        PaperProps={{
-          sx: {
+        sx={{
+          '& .MuiPaper-root': {
             bgcolor: 'var(--bg-card)',
             border: '1px solid var(--border-color)',
             backgroundImage: 'none',
             color: 'var(--text-primary)',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
-            '& .MuiMenuItem-root': {
-              fontSize: '0.875rem',
-              gap: 1.5,
-              py: 1.5
-            }
+            boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
+          },
+          '& .MuiMenuItem-root': {
+            fontSize: '0.875rem',
+            gap: 1.5,
+            py: 1.5
           }
         }}
       >

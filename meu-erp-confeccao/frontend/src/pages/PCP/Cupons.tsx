@@ -20,6 +20,8 @@ interface Cupom {
   tempoTotalCentesimal: number;
   quantidadePecas: number;
   status: string;
+  pacoteCodigoBarras: string;
+  produtoNome: string;
 }
 
 const Cupons = () => {
@@ -157,57 +159,70 @@ const Cupons = () => {
       {cupons.length > 0 && (
         <Box id="print-area">
           {layout === 'A4' ? (
-            <Box className="print-list" sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-              {Object.entries(groupedCupons).map(([pacoteSeq, pacoteCupons]) => (
+            <Box className="print-list" sx={{ display: 'grid', gridTemplateColumns: '1fr', gap: 4 }}>
+              {Object.entries(groupedCupons).map(([pacoteSeq, pacoteCupons]) => {
+                const totalPacoteTempo = pacoteCupons.reduce((acc, c) => acc + (c.tempoTotalCentesimal || 0), 0);
+                const qtdPecas = pacoteCupons[0]?.quantidadePecas || 0;
+                const produtoNome = pacoteCupons[0]?.produtoNome || '';
+                const pacoteBarcode = pacoteCupons[0]?.pacoteCodigoBarras || '';
+                
+                return (
                 <Card key={pacoteSeq} className="pacote-bloco" sx={{ p: 3, background: 'var(--bg-card)', border: '2px solid var(--border-color)', borderRadius: 'var(--radius-lg)' }}>
                   {/* Cabeçalho do Pacote */}
-                  <Box sx={{ textAlign: 'center', mb: 3 }}>
-                    <Typography variant="h5" sx={{ fontWeight: 900, textTransform: 'uppercase' }}>PACOTE Nº {pacoteSeq}</Typography>
-                    <Typography variant="subtitle1" sx={{ color: 'var(--text-secondary)' }}>OP: {pacoteCupons[0]?.ordemProducaoNumero}</Typography>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                    <Box>
+                      <Typography variant="h5" sx={{ fontWeight: 900, textTransform: 'uppercase' }}>PACOTE Nº {pacoteSeq}</Typography>
+                      <Typography variant="subtitle1" sx={{ color: 'var(--text-secondary)' }}>
+                        <strong>OP:</strong> {pacoteCupons[0]?.ordemProducaoNumero} &nbsp;|&nbsp; 
+                        <strong>Produto:</strong> {produtoNome}
+                      </Typography>
+                      <Typography variant="subtitle2" sx={{ color: 'var(--text-secondary)' }}>
+                        <strong>Peças:</strong> {qtdPecas} un &nbsp;|&nbsp; 
+                        <strong>Tempo Total:</strong> {totalPacoteTempo.toFixed(2)}h
+                      </Typography>
+                    </Box>
+                    {/* Código de barras do pacote (Entrada Estoque) */}
+                    <Box sx={{ textAlign: 'center', background: '#fff', p: 1, borderRadius: 1, border: '1px dashed #ccc' }}>
+                      <Typography variant="caption" sx={{ fontWeight: 'bold', color: '#000' }}>ENTRADA DE ESTOQUE</Typography>
+                      <Barcode 
+                        value={pacoteBarcode || '000'} 
+                        width={1.5} 
+                        height={40} 
+                        fontSize={12}
+                        margin={0}
+                        displayValue={true} 
+                        background="transparent"
+                      />
+                    </Box>
                   </Box>
                   
-                  <Divider sx={{ mb: 3 }} />
+                  <Divider sx={{ mb: 2 }} />
+                  <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 700, textTransform: 'uppercase' }}>Cupons de Operação (Costureira)</Typography>
                   
-                  {/* Tabela de Operações */}
-                  <table className="print-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
-                    <thead>
-                      <tr>
-                        <th style={{ textAlign: 'left', padding: '12px 8px', borderBottom: '2px solid var(--border-color)' }}>Código / Operação</th>
-                        <th style={{ textAlign: 'center', padding: '12px 8px', borderBottom: '2px solid var(--border-color)' }}>Qtd. Peças</th>
-                        <th style={{ textAlign: 'center', padding: '12px 8px', borderBottom: '2px solid var(--border-color)' }}>Tempo Padrão</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {pacoteCupons.map(cupom => (
-                        <tr key={cupom.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                          <td style={{ padding: '16px 8px' }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                              <Box sx={{ background: '#fff', padding: '4px', borderRadius: '4px' }}>
-                                <Barcode 
-                                  value={cupom.codigoBarras || '000'} 
-                                  width={1.2} 
-                                  height={30} 
-                                  fontSize={10}
-                                  margin={0}
-                                  displayValue={true} 
-                                  background="transparent"
-                                />
-                              </Box>
-                              <Typography variant="body1" sx={{ fontWeight: 600 }}>{cupom.operacaoNome}</Typography>
-                            </Box>
-                          </td>
-                          <td style={{ textAlign: 'center', padding: '16px 8px' }}>
-                            <Typography variant="body1" sx={{ fontWeight: 700 }}>{cupom.quantidadePecas}</Typography>
-                          </td>
-                          <td style={{ textAlign: 'center', padding: '16px 8px' }}>
-                            <Typography variant="body1">{cupom.tempoTotalCentesimal}h</Typography>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  {/* Grid de Operações (2 colunas) */}
+                  <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                    {pacoteCupons.map(cupom => (
+                      <Box key={cupom.id} sx={{ display: 'flex', alignItems: 'center', p: 1.5, border: '1px solid var(--border-color)', borderRadius: 1, pageBreakInside: 'avoid', breakInside: 'avoid' }}>
+                         <Box sx={{ background: '#fff', padding: '4px', borderRadius: '4px', mr: 2 }}>
+                           <Barcode 
+                             value={cupom.codigoBarras || '000'} 
+                             width={1} 
+                             height={25} 
+                             fontSize={9}
+                             margin={0}
+                             displayValue={true} 
+                             background="transparent"
+                           />
+                         </Box>
+                         <Box>
+                           <Typography variant="body2" sx={{ fontWeight: 700 }}>{cupom.operacaoNome}</Typography>
+                           <Typography variant="caption" sx={{ color: 'var(--text-secondary)' }}>Tempo: {cupom.tempoTotalCentesimal}h</Typography>
+                         </Box>
+                      </Box>
+                    ))}
+                  </Box>
                 </Card>
-              ))}
+              )})}
             </Box>
           ) : (
             <Box className="print-list" sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>

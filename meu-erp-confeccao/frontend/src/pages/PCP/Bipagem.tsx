@@ -14,7 +14,9 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
-  Divider
+  Divider,
+  Tabs,
+  Tab
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
@@ -48,6 +50,8 @@ const Bipagem: React.FC = () => {
     message: '',
     severity: 'success'
   });
+
+  const [activeTab, setActiveTab] = useState(0);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -109,25 +113,35 @@ const Bipagem: React.FC = () => {
     if (e.key === 'Enter') {
       e.preventDefault();
       
-      if (!selectedFuncionario) {
-        showFeedback('Selecione um funcionário primeiro.', 'error', codigoBarras);
+      if (!codigoBarras.trim()) return;
+
+      if (activeTab === 0 && !selectedFuncionario) {
+        showFeedback('Selecione um funcionário primeiro para bipar operações.', 'error', codigoBarras);
         return;
       }
-
-      if (!codigoBarras.trim()) return;
 
       const currentCode = codigoBarras.trim();
       setCodigoBarras(''); // Clear input immediately for the next scan
 
       try {
-        await api.post('/pcp/bipagem', {
-          codigoBarras: currentCode,
-          funcionarioId: selectedFuncionario
-        });
-        playBeep('success');
-        showFeedback(`Cupom ${currentCode} processado com sucesso!`, 'success', currentCode);
+        if (activeTab === 0) {
+          // Bipar Operação
+          await api.post('/pcp/bipagem', {
+            codigoBarras: currentCode,
+            funcionarioId: selectedFuncionario
+          });
+          playBeep('success');
+          showFeedback(`Cupom da operação ${currentCode} processado com sucesso!`, 'success', currentCode);
+        } else {
+          // Bipar Pacote (Entrada no Estoque)
+          await api.post('/pcp/bipagem/pacote', {
+            codigoBarras: currentCode
+          });
+          playBeep('success');
+          showFeedback(`Pacote ${currentCode} entrou no estoque com sucesso!`, 'success', currentCode);
+        }
       } catch (err: any) {
-        const errorMsg = err.response?.data?.message || err.message || 'Erro desconhecido ao processar cupom.';
+        const errorMsg = err.response?.data?.message || err.message || 'Erro desconhecido ao processar bipe.';
         playBeep('error');
         showFeedback(errorMsg, 'error', currentCode);
       }
@@ -150,19 +164,28 @@ const Bipagem: React.FC = () => {
       
       <Paper elevation={6} sx={{ p: 4, width: '100%', maxWidth: 800, borderRadius: 3, mb: 4, backgroundColor: 'background.paper' }}>
         
-        <FormControl fullWidth sx={{ mb: 4 }}>
-          <InputLabel id="funcionario-label">Operador / Costureira</InputLabel>
-          <Select
-            labelId="funcionario-label"
-            value={selectedFuncionario}
-            label="Operador / Costureira"
-            onChange={(e) => setSelectedFuncionario(e.target.value)}
-          >
-            {funcionarios.map(f => (
-              <MenuItem key={f.id} value={f.id}>{f.nome} (Mat: {f.matricula})</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 4 }}>
+          <Tabs value={activeTab} onChange={(e, val) => { setActiveTab(val); setCodigoBarras(''); }} centered>
+            <Tab label="Operações (Costureira)" />
+            <Tab label="Entrada no Estoque (Pacote)" />
+          </Tabs>
+        </Box>
+
+        {activeTab === 0 && (
+          <FormControl fullWidth sx={{ mb: 4 }}>
+            <InputLabel id="funcionario-label">Operador / Costureira</InputLabel>
+            <Select
+              labelId="funcionario-label"
+              value={selectedFuncionario}
+              label="Operador / Costureira"
+              onChange={(e) => setSelectedFuncionario(e.target.value)}
+            >
+              {funcionarios.map(f => (
+                <MenuItem key={f.id} value={f.id}>{f.nome} (Mat: {f.matricula})</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        )}
 
         <TextField
           fullWidth
@@ -172,7 +195,7 @@ const Bipagem: React.FC = () => {
           onChange={(e) => setCodigoBarras(e.target.value)}
           onKeyDown={handleKeyDown}
           inputRef={inputRef}
-          disabled={!selectedFuncionario || !canEdit}
+          disabled={(activeTab === 0 && !selectedFuncionario) || !canEdit}
           sx={{ 
             '& .MuiInputBase-input': { fontSize: '1.5rem', py: 2, textAlign: 'center' },
             '& .MuiInputLabel-root': { fontSize: '1.2rem' }
@@ -182,7 +205,7 @@ const Bipagem: React.FC = () => {
         
         {canEdit ? (
           <Typography variant="body2" color="textSecondary" sx={{ mt: 2, textAlign: 'center' }}>
-            * Selecione um funcionário. O campo ficará em foco. Bipe o código usando o scanner. O sistema irá registrar e limpar o campo instantaneamente.
+            {activeTab === 0 ? '* Selecione um funcionário. O campo ficará em foco. Bipe o código de uma operação.' : '* O campo ficará em foco. Bipe o código do PACOTE (ex: PKT-123-1) para dar entrada no estoque.'}
           </Typography>
         ) : (
           <Typography variant="body2" color="error" sx={{ mt: 2, textAlign: 'center' }}>

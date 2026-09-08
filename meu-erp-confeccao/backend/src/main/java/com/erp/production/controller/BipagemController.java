@@ -14,14 +14,27 @@ import java.util.UUID;
 public class BipagemController {
 
     private final PcpService pcpService;
+    private final com.erp.production.service.OrdemProducaoService ordemProducaoService;
 
-    public BipagemController(PcpService pcpService) {
+    public BipagemController(PcpService pcpService, com.erp.production.service.OrdemProducaoService ordemProducaoService) {
         this.pcpService = pcpService;
+        this.ordemProducaoService = ordemProducaoService;
     }
 
     @PostMapping("/bipagem")
     public ResponseEntity<Void> biparCupom(@RequestBody ApontamentoRequest request) {
         pcpService.biparCupom(request);
+        return ResponseEntity.ok().build();
+    }
+
+    // Usando String plain no RequestBody (ex: "PKT-100-1")
+    @PostMapping("/bipagem/pacote")
+    public ResponseEntity<Void> biparPacote(@RequestBody java.util.Map<String, String> payload) {
+        String codigoBarras = payload.get("codigoBarras");
+        if (codigoBarras == null || codigoBarras.isEmpty()) {
+            throw new IllegalArgumentException("codigoBarras é obrigatório");
+        }
+        ordemProducaoService.biparPacote(codigoBarras);
         return ResponseEntity.ok().build();
     }
 

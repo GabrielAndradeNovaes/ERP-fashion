@@ -37,6 +37,17 @@ public class Pacote {
     @Column(name = "quantidade_pecas", nullable = false)
     private Integer quantidadePecas;
 
+    @Column(name = "codigo_barras", length = 50, unique = true)
+    private String codigoBarras;
+
+    public enum PacoteStatus {
+        PENDENTE, PRODUZIDO
+    }
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private PacoteStatus status = PacoteStatus.PENDENTE;
+
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
     public OrdemProducao getOrdemProducao() { return ordemProducao; }
@@ -47,4 +58,8 @@ public class Pacote {
     public void setSequencial(Integer sequencial) { this.sequencial = sequencial; }
     public Integer getQuantidadePecas() { return quantidadePecas; }
     public void setQuantidadePecas(Integer quantidadePecas) { this.quantidadePecas = quantidadePecas; }
+    public String getCodigoBarras() { return codigoBarras; }
+    public void setCodigoBarras(String codigoBarras) { this.codigoBarras = codigoBarras; }
+    public PacoteStatus getStatus() { return status; }
+    public void setStatus(PacoteStatus status) { this.status = status; }
 }

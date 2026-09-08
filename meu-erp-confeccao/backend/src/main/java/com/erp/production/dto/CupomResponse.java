@@ -12,5 +12,7 @@ public record CupomResponse(
         String codigoBarras,
         BigDecimal tempoTotalCentesimal,
         Integer quantidadePecas,
-        Status status
+        Status status,
+        String pacoteCodigoBarras,
+        String produtoNome
 ) {}

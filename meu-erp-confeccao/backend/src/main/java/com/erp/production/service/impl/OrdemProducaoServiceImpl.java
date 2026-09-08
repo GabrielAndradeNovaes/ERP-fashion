@@ -171,6 +171,8 @@ public class OrdemProducaoServiceImpl implements OrdemProducaoService {
                 pacote.setProdutoSku(item.getProdutoSku());
                 pacote.setSequencial(sequencialGlobal++);
                 pacote.setQuantidadePecas(qtdPacote);
+                pacote.setCodigoBarras("PKT-" + op.getNumero() + "-" + pacote.getSequencial());
+                pacote.setStatus(Pacote.PacoteStatus.PENDENTE);
                 
                 Pacote savedPacote = pacoteRepository.save(pacote);
 
@@ -201,21 +203,47 @@ public class OrdemProducaoServiceImpl implements OrdemProducaoService {
 
     @Override
     @Transactional
+    public void biparPacote(String codigoBarras) {
+        Pacote pacote = pacoteRepository.findByCodigoBarras(codigoBarras)
+                .orElseThrow(() -> new IllegalArgumentException("Pacote não encontrado: " + codigoBarras));
+
+        if (pacote.getStatus() == Pacote.PacoteStatus.PRODUZIDO) {
+            throw new IllegalStateException("Pacote já foi bipado anteriormente e já deu entrada no estoque.");
+        }
+
+        OrdemProducao op = pacote.getOrdemProducao();
+
+        // Mudar status do pacote
+        pacote.setStatus(Pacote.PacoteStatus.PRODUZIDO);
+        pacoteRepository.save(pacote);
+
+        // Incrementar na OP
+        int producaoAtual = op.getQuantidadeProduzida() != null ? op.getQuantidadeProduzida() : 0;
+        producaoAtual += pacote.getQuantidadePecas();
+        op.setQuantidadeProduzida(producaoAtual);
+
+        // Dar entrada no estoque
+        ProdutoSku sku = pacote.getProdutoSku();
+        int currentStock = sku.getQuantidadeAtual() != null ? sku.getQuantidadeAtual() : 0;
+        sku.setQuantidadeAtual(currentStock + pacote.getQuantidadePecas());
+        produtoSkuRepository.save(sku);
+
+        // Se produziu tudo, conclui a OP (mas sem duplicar o estoque, pois já demos entrada por pacote)
+        if (producaoAtual >= op.getQuantidade() && op.getStatus() != OrdemProducaoStatus.CONCLUIDA) {
+            op.setStatus(OrdemProducaoStatus.CONCLUIDA);
+        }
+
+        ordemProducaoRepository.save(op);
+    }
+
+    @Override
+    @Transactional
     public OrdemProducaoResponse atualizarStatus(UUID id, OrdemProducaoStatus novoStatus) {
         OrdemProducao op = ordemProducaoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Ordem de Produção não encontrada."));
         
-        if (novoStatus == OrdemProducaoStatus.CONCLUIDA && op.getStatus() != OrdemProducaoStatus.CONCLUIDA) {
-            // Dar entrada no estoque de produtos acabados
-            if (op.getItens() != null) {
-                for (OrdemProducaoItem item : op.getItens()) {
-                    ProdutoSku sku = item.getProdutoSku();
-                    int currentStock = sku.getQuantidadeAtual() != null ? sku.getQuantidadeAtual() : 0;
-                    sku.setQuantidadeAtual(currentStock + item.getQuantidade());
-                    produtoSkuRepository.save(sku);
-                }
-            }
-        }
+        // A entrada de estoque (CONCLUIDA) agora é feita gradativamente através do biparPacote().
+        // Sendo assim, não adicionamos estoque de forma automática na mudança de status para evitar duplicação.
         
         op.setStatus(novoStatus);
         OrdemProducao saved = ordemProducaoRepository.save(op);
@@ -285,13 +313,14 @@ public class OrdemProducaoServiceImpl implements OrdemProducaoService {
             throw new IllegalStateException("Não é possível estornar uma OP que está PENDENTE ou CANCELADA.");
         }
 
-        // Se estiver CONCLUIDA, retirar produtos acabados
-        if (op.getStatus() == OrdemProducaoStatus.CONCLUIDA) {
-            if (op.getItens() != null) {
-                for (OrdemProducaoItem item : op.getItens()) {
-                    ProdutoSku sku = item.getProdutoSku();
+        // Se houver pacotes já produzidos, retirar do estoque a quantidade que entrou
+        List<Pacote> pacotesExistentes = pacoteRepository.findByOrdemProducaoId(id);
+        if (!pacotesExistentes.isEmpty()) {
+            for (Pacote p : pacotesExistentes) {
+                if (p.getStatus() == Pacote.PacoteStatus.PRODUZIDO) {
+                    ProdutoSku sku = p.getProdutoSku();
                     int currentStock = sku.getQuantidadeAtual() != null ? sku.getQuantidadeAtual() : 0;
-                    sku.setQuantidadeAtual(currentStock - item.getQuantidade());
+                    sku.setQuantidadeAtual(currentStock - p.getQuantidadePecas());
                     produtoSkuRepository.save(sku);
                 }
             }
@@ -323,7 +352,7 @@ public class OrdemProducaoServiceImpl implements OrdemProducaoService {
 
         op.setStatus(OrdemProducaoStatus.PENDENTE);
         op.setDataInicio(null);
-
+        op.setQuantidadeProduzida(0);
         return mapToResponse(ordemProducaoRepository.save(op));
     }
 

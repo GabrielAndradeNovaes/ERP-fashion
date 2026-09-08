@@ -10,4 +10,5 @@ import java.util.UUID;
 @Repository
 public interface PacoteRepository extends JpaRepository<Pacote, UUID> {
     List<Pacote> findByOrdemProducaoId(UUID ordemProducaoId);
+    java.util.Optional<Pacote> findByCodigoBarras(String codigoBarras);
 }

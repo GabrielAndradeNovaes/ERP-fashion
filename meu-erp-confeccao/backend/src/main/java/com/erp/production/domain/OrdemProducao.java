@@ -38,6 +38,9 @@ public class OrdemProducao {
     @Column(nullable = false)
     private Integer quantidade;
 
+    @Column(name = "quantidade_produzida")
+    private Integer quantidadeProduzida = 0;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private OrdemProducaoStatus status;
@@ -72,6 +75,8 @@ public class OrdemProducao {
     public void setFichaTecnica(FichaTecnica fichaTecnica) { this.fichaTecnica = fichaTecnica; }
     public Integer getQuantidade() { return quantidade; }
     public void setQuantidade(Integer quantidade) { this.quantidade = quantidade; }
+    public Integer getQuantidadeProduzida() { return quantidadeProduzida; }
+    public void setQuantidadeProduzida(Integer quantidadeProduzida) { this.quantidadeProduzida = quantidadeProduzida; }
     public OrdemProducaoStatus getStatus() { return status; }
     public void setStatus(OrdemProducaoStatus status) { this.status = status; }
     public LocalDateTime getCriadoEm() { return criadoEm; }

@@ -11,6 +11,7 @@ public interface OrdemProducaoService {
     List<OrdemProducaoResponse> listarTodas();
     OrdemProducaoResponse iniciarProducao(UUID id);
     void gerarPacotes(UUID id, int tamanhoPacote);
+    void biparPacote(String codigoBarras);
     OrdemProducaoResponse atualizarStatus(UUID id, OrdemProducaoStatus novoStatus);
     OrdemProducaoResponse atualizarOrdemProducao(UUID id, OrdemProducaoRequest request);
     OrdemProducaoResponse estornarOrdemProducao(UUID id);
