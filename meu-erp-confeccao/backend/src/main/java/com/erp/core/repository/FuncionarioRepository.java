@@ -11,4 +11,8 @@ import java.util.UUID;
 public interface FuncionarioRepository extends JpaRepository<Funcionario, UUID> {
     Optional<Funcionario> findByMatricula(String matricula);
     java.util.List<Funcionario> findByAtivoTrue();
+    java.util.List<Funcionario> findByGrupoId(UUID grupoId);
+    
+    @org.springframework.data.jpa.repository.Query("SELECT f FROM Funcionario f WHERE LOWER(f.grupo.nome) = 'produção'")
+    java.util.List<Funcionario> findByGrupoProducao();
 }

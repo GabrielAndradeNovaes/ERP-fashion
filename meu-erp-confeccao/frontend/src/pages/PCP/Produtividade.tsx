@@ -134,6 +134,7 @@ const Produtividade: React.FC = () => {
                   <TableCell>Funcionária</TableCell>
                   <TableCell>Cupons Bipados</TableCell>
                   <TableCell>Tempo Padrão (Minutos)</TableCell>
+                  <TableCell>Tempo Teórico (Minutos)</TableCell>
                   <TableCell>Ocorrências (Minutos)</TableCell>
                   <TableCell>Produtividade (%)</TableCell>
                   <TableCell>Valor a Pagar (R$)</TableCell>
@@ -147,6 +148,7 @@ const Produtividade: React.FC = () => {
                       <TableCell>{r.funcionarioNome}</TableCell>
                       <TableCell>{r.totalCupons}</TableCell>
                       <TableCell>{r.tempoPadraoProduzido}</TableCell>
+                      <TableCell>{r.tempoTeorico}</TableCell>
                       <TableCell>
                         <TextField 
                           type="number" 

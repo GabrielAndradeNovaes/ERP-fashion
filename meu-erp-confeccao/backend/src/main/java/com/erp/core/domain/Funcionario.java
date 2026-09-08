@@ -43,8 +43,12 @@ public class Funcionario {
     @Column(name = "premio_100", nullable = false, precision = 10, scale = 2)
     private BigDecimal premio100 = new BigDecimal("1000.00");
 
-    @Column(name = "tempo_teorico", nullable = false)
-    private Integer tempoTeorico = 10000;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "grupo_id")
+    private GrupoFuncionario grupo;
+
+    @OneToMany(mappedBy = "funcionario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<FuncionarioJornada> jornadas = new java.util.ArrayList<>();
 
     // Getters and Setters
     public UUID getId() { return id; }
@@ -63,6 +67,8 @@ public class Funcionario {
     public void setMetaMinima(BigDecimal metaMinima) { this.metaMinima = metaMinima; }
     public BigDecimal getPremio100() { return premio100; }
     public void setPremio100(BigDecimal premio100) { this.premio100 = premio100; }
-    public Integer getTempoTeorico() { return tempoTeorico; }
-    public void setTempoTeorico(Integer tempoTeorico) { this.tempoTeorico = tempoTeorico; }
+    public GrupoFuncionario getGrupo() { return grupo; }
+    public void setGrupo(GrupoFuncionario grupo) { this.grupo = grupo; }
+    public java.util.List<FuncionarioJornada> getJornadas() { return jornadas; }
+    public void setJornadas(java.util.List<FuncionarioJornada> jornadas) { this.jornadas = jornadas; }
 }

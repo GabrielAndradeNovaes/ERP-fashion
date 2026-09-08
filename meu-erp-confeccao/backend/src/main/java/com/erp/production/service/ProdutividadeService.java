@@ -28,7 +28,7 @@ public class ProdutividadeService {
     }
 
     public List<ProdutividadeResumo> getResumo(LocalDateTime start, LocalDateTime end) {
-        List<Funcionario> costureiras = funcionarioRepository.findByAtivoTrue();
+        List<Funcionario> costureiras = funcionarioRepository.findByGrupoProducao();
         List<ProdutividadeResumo> comApontamentos = apontamentoRepository.getProdutividadeResumo(start, end);
         
         java.util.Map<UUID, ProdutividadeResumo> mapa = new java.util.HashMap<>();
@@ -37,11 +37,26 @@ public class ProdutividadeService {
         }
 
         return costureiras.stream().map(f -> {
+            int tempoTeoricoReal = 0;
+            if (f.getJornadas() != null && !f.getJornadas().isEmpty()) {
+                LocalDateTime current = start;
+                while (!current.isAfter(end)) {
+                    int diaDaSemana = current.getDayOfWeek().getValue();
+                    for (com.erp.core.domain.FuncionarioJornada j : f.getJornadas()) {
+                        if (j.getDiaSemana() == diaDaSemana) {
+                            long minutos = java.time.Duration.between(j.getEntrada(), j.getSaida()).toMinutes();
+                            if (minutos > 0) tempoTeoricoReal += minutos;
+                        }
+                    }
+                    current = current.plusDays(1);
+                }
+            }
+
             ProdutividadeResumo r = mapa.get(f.getId());
             if (r != null) {
-                return new ProdutividadeResumo(f.getId(), f.getNome(), r.totalCupons(), r.tempoPadraoProduzido() != null ? r.tempoPadraoProduzido() : BigDecimal.ZERO, f.getMetaMinima(), f.getPremio100(), f.getTempoTeorico());
+                return new ProdutividadeResumo(f.getId(), f.getNome(), r.totalCupons(), r.tempoPadraoProduzido() != null ? r.tempoPadraoProduzido() : BigDecimal.ZERO, f.getMetaMinima(), f.getPremio100(), tempoTeoricoReal);
             }
-            return new ProdutividadeResumo(f.getId(), f.getNome(), 0L, BigDecimal.ZERO, f.getMetaMinima(), f.getPremio100(), f.getTempoTeorico());
+            return new ProdutividadeResumo(f.getId(), f.getNome(), 0L, BigDecimal.ZERO, f.getMetaMinima(), f.getPremio100(), tempoTeoricoReal);
         }).toList();
     }
 
