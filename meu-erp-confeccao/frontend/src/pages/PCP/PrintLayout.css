@@ -22,12 +22,6 @@
     background: white;
   }
 
-  /* Define o formato da página A4 e retira as margens padrões do navegador */
-  @page {
-    size: A4;
-    margin: 10mm;
-  }
-
   /* Remove sombras e efeitos desnecessários na impressão */
   .cupom-card {
     box-shadow: none !important;
@@ -75,6 +69,19 @@
   .print-table td {
     border-color: #000 !important;
     color: #000 !important;
+  }
+
+  /* Thermal Label specific styles */
+  .thermal-label {
+    page-break-after: always;
+    break-after: page;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    border: none !important;
+    margin: 0 !important;
+    padding: 2mm !important;
+    width: 100vw !important;
+    height: 100vh !important;
   }
 
   /* Ensure barcodes print clearly */

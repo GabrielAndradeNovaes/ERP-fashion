@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Button, FormControl, InputLabel, Select, MenuItem, CircularProgress, Card, CardContent, Divider } from '@mui/material';
+import { Box, Typography, Button, FormControl, InputLabel, Select, MenuItem, CircularProgress, Card, Divider, Stack } from '@mui/material';
 import { Printer, Package } from 'lucide-react';
 import Barcode from 'react-barcode';
 import api from '../../api/axios';
@@ -27,6 +27,7 @@ const Cupons = () => {
   const [selectedOp, setSelectedOp] = useState<string>('');
   const [cupons, setCupons] = useState<Cupom[]>([]);
   const [loading, setLoading] = useState(false);
+  const [layout, setLayout] = useState<'A4' | 'THERMAL'>('A4');
 
   useEffect(() => {
     // Carregar ordens de produção disponíveis
@@ -61,6 +62,19 @@ const Cupons = () => {
 
   return (
     <Box className="animate-fade-in-up" sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      
+      {/* Injeta CSS dinâmico para o formato da página de impressão baseado no layout selecionado */}
+      {layout === 'A4' && (
+        <style type="text/css" media="print">
+          {`@page { size: A4; margin: 10mm; }`}
+        </style>
+      )}
+      {layout === 'THERMAL' && (
+        <style type="text/css" media="print">
+          {`@page { size: 100mm 50mm; margin: 0mm; }`}
+        </style>
+      )}
+
       {/* Header and Controls - Hidden on Print */}
       <Box className="no-print" sx={{ mb: 4 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
@@ -72,32 +86,34 @@ const Cupons = () => {
               Selecione uma Ordem de Produção para visualizar e imprimir as folhas (Formato A4).
             </Typography>
           </Box>
-          <Button 
-            variant="contained" 
-            startIcon={<Printer size={20} />}
-            onClick={handlePrint}
-            disabled={cupons.length === 0}
-            size="large"
-            sx={{
-              background: 'var(--accent-gradient)',
-              borderRadius: 'var(--radius-md)',
-              textTransform: 'none',
-              fontWeight: 600,
-              boxShadow: '0 4px 14px 0 rgba(99, 102, 241, 0.39)',
-            }}
-          >
-            Imprimir A4
-          </Button>
+            <Button 
+              variant="contained" 
+              startIcon={<Printer size={20} />}
+              onClick={handlePrint}
+              disabled={cupons.length === 0}
+              size="large"
+              sx={{
+                background: 'var(--accent-gradient)',
+                borderRadius: 'var(--radius-md)',
+                textTransform: 'none',
+                fontWeight: 600,
+                boxShadow: '0 4px 14px 0 rgba(99, 102, 241, 0.39)',
+              }}
+            >
+              Imprimir {layout === 'A4' ? 'A4' : 'Térmica'}
+            </Button>
+          </Box>
         </Box>
 
         <Card className="premium-card" sx={{ p: 3, mb: 4 }}>
-          <FormControl fullWidth>
-            <InputLabel>Ordem de Produção</InputLabel>
-            <Select
-              value={selectedOp}
-              label="Ordem de Produção"
-              onChange={e => setSelectedOp(e.target.value as string)}
-            >
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={3}>
+            <FormControl fullWidth>
+              <InputLabel>Ordem de Produção</InputLabel>
+              <Select
+                value={selectedOp}
+                label="Ordem de Produção"
+                onChange={e => setSelectedOp(e.target.value as string)}
+              >
               <MenuItem value=""><em>Selecione...</em></MenuItem>
               {ordens.map(op => (
                 <MenuItem key={op.id} value={op.id}>
@@ -106,7 +122,20 @@ const Cupons = () => {
               ))}
             </Select>
           </FormControl>
-        </Card>
+
+          <FormControl fullWidth>
+            <InputLabel>Formato de Impressão</InputLabel>
+            <Select
+              value={layout}
+              label="Formato de Impressão"
+              onChange={e => setLayout(e.target.value as 'A4' | 'THERMAL')}
+            >
+              <MenuItem value="A4">Folha A4 (Comum)</MenuItem>
+              <MenuItem value="THERMAL">Etiqueta Térmica (10cm x 5cm)</MenuItem>
+            </Select>
+          </FormControl>
+        </Stack>
+      </Card>
       </Box>
 
       {/* Loading State - Hidden on Print */}
@@ -128,58 +157,101 @@ const Cupons = () => {
       {/* Print Area - Visible on Print & Screen */}
       {cupons.length > 0 && (
         <Box id="print-area">
-          <Box className="print-list" sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            {Object.entries(groupedCupons).map(([pacoteSeq, pacoteCupons]) => (
-              <Card key={pacoteSeq} className="pacote-bloco" sx={{ p: 3, background: 'var(--bg-card)', border: '2px solid var(--border-color)', borderRadius: 'var(--radius-lg)' }}>
-                {/* Cabeçalho do Pacote */}
-                <Box sx={{ textAlign: 'center', mb: 3 }}>
-                  <Typography variant="h5" sx={{ fontWeight: 900, textTransform: 'uppercase' }}>PACOTE Nº {pacoteSeq}</Typography>
-                  <Typography variant="subtitle1" sx={{ color: 'var(--text-secondary)' }}>OP: {pacoteCupons[0]?.ordemProducaoNumero}</Typography>
-                </Box>
-                
-                <Divider sx={{ mb: 3 }} />
-                
-                {/* Tabela de Operações */}
-                <table className="print-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead>
-                    <tr>
-                      <th style={{ textAlign: 'left', padding: '12px 8px', borderBottom: '2px solid var(--border-color)' }}>Código / Operação</th>
-                      <th style={{ textAlign: 'center', padding: '12px 8px', borderBottom: '2px solid var(--border-color)' }}>Qtd. Peças</th>
-                      <th style={{ textAlign: 'center', padding: '12px 8px', borderBottom: '2px solid var(--border-color)' }}>Tempo Padrão</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {pacoteCupons.map(cupom => (
-                      <tr key={cupom.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                        <td style={{ padding: '16px 8px' }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                            <Box sx={{ background: '#fff', padding: '4px', borderRadius: '4px' }}>
-                              <Barcode 
-                                value={cupom.codigoBarras} 
-                                width={1.2} 
-                                height={30} 
-                                fontSize={10}
-                                margin={0}
-                                displayValue={true} 
-                                background="transparent"
-                              />
-                            </Box>
-                            <Typography variant="body1" sx={{ fontWeight: 600 }}>{cupom.operacaoNome}</Typography>
-                          </Box>
-                        </td>
-                        <td style={{ textAlign: 'center', padding: '16px 8px' }}>
-                          <Typography variant="body1" sx={{ fontWeight: 700 }}>{cupom.quantidadePecas}</Typography>
-                        </td>
-                        <td style={{ textAlign: 'center', padding: '16px 8px' }}>
-                          <Typography variant="body1">{cupom.tempoTotalCentesimal}h</Typography>
-                        </td>
+          {layout === 'A4' ? (
+            <Box className="print-list" sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              {Object.entries(groupedCupons).map(([pacoteSeq, pacoteCupons]) => (
+                <Card key={pacoteSeq} className="pacote-bloco" sx={{ p: 3, background: 'var(--bg-card)', border: '2px solid var(--border-color)', borderRadius: 'var(--radius-lg)' }}>
+                  {/* Cabeçalho do Pacote */}
+                  <Box sx={{ textAlign: 'center', mb: 3 }}>
+                    <Typography variant="h5" sx={{ fontWeight: 900, textTransform: 'uppercase' }}>PACOTE Nº {pacoteSeq}</Typography>
+                    <Typography variant="subtitle1" sx={{ color: 'var(--text-secondary)' }}>OP: {pacoteCupons[0]?.ordemProducaoNumero}</Typography>
+                  </Box>
+                  
+                  <Divider sx={{ mb: 3 }} />
+                  
+                  {/* Tabela de Operações */}
+                  <table className="print-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                      <tr>
+                        <th style={{ textAlign: 'left', padding: '12px 8px', borderBottom: '2px solid var(--border-color)' }}>Código / Operação</th>
+                        <th style={{ textAlign: 'center', padding: '12px 8px', borderBottom: '2px solid var(--border-color)' }}>Qtd. Peças</th>
+                        <th style={{ textAlign: 'center', padding: '12px 8px', borderBottom: '2px solid var(--border-color)' }}>Tempo Padrão</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </Card>
-            ))}
-          </Box>
+                    </thead>
+                    <tbody>
+                      {pacoteCupons.map(cupom => (
+                        <tr key={cupom.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                          <td style={{ padding: '16px 8px' }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                              <Box sx={{ background: '#fff', padding: '4px', borderRadius: '4px' }}>
+                                <Barcode 
+                                  value={cupom.codigoBarras} 
+                                  width={1.2} 
+                                  height={30} 
+                                  fontSize={10}
+                                  margin={0}
+                                  displayValue={true} 
+                                  background="transparent"
+                                />
+                              </Box>
+                              <Typography variant="body1" sx={{ fontWeight: 600 }}>{cupom.operacaoNome}</Typography>
+                            </Box>
+                          </td>
+                          <td style={{ textAlign: 'center', padding: '16px 8px' }}>
+                            <Typography variant="body1" sx={{ fontWeight: 700 }}>{cupom.quantidadePecas}</Typography>
+                          </td>
+                          <td style={{ textAlign: 'center', padding: '16px 8px' }}>
+                            <Typography variant="body1">{cupom.tempoTotalCentesimal}h</Typography>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </Card>
+              ))}
+            </Box>
+          ) : (
+            <Box className="print-list" sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+              {cupons.map(cupom => (
+                <Card 
+                  key={cupom.id} 
+                  className="thermal-label" 
+                  sx={{ 
+                    width: '100mm', 
+                    height: '50mm', 
+                    p: 2, 
+                    boxSizing: 'border-box', 
+                    border: '1px dashed var(--border-color)', 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    justifyContent: 'center', 
+                    alignItems: 'center',
+                    background: '#fff', /* always white for barcode scanners */
+                    color: '#000',
+                    margin: 'auto'
+                  }}
+                >
+                   <Typography variant="body2" sx={{ fontWeight: 800, fontSize: '14px', textTransform: 'uppercase' }}>
+                     OP: {cupom.ordemProducaoNumero} - Pct: {cupom.pacoteSequencial}
+                   </Typography>
+                   <Typography variant="body2" sx={{ fontSize: '12px', mb: 1, textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
+                     {cupom.operacaoNome} ({cupom.quantidadePecas} un)
+                   </Typography>
+                   <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                     <Barcode 
+                        value={cupom.codigoBarras} 
+                        width={1.8} 
+                        height={50} 
+                        fontSize={12}
+                        margin={0}
+                        displayValue={true} 
+                        background="transparent"
+                      />
+                   </Box>
+                </Card>
+              ))}
+            </Box>
+          )}
         </Box>
       )}
     </Box>
