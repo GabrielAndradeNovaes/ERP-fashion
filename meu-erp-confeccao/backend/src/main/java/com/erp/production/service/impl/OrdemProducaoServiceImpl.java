@@ -154,6 +154,10 @@ public class OrdemProducaoServiceImpl implements OrdemProducaoService {
             throw new IllegalStateException("Esta Ordem de Produção não possui Itens (SKUs) associados, portanto não é possível gerar pacotes físicos. Por favor, crie uma nova OP.");
         }
 
+        if (op.getFichaTecnica() == null || op.getFichaTecnica().getOperacoes().isEmpty()) {
+            throw new IllegalStateException("A Ficha Técnica associada não possui Operações (Roteiro de Produção). Vá ao cadastro de Fichas Técnicas e adicione as operações antes de gerar os pacotes.");
+        }
+
         int sequencialGlobal = 1;
 
         for (OrdemProducaoItem item : op.getItens()) {
