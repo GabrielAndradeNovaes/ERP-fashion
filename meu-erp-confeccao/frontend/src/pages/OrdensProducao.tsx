@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Play, CheckCircle2, AlertCircle, Package, Edit, RotateCcw, ChevronRight } from 'lucide-react';
 import api from '../api/axios';
 import Modal from '../components/Modal';
+import PageHeader from '../components/PageHeader';
+import PremiumCard from '../components/PremiumCard';
 import { useAuth } from '../contexts/AuthContext';
 import {
   Box,
@@ -191,40 +193,32 @@ const OrdensProducao = () => {
 
   return (
     <Box className="animate-fade-in-up" sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Box>
-          <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>
-            Ordens de <span className="text-gradient">Produção</span>
-          </Typography>
-          <Typography variant="body1" sx={{ color: 'var(--text-secondary)' }}>
-            Gerencie todas as ordens, acompanhe o status e realize edições ou estornos se necessário.
-          </Typography>
-        </Box>
-        {canEdit && (
-          <Button 
-            variant="contained" 
-            startIcon={<AddIcon />}
-            onClick={handleOpenNewModal}
-            size="large"
-            sx={{
-              background: 'var(--accent-gradient)',
-              borderRadius: 'var(--radius-md)',
-              textTransform: 'none',
-              fontWeight: 600,
-              boxShadow: '0 4px 14px 0 rgba(99, 102, 241, 0.39)'
-            }}
-          >
-            Nova Ordem
-          </Button>
-        )}
-      </Box>
+      <PageHeader 
+        title="Ordens de Produção"
+        subtitle="Gerencie todas as ordens, acompanhe o status e realize edições ou estornos se necessário."
+        icon={<Package size={28} />}
+        action={
+          canEdit && (
+            <Button 
+              variant="contained" 
+              startIcon={<AddIcon />}
+              onClick={handleOpenNewModal}
+              size="large"
+              disableElevation
+            >
+              Nova Ordem
+            </Button>
+          )
+        }
+      />
 
-      {loading ? (
-        <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <CircularProgress sx={{ color: 'var(--accent-primary)' }} />
-        </Box>
-      ) : (
-        <TableContainer component={Paper} sx={{ bgcolor: 'var(--bg-card)', backgroundImage: 'none', borderRadius: 'var(--radius-lg)' }}>
+      <PremiumCard>
+        {loading ? (
+          <Box sx={{ p: 6, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <CircularProgress sx={{ color: 'var(--accent-primary)' }} />
+          </Box>
+        ) : (
+          <TableContainer>
           <Table sx={{ minWidth: 650 }} aria-label="tabela de ordens">
             <TableHead>
               <TableRow sx={{ '& th': { borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)', fontWeight: 600 } }}>
@@ -288,7 +282,8 @@ const OrdensProducao = () => {
             </TableBody>
           </Table>
         </TableContainer>
-      )}
+        )}
+      </PremiumCard>
 
       {/* Menu de Ações */}
       <Menu

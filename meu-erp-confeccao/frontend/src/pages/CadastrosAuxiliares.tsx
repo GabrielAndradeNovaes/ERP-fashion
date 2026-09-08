@@ -15,9 +15,11 @@ import {
   Chip,
   IconButton
 } from '@mui/material';
-import { Edit2, Trash2, Plus } from 'lucide-react';
+import { Edit2, Trash2, Plus, Info } from 'lucide-react';
 import api from '../api/axios';
 import Modal from '../components/Modal';
+import PageHeader from '../components/PageHeader';
+import PremiumCard from '../components/PremiumCard';
 
 interface Cor {
   id: string;
@@ -131,41 +133,28 @@ const CadastrosAuxiliares = () => {
 
   return (
     <Box className="animate-fade-in-up">
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Box>
-          <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>
-            Cadastros <span className="text-gradient">Auxiliares</span>
-          </Typography>
-          <Typography variant="body1" sx={{ color: 'var(--text-secondary)' }}>
-            Gerencie cores, tamanhos e unidades de medida padronizadas para o sistema.
-          </Typography>
-        </Box>
-        <Button 
-          variant="contained" 
-          startIcon={<Plus size={20} />}
-          onClick={() => openModal()}
-          sx={{
-            background: 'var(--accent-gradient)',
-            borderRadius: 'var(--radius-md)',
-            textTransform: 'none',
-            fontWeight: 600,
-            boxShadow: '0 4px 14px 0 rgba(99, 102, 241, 0.39)'
-          }}
-        >
-          Novo {getTabTitle()}
-        </Button>
-      </Box>
+      <PageHeader 
+        title="Cadastros Auxiliares"
+        subtitle="Gerencie cores, tamanhos e unidades de medida padronizadas para o sistema."
+        icon={<Info size={28} />}
+        action={
+          <Button 
+            variant="contained" 
+            startIcon={<Plus size={20} />}
+            onClick={() => openModal()}
+            size="large"
+            disableElevation
+          >
+            Nova {getTabTitle()}
+          </Button>
+        }
+      />
 
-      <div className="premium-card">
-        <Box sx={{ borderBottom: 1, borderColor: 'var(--border-color)', px: 2 }}>
+      <PremiumCard>
+        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs 
             value={activeTab} 
             onChange={handleTabChange}
-            sx={{
-              '& .MuiTab-root': { color: 'var(--text-secondary)', fontWeight: 600, textTransform: 'none' },
-              '& .Mui-selected': { color: 'var(--accent-primary) !important' },
-              '& .MuiTabs-indicator': { backgroundColor: 'var(--accent-primary)' }
-            }}
           >
             <Tab label="Cores" />
             <Tab label="Tamanhos" />
@@ -211,7 +200,7 @@ const CadastrosAuxiliares = () => {
             </TableBody>
           </Table>
         </TableContainer>
-      </div>
+      </PremiumCard>
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={`${editingItem ? 'Editar' : 'Novo'} ${getTabTitle()}`} width="400px">
         <div className="glass-panel" style={{ padding: '24px', background: 'var(--bg-card)', border: 'none', boxShadow: 'none' }}>

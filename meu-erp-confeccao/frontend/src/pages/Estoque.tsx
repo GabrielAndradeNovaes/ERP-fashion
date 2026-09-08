@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
 import Modal from '../components/Modal';
 import { DataTable } from '../components/DataTable';
+import PageHeader from '../components/PageHeader';
+import PremiumCard from '../components/PremiumCard';
 import { useAuth } from '../contexts/AuthContext';
 import type { ColumnDef } from '@tanstack/react-table';
 import {
@@ -25,6 +27,7 @@ import {
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import AddIcon from '@mui/icons-material/Add';
+import { PackageSearch } from 'lucide-react';
 
 interface Material {
   id: string;
@@ -261,50 +264,51 @@ const Estoque = () => {
   ], []);
 
   return (
-    <Box className="animate-fade-in">
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Box>
-          <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 'bold' }}>
-            Estoque
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Gerencie o estoque de Matérias-Primas e Produtos Acabados (SKUs).
-          </Typography>
-        </Box>
-        {canEdit && (
-          <Stack direction="row" spacing={2}>
-            <Button 
-              variant="outlined" 
-              color="primary" 
-              onClick={() => setIsMovimentacaoModalOpen(true)}
-              size="large"
-            >
-              Movimentar
-            </Button>
-            {activeTab === 0 && (
+    <Box className="animate-fade-in-up">
+      <PageHeader 
+        title="Gestão de Estoque"
+        subtitle="Gerencie matérias-primas e produtos acabados."
+        icon={<PackageSearch size={28} />}
+        action={
+          canEdit && (
+            <Stack direction="row" spacing={2}>
+              <Button 
+                variant="outlined" 
+                startIcon={<ArrowUpwardIcon />}
+                onClick={() => { setMovType('ENTRADA'); setIsMovimentacaoModalOpen(true); }}
+                color="success"
+              >
+                Entrada
+              </Button>
+              <Button 
+                variant="outlined" 
+                startIcon={<ArrowDownwardIcon />}
+                onClick={() => { setMovType('SAIDA'); setIsMovimentacaoModalOpen(true); }}
+                color="error"
+              >
+                Saída
+              </Button>
               <Button 
                 variant="contained" 
-                color="primary" 
                 startIcon={<AddIcon />}
                 onClick={() => setIsMaterialModalOpen(true)}
-                size="large"
                 disableElevation
               >
                 Novo Material
               </Button>
-            )}
-          </Stack>
-        )}
-      </Box>
+            </Stack>
+          )
+        }
+      />
 
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-        <Tabs value={activeTab} onChange={(_, val) => setActiveTab(val)}>
-          <Tab label="Matéria-Prima" />
-          <Tab label="Produto Acabado (SKUs)" />
-        </Tabs>
-      </Box>
+      <PremiumCard>
+        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+          <Tabs value={activeTab} onChange={(_, val) => setActiveTab(val)}>
+            <Tab label="Matérias-Primas" />
+            <Tab label="Produtos (SKUs)" />
+          </Tabs>
+        </Box>
 
-      <Card variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
         {loading ? (
           <Box sx={{ p: 6, display: 'flex', justifyContent: 'center' }}>
             <CircularProgress />
@@ -330,9 +334,9 @@ const Estoque = () => {
             <DataTable columns={columnsProdutos} data={flatSkus} />
           )
         )}
-      </Card>
+      </PremiumCard>
 
-      {/* Modal Cadastro de Material */}
+      {/* Modal de Novo Material */}
       <Modal isOpen={isMaterialModalOpen} onClose={() => setIsMaterialModalOpen(false)} title="Novo Material" width="500px">
         <form onSubmit={handleAddMaterial}>
           <Stack spacing={3} sx={{ mt: 1 }}>
