@@ -35,6 +35,9 @@ public class FuncionarioController {
             existente.setCargaHorariaDiariaPadrao(funcionario.getCargaHorariaDiariaPadrao());
             existente.setCargaHorariaMensalPadrao(funcionario.getCargaHorariaMensalPadrao());
             existente.setAtivo(funcionario.getAtivo());
+            existente.setMetaMinima(funcionario.getMetaMinima());
+            existente.setPremio100(funcionario.getPremio100());
+            existente.setTempoTeorico(funcionario.getTempoTeorico());
             return ResponseEntity.ok(funcionarioRepository.save(existente));
         }).orElse(ResponseEntity.notFound().build());
     }

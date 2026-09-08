@@ -39,9 +39,9 @@ public class ProdutividadeService {
         return costureiras.stream().map(f -> {
             ProdutividadeResumo r = mapa.get(f.getId());
             if (r != null) {
-                return new ProdutividadeResumo(f.getId(), f.getNome(), r.totalCupons(), r.tempoPadraoProduzido() != null ? r.tempoPadraoProduzido() : BigDecimal.ZERO);
+                return new ProdutividadeResumo(f.getId(), f.getNome(), r.totalCupons(), r.tempoPadraoProduzido() != null ? r.tempoPadraoProduzido() : BigDecimal.ZERO, f.getMetaMinima(), f.getPremio100(), f.getTempoTeorico());
             }
-            return new ProdutividadeResumo(f.getId(), f.getNome(), 0L, BigDecimal.ZERO);
+            return new ProdutividadeResumo(f.getId(), f.getNome(), 0L, BigDecimal.ZERO, f.getMetaMinima(), f.getPremio100(), f.getTempoTeorico());
         }).toList();
     }
 

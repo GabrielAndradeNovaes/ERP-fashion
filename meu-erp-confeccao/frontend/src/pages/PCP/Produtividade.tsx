@@ -9,15 +9,15 @@ interface ResumoProdutividade {
   funcionarioNome: string;
   totalCupons: number;
   tempoPadraoProduzido: number;
+  metaMinima: number;
+  premio100: number;
+  tempoTeorico: number;
 }
 
 const Produtividade: React.FC = () => {
   const [dataInicio, setDataInicio] = useState(new Date(new Date().setDate(1)).toISOString().split('T')[0]);
   const [dataFim, setDataFim] = useState(new Date().toISOString().split('T')[0]);
-  const [metaMinima, setMetaMinima] = useState(75);
-  const [premio100, setPremio100] = useState(1000);
   const [resumos, setResumos] = useState<ResumoProdutividade[]>([]);
-  const [tempoTeorico, setTempoTeorico] = useState(10000); // Ex: 10 mil minutos
   const [ocorrencias, setOcorrencias] = useState<Record<string, number>>({});
   
   const { hasPermission } = useAuth();
@@ -47,18 +47,18 @@ const Produtividade: React.FC = () => {
 
   const calcularValorDevido = (resumo: ResumoProdutividade) => {
     const minutosOcorrencia = ocorrencias[resumo.funcionarioId] || 0;
-    const minutosTrabalhados = tempoTeorico - minutosOcorrencia;
+    const minutosTrabalhados = resumo.tempoTeorico - minutosOcorrencia;
     
     if (minutosTrabalhados <= 0) return { produtividade: 0, valorPagar: 0 };
 
     const produtividade = (resumo.tempoPadraoProduzido / minutosTrabalhados) * 100;
     
-    if (produtividade <= metaMinima) {
+    if (produtividade <= resumo.metaMinima) {
       return { produtividade, valorPagar: 0 };
     }
 
-    const pontosAcima = produtividade - metaMinima;
-    const valorPorPonto = premio100 / (100 - metaMinima);
+    const pontosAcima = produtividade - resumo.metaMinima;
+    const valorPorPonto = resumo.premio100 / (100 - resumo.metaMinima);
     const valorPagar = pontosAcima * valorPorPonto;
     
     return { produtividade, valorPagar };
@@ -112,15 +112,6 @@ const Produtividade: React.FC = () => {
             <TextField label="Data Final" type="date" fullWidth value={dataFim} onChange={e => setDataFim(e.target.value)} slotProps={{ inputLabel: { shrink: true } }} />
           </Grid>
           <Grid size={{ xs: 12, sm: 2 }}>
-            <TextField label="Tempo Teórico (Minutos)" type="number" fullWidth value={tempoTeorico} onChange={e => setTempoTeorico(Number(e.target.value))} />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 2 }}>
-            <TextField label="Meta Mínima (%)" type="number" fullWidth value={metaMinima} onChange={e => setMetaMinima(Number(e.target.value))} />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 2 }}>
-            <TextField label="Premiação 100% (R$)" type="number" fullWidth value={premio100} onChange={e => setPremio100(Number(e.target.value))} />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 2 }}>
             <Button variant="contained" fullWidth onClick={carregarResumo} sx={{ height: '56px', background: 'var(--accent-gradient)' }}>
               Buscar
             </Button>
@@ -129,7 +120,7 @@ const Produtividade: React.FC = () => {
         
         <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
           <Alert severity="info" sx={{ flex: 1 }}>
-            Valor por % adicional calculado: <strong>{formatCurrency(premio100 / (100 - metaMinima))}</strong>
+            O cálculo baseia-se na Meta Mínima, Prêmio 100% e Tempo Teórico cadastrados individualmente para cada funcionário.
           </Alert>
         </Box>
       </Paper>
@@ -166,7 +157,7 @@ const Produtividade: React.FC = () => {
                         />
                       </TableCell>
                       <TableCell>
-                        <Typography sx={{ color: produtividade >= 100 ? 'success.main' : (produtividade >= metaMinima ? 'warning.main' : 'error.main'), fontWeight: 'bold' }}>
+                        <Typography sx={{ color: produtividade >= 100 ? 'success.main' : (produtividade >= resumo.metaMinima ? 'warning.main' : 'error.main'), fontWeight: 'bold' }}>
                           {produtividade.toFixed(2)}%
                         </Typography>
                       </TableCell>

@@ -15,6 +15,9 @@ interface Funcionario {
   cargaHorariaDiariaPadrao: number;
   cargaHorariaMensalPadrao: number;
   ativo: boolean;
+  metaMinima: number;
+  premio100: number;
+  tempoTeorico: number;
 }
 
 const Funcionarios: React.FC = () => {
@@ -23,7 +26,10 @@ const Funcionarios: React.FC = () => {
   const [editingFuncionario, setEditingFuncionario] = useState<Partial<Funcionario>>({
     ativo: true,
     cargaHorariaDiariaPadrao: 8.8,
-    cargaHorariaMensalPadrao: 220
+    cargaHorariaMensalPadrao: 220,
+    metaMinima: 75,
+    premio100: 1000,
+    tempoTeorico: 10000
   });
 
   const { hasPermission } = useAuth();
@@ -71,7 +77,7 @@ const Funcionarios: React.FC = () => {
             variant="contained" 
             startIcon={<Plus size={20} />}
             onClick={() => {
-              setEditingFuncionario({ ativo: true, cargaHorariaDiariaPadrao: 8.8, cargaHorariaMensalPadrao: 220 });
+              setEditingFuncionario({ ativo: true, cargaHorariaDiariaPadrao: 8.8, cargaHorariaMensalPadrao: 220, metaMinima: 75, premio100: 1000, tempoTeorico: 10000 });
               setOpen(true);
             }}
             sx={{ background: 'var(--accent-gradient)' }}
@@ -152,6 +158,27 @@ const Funcionarios: React.FC = () => {
                 fullWidth label="Carga Horária Mensal" type="number"
                 value={editingFuncionario.cargaHorariaMensalPadrao || ''} 
                 onChange={e => setEditingFuncionario({...editingFuncionario, cargaHorariaMensalPadrao: Number(e.target.value)})} 
+              />
+            </Box>
+            <Box sx={{ gridColumn: 'span 4' }}>
+              <TextField 
+                fullWidth label="Meta Mínima (%)" type="number"
+                value={editingFuncionario.metaMinima || ''} 
+                onChange={e => setEditingFuncionario({...editingFuncionario, metaMinima: Number(e.target.value)})} 
+              />
+            </Box>
+            <Box sx={{ gridColumn: 'span 4' }}>
+              <TextField 
+                fullWidth label="Prêmio 100% (R$)" type="number"
+                value={editingFuncionario.premio100 || ''} 
+                onChange={e => setEditingFuncionario({...editingFuncionario, premio100: Number(e.target.value)})} 
+              />
+            </Box>
+            <Box sx={{ gridColumn: 'span 4' }}>
+              <TextField 
+                fullWidth label="Tempo Teórico (Min)" type="number"
+                value={editingFuncionario.tempoTeorico || ''} 
+                onChange={e => setEditingFuncionario({...editingFuncionario, tempoTeorico: Number(e.target.value)})} 
               />
             </Box>
             <Box sx={{ gridColumn: 'span 12' }}>

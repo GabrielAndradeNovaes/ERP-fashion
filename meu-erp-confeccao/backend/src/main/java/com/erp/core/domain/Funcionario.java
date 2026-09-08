@@ -37,6 +37,15 @@ public class Funcionario {
     @Column(nullable = false)
     private Boolean ativo = true;
 
+    @Column(name = "meta_minima", nullable = false, precision = 5, scale = 2)
+    private BigDecimal metaMinima = new BigDecimal("75.00");
+
+    @Column(name = "premio_100", nullable = false, precision = 10, scale = 2)
+    private BigDecimal premio100 = new BigDecimal("1000.00");
+
+    @Column(name = "tempo_teorico", nullable = false)
+    private Integer tempoTeorico = 10000;
+
     // Getters and Setters
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
@@ -50,4 +59,10 @@ public class Funcionario {
     public void setCargaHorariaMensalPadrao(BigDecimal cargaHorariaMensalPadrao) { this.cargaHorariaMensalPadrao = cargaHorariaMensalPadrao; }
     public Boolean getAtivo() { return ativo; }
     public void setAtivo(Boolean ativo) { this.ativo = ativo; }
+    public BigDecimal getMetaMinima() { return metaMinima; }
+    public void setMetaMinima(BigDecimal metaMinima) { this.metaMinima = metaMinima; }
+    public BigDecimal getPremio100() { return premio100; }
+    public void setPremio100(BigDecimal premio100) { this.premio100 = premio100; }
+    public Integer getTempoTeorico() { return tempoTeorico; }
+    public void setTempoTeorico(Integer tempoTeorico) { this.tempoTeorico = tempoTeorico; }
 }
