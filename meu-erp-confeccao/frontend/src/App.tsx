@@ -24,6 +24,7 @@ import PaymentPending from './pages/PaymentPending';
 import TenantsList from './pages/Backoffice/TenantsList';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import LandingPage from './pages/LandingPage';
+import ContasPagar from './pages/Financeiro/ContasPagar';
 
 const isMasterDomain = window.location.hostname === 'localhost' || window.location.hostname.startsWith('admin.') || window.location.hostname.startsWith('www.');
 
@@ -95,6 +96,13 @@ const Sidebar = () => {
         { path: '/core/clientes', label: 'Clientes', icon: <Users size={20} />, perm: 'CLIENTES_VIEW' },
         { path: '/core/fornecedores', label: 'Fornecedores', icon: <Truck size={20} />, perm: 'CLIENTES_VIEW' },
         { path: '/core/categorias', label: 'Categorias', icon: <Tags size={20} />, perm: 'PRODUTOS_VIEW' },
+      ]
+    },
+    {
+      title: 'Financeiro',
+      module: 'CORE',
+      items: [
+        { path: '/financeiro/contas-pagar', label: 'Contas a Pagar', icon: <ClipboardList size={20} />, perm: 'PCP_VIEW' }, // TODO proper perm
       ]
     }
   ];
@@ -263,6 +271,7 @@ const MainApp = () => {
           <Route path="/pcp/bipagem" element={<PrivateRoute requiredPermission="PCP_VIEW"><Bipagem /></PrivateRoute>} />
           <Route path="/pcp/funcionarios" element={<PrivateRoute requiredPermission="PCP_VIEW"><Funcionarios /></PrivateRoute>} />
           <Route path="/pcp/produtividade" element={<PrivateRoute requiredPermission="PCP_VIEW"><Produtividade /></PrivateRoute>} />
+          <Route path="/financeiro/contas-pagar" element={<PrivateRoute requiredPermission="PCP_VIEW"><ContasPagar /></PrivateRoute>} />
           
           <Route path="/admin/tenants" element={
             isMasterDomain ? (

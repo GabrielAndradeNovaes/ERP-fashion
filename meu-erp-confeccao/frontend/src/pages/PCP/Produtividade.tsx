@@ -1,141 +1,196 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Box, Typography, Paper, FormControl, InputLabel, Select, MenuItem, Button, 
-  CircularProgress, Card, CardContent, TextField
-} from '@mui/material';
-import { BarChart2, Clock, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, Grid, TextField, Alert } from '@mui/material';
 import api from '../../api/axios';
+import { useAuth } from '../../contexts/AuthContext';
+import { Play } from 'lucide-react';
 
-interface Funcionario {
-  id: string;
-  nome: string;
-  matricula: string;
-}
-
-interface ProdutividadeData {
+interface ResumoProdutividade {
   funcionarioId: string;
   funcionarioNome: string;
-  mes: number;
-  ano: number;
-  tempoProduzidoCentesimal: number;
-  cargaHorariaMensal: number;
-  tempoOcorrenciasCentesimal: number;
-  eficienciaPercentual: number;
+  totalCupons: number;
+  tempoPadraoProduzido: number;
 }
 
 const Produtividade: React.FC = () => {
-  const [funcionarios, setFuncionarios] = useState<Funcionario[]>([]);
-  const [selectedFuncionario, setSelectedFuncionario] = useState<string>('');
-  const [mes, setMes] = useState<number>(new Date().getMonth() + 1);
-  const [ano, setAno] = useState<number>(new Date().getFullYear());
-  const [loading, setLoading] = useState(false);
-  const [dados, setDados] = useState<ProdutividadeData | null>(null);
+  const [dataInicio, setDataInicio] = useState(new Date(new Date().setDate(1)).toISOString().split('T')[0]);
+  const [dataFim, setDataFim] = useState(new Date().toISOString().split('T')[0]);
+  const [metaMinima, setMetaMinima] = useState(75);
+  const [premio100, setPremio100] = useState(1000);
+  const [resumos, setResumos] = useState<ResumoProdutividade[]>([]);
+  const [horasReais, setHorasReais] = useState<Record<string, number>>({});
+  
+  const { hasPermission } = useAuth();
+  const canEdit = hasPermission('PCP_EDIT');
 
-  useEffect(() => {
-    api.get('/funcionarios')
-      .then(res => setFuncionarios(res.data))
-      .catch(console.error);
-  }, []);
-
-  const handleCalcular = () => {
-    if (!selectedFuncionario) return;
-    setLoading(true);
-    api.get(`/pcp/produtividade?funcionarioId=${selectedFuncionario}&mes=${mes}&ano=${ano}`)
-      .then(res => setDados(res.data))
-      .catch(console.error)
-      .finally(() => setLoading(false));
+  const carregarResumo = async () => {
+    try {
+      const res = await api.get('/production/produtividade', {
+        params: {
+          start: dataInicio + 'T00:00:00',
+          end: dataFim + 'T23:59:59'
+        }
+      });
+      setResumos(res.data);
+      // Pre-fill hours real with empty or standard 220
+      const newHoras = { ...horasReais };
+      res.data.forEach((r: ResumoProdutividade) => {
+        if (!newHoras[r.funcionarioId]) {
+          newHoras[r.funcionarioId] = 220; // Padrão mensal
+        }
+      });
+      setHorasReais(newHoras);
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao carregar produtividade');
+    }
   };
 
-  const meses = [
-    { value: 1, label: 'Janeiro' }, { value: 2, label: 'Fevereiro' }, { value: 3, label: 'Março' },
-    { value: 4, label: 'Abril' }, { value: 5, label: 'Maio' }, { value: 6, label: 'Junho' },
-    { value: 7, label: 'Julho' }, { value: 8, label: 'Agosto' }, { value: 9, label: 'Setembro' },
-    { value: 10, label: 'Outubro' }, { value: 11, label: 'Novembro' }, { value: 12, label: 'Dezembro' }
-  ];
+  const calcularValorDevido = (resumo: ResumoProdutividade) => {
+    const horasTrabalhadas = horasReais[resumo.funcionarioId] || 220;
+    const minutosTrabalhados = horasTrabalhadas * 60;
+    
+    if (minutosTrabalhados <= 0) return { produtividade: 0, valorPagar: 0 };
 
-  const getEfficiencyColor = (eff: number) => {
-    if (eff >= 90) return '#10b981'; // Green
-    if (eff >= 70) return '#f59e0b'; // Yellow
-    return '#ef4444'; // Red
+    const produtividade = (resumo.tempoPadraoProduzido / minutosTrabalhados) * 100;
+    
+    if (produtividade <= metaMinima) {
+      return { produtividade, valorPagar: 0 };
+    }
+
+    const pontosAcima = produtividade - metaMinima;
+    const valorPorPonto = premio100 / (100 - metaMinima);
+    const valorPagar = pontosAcima * valorPorPonto;
+    
+    return { produtividade, valorPagar };
+  };
+
+  const handleGerarPagamentos = async () => {
+    if (!window.confirm("Isso irá dar baixa nos cupons selecionados e gerar títulos a pagar. Confirma?")) return;
+    
+    const pagamentos = resumos.map(r => {
+      const { valorPagar } = calcularValorDevido(r);
+      return {
+        funcionarioId: r.funcionarioId,
+        valorPagar: parseFloat(valorPagar.toFixed(2))
+      };
+    }).filter(p => p.valorPagar > 0);
+
+    if (pagamentos.length === 0) {
+      alert('Nenhum pagamento gerado. Nenhuma funcionária atingiu a meta ou todos os valores são zero.');
+      return;
+    }
+
+    try {
+      await api.post('/production/produtividade/pagar', pagamentos, {
+        params: {
+          start: dataInicio + 'T00:00:00',
+          end: dataFim + 'T23:59:59'
+        }
+      });
+      alert('Pagamentos gerados com sucesso!');
+      carregarResumo();
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao gerar pagamentos');
+    }
+  };
+
+  const formatCurrency = (val: number) => {
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
   };
 
   return (
     <Box sx={{ p: 4, height: '100%' }}>
-      <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>Dashboard de Produtividade</Typography>
+      <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 4 }}>Produtividade e Pagamento</Typography>
       
-      <Paper elevation={4} sx={{ p: 3, mb: 4, borderRadius: 2 }} className="premium-card">
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(12, 1fr)' }, gap: 3, alignItems: 'center' }}>
-          <Box sx={{ gridColumn: { md: 'span 4' } }}>
-            <FormControl fullWidth>
-              <InputLabel>Funcionário</InputLabel>
-              <Select value={selectedFuncionario} onChange={e => setSelectedFuncionario(e.target.value)} label="Funcionário">
-                {funcionarios.map(f => <MenuItem key={f.id} value={f.id}>{f.nome}</MenuItem>)}
-              </Select>
-            </FormControl>
-          </Box>
-          <Box sx={{ gridColumn: { md: 'span 3' } }}>
-            <FormControl fullWidth>
-              <InputLabel>Mês</InputLabel>
-              <Select value={mes} onChange={e => setMes(Number(e.target.value))} label="Mês">
-                {meses.map(m => <MenuItem key={m.value} value={m.value}>{m.label}</MenuItem>)}
-              </Select>
-            </FormControl>
-          </Box>
-          <Box sx={{ gridColumn: { md: 'span 2' } }}>
-            <TextField fullWidth label="Ano" type="number" value={ano} onChange={e => setAno(Number(e.target.value))} />
-          </Box>
-          <Box sx={{ gridColumn: { md: 'span 3' } }}>
-            <Button 
-              fullWidth variant="contained" size="large" onClick={handleCalcular}
-              disabled={!selectedFuncionario || loading}
-              sx={{ background: 'var(--accent-gradient)', height: 56 }}
-              startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <BarChart2 />}
-            >
-              Calcular
+      <Paper className="premium-card" sx={{ p: 3, mb: 4 }}>
+        <Grid container spacing={3} sx={{ alignItems: 'center' }}>
+          <Grid size={{ xs: 12, sm: 3 }}>
+            <TextField label="Data Inicial" type="date" fullWidth value={dataInicio} onChange={e => setDataInicio(e.target.value)} slotProps={{ inputLabel: { shrink: true } }} />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 3 }}>
+            <TextField label="Data Final" type="date" fullWidth value={dataFim} onChange={e => setDataFim(e.target.value)} slotProps={{ inputLabel: { shrink: true } }} />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 2 }}>
+            <TextField label="Meta Mínima (%)" type="number" fullWidth value={metaMinima} onChange={e => setMetaMinima(Number(e.target.value))} />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 2 }}>
+            <TextField label="Premiação 100% (R$)" type="number" fullWidth value={premio100} onChange={e => setPremio100(Number(e.target.value))} />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 2 }}>
+            <Button variant="contained" fullWidth onClick={carregarResumo} sx={{ height: '56px', background: 'var(--accent-gradient)' }}>
+              Buscar
             </Button>
-          </Box>
+          </Grid>
+        </Grid>
+        
+        <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
+          <Alert severity="info" sx={{ flex: 1 }}>
+            Valor por % adicional calculado: <strong>{formatCurrency(premio100 / (100 - metaMinima))}</strong>
+          </Alert>
         </Box>
       </Paper>
 
-      {dados && (
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' }, gap: 4 }}>
-          <Card className="premium-card">
-            <CardContent sx={{ textAlign: 'center' }}>
-              <Clock size={40} color="var(--text-secondary)" style={{ marginBottom: 10 }} />
-              <Typography variant="h6" color="textSecondary">Carga Horária Base</Typography>
-              <Typography variant="h3" sx={{ fontWeight: 'bold' }}>{dados.cargaHorariaMensal}h</Typography>
-            </CardContent>
-          </Card>
-
-          <Card className="premium-card">
-            <CardContent sx={{ textAlign: 'center' }}>
-              <AlertTriangle size={40} color="#f59e0b" style={{ marginBottom: 10 }} />
-              <Typography variant="h6" color="textSecondary">Tempo Ocorrências</Typography>
-              <Typography variant="h3" sx={{ fontWeight: 'bold', color: '#f59e0b' }}>{dados.tempoOcorrenciasCentesimal}h</Typography>
-              <Typography variant="caption" color="textSecondary">Tempo descontado da meta</Typography>
-            </CardContent>
-          </Card>
-
-          <Card className="premium-card">
-            <CardContent sx={{ textAlign: 'center' }}>
-              <CheckCircle size={40} color="#3b82f6" style={{ marginBottom: 10 }} />
-              <Typography variant="h6" color="textSecondary">Tempo Produzido</Typography>
-              <Typography variant="h3" sx={{ fontWeight: 'bold', color: '#3b82f6' }}>{dados.tempoProduzidoCentesimal}h</Typography>
-              <Typography variant="caption" color="textSecondary">Total apontado nos cupons</Typography>
-            </CardContent>
-          </Card>
-
-          <Card className="premium-card" sx={{ background: getEfficiencyColor(dados.eficienciaPercentual) + '22' }}>
-            <CardContent sx={{ textAlign: 'center' }}>
-              <BarChart2 size={40} color={getEfficiencyColor(dados.eficienciaPercentual)} style={{ marginBottom: 10 }} />
-              <Typography variant="h6" color="textSecondary">Eficiência Final</Typography>
-              <Typography variant="h2" sx={{ fontWeight: 900, color: getEfficiencyColor(dados.eficienciaPercentual) }}>
-                {dados.eficienciaPercentual}%
-              </Typography>
-              <Typography variant="caption" color="textSecondary">Meta recomendada: {'>'} 85%</Typography>
-            </CardContent>
-          </Card>
-        </Box>
+      {resumos.length > 0 && (
+        <>
+          <TableContainer component={Paper} className="premium-card">
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Funcionária</TableCell>
+                  <TableCell>Cupons Bipados</TableCell>
+                  <TableCell>Tempo Padrão (Minutos)</TableCell>
+                  <TableCell>Horas Reais Trabalhadas</TableCell>
+                  <TableCell>Produtividade (%)</TableCell>
+                  <TableCell>Valor a Pagar (R$)</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {resumos.map(r => {
+                  const { produtividade, valorPagar } = calcularValorDevido(r);
+                  return (
+                    <TableRow key={r.funcionarioId} hover>
+                      <TableCell>{r.funcionarioNome}</TableCell>
+                      <TableCell>{r.totalCupons}</TableCell>
+                      <TableCell>{r.tempoPadraoProduzido}</TableCell>
+                      <TableCell>
+                        <TextField 
+                          type="number" 
+                          size="small" 
+                          sx={{ width: 100 }}
+                          value={horasReais[r.funcionarioId] || ''}
+                          onChange={(e) => setHorasReais({...horasReais, [r.funcionarioId]: Number(e.target.value)})}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Typography sx={{ color: produtividade >= 100 ? 'success.main' : (produtividade >= metaMinima ? 'warning.main' : 'error.main'), fontWeight: 'bold' }}>
+                          {produtividade.toFixed(2)}%
+                        </Typography>
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: 'bold' }}>
+                        {formatCurrency(valorPagar)}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          
+          {canEdit && (
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+              <Button 
+                variant="contained" 
+                size="large" 
+                startIcon={<Play size={20} />}
+                onClick={handleGerarPagamentos}
+                sx={{ background: 'var(--accent-gradient)' }}
+              >
+                Gerar Títulos de Pagamento
+              </Button>
+            </Box>
+          )}
+        </>
       )}
     </Box>
   );

@@ -42,6 +42,12 @@ public class Apontamento {
         }
     }
 
+    @Column(nullable = false)
+    private boolean pago = false;
+
+    @Column(name = "data_pagamento")
+    private LocalDateTime dataPagamento;
+
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
     public Cupom getCupom() { return cupom; }
@@ -50,4 +56,8 @@ public class Apontamento {
     public void setFuncionario(Funcionario funcionario) { this.funcionario = funcionario; }
     public LocalDateTime getDataHora() { return dataHora; }
     public void setDataHora(LocalDateTime dataHora) { this.dataHora = dataHora; }
+    public boolean isPago() { return pago; }
+    public void setPago(boolean pago) { this.pago = pago; }
+    public LocalDateTime getDataPagamento() { return dataPagamento; }
+    public void setDataPagamento(LocalDateTime dataPagamento) { this.dataPagamento = dataPagamento; }
 }
