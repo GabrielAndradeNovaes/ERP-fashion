@@ -258,7 +258,7 @@ const TenantsList = () => {
         rootDomain = rootDomain.replace('www.', '');
     }
     
-    const url = `${protocol}//${tenant.slug}.${rootDomain}${port}/`;
+    const url = `${protocol}//${tenant.slug}.${rootDomain}${port}/?impersonate=${tenant.schemaName}`;
     window.open(url, '_blank');
   };
 

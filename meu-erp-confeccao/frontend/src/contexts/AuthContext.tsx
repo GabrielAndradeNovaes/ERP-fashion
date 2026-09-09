@@ -35,7 +35,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [impersonatedTenantId, setImpersonatedTenantId] = useState<string | null>(null);
 
   useEffect(() => {
-    // Carregar token e user do localStorage ao iniciar
+    // Capturar tenantId da URL se houver (vindo da personificação via Master)
+    const urlParams = new URLSearchParams(window.location.search);
+    const impersonateParam = urlParams.get('impersonate');
+    
+    if (impersonateParam) {
+      localStorage.setItem('@FashionERP:impersonatedTenant', impersonateParam);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
     const storedToken = localStorage.getItem('@FashionERP:token');
     const storedUser = localStorage.getItem('@FashionERP:user');
     const storedImpersonated = localStorage.getItem('@FashionERP:impersonatedTenant');
