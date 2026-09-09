@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Play, CheckCircle2, AlertCircle, Package, Edit, RotateCcw, ChevronRight } from 'lucide-react';
+import { Play, CheckCircle2, AlertCircle, Package, Edit, RotateCcw, ChevronRight, Eye } from 'lucide-react';
 import api from '../api/axios';
 import Modal from '../components/Modal';
 import PageHeader from '../components/PageHeader';
@@ -27,7 +27,11 @@ import {
   Chip,
   Menu,
   LinearProgress,
-  Grid
+  Grid,
+  Drawer,
+  Tabs,
+  Tab,
+  Divider
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -48,7 +52,23 @@ interface ProdutoBase {
 interface OrdemProducaoItem {
   id: string;
   produtoSkuId: string;
+  produtoSkuCor: string;
+  produtoSkuTamanho: string;
+  produtoSkuCodigoBarras: string;
   quantidade: number;
+}
+
+interface Cupom {
+  id: string;
+  ordemProducaoNumero: string;
+  pacoteSequencial: number;
+  operacaoNome: string;
+  codigoBarras: string;
+  tempoTotalCentesimal: number;
+  quantidadePecas: number;
+  status: string;
+  pacoteCodigoBarras: string;
+  produtoNome: string;
 }
 
 interface OrdemProducao {
@@ -77,6 +97,11 @@ const OrdensProducao = () => {
   const [produtos, setProdutos] = useState<ProdutoBase[]>([]);
   const [loading, setLoading] = useState(true);
   
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState(0);
+  const [opCupons, setOpCupons] = useState<Cupom[]>([]);
+  const [loadingCupons, setLoadingCupons] = useState(false);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isGerarPacotesModalOpen, setIsGerarPacotesModalOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -114,6 +139,26 @@ const OrdensProducao = () => {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleOpenDetails = (op: OrdemProducao) => {
+    setSelectedOrdem(op);
+    setIsDetailsOpen(true);
+    setActiveTab(0);
+    handleCloseMenu();
+    fetchCupons(op.id);
+  };
+
+  const fetchCupons = async (opId: string) => {
+    try {
+      setLoadingCupons(true);
+      const res = await api.get(`/production/cupons/ordem/${opId}`);
+      setOpCupons(res.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingCupons(false);
     }
   };
 
@@ -357,6 +402,10 @@ const OrdensProducao = () => {
           }
         }}
       >
+        <MenuItem onClick={() => handleOpenDetails(menuOrdem!)}>
+          <Eye size={16} color="var(--accent-primary)" /> Ver Detalhes
+        </MenuItem>
+
         {menuOrdem?.status === 'PENDENTE' && canEdit && (
           <MenuItem onClick={() => handleOpenEditModal(menuOrdem)}>
             <Edit size={16} /> Editar OP
@@ -439,7 +488,7 @@ const OrdensProducao = () => {
                   <Typography variant="subtitle2" sx={{ mb: 1, color: 'var(--text-secondary)' }}>Grade do Produto (Qtd. por SKU)</Typography>
                   <Grid container spacing={2}>
                     {produtos.find(p => p.id === produtoBaseId)?.skus?.map(sku => (
-                      <Grid item xs={6} sm={4} key={sku.id}>
+                      <Grid size={{ xs: 6, sm: 4 }} key={sku.id}>
                         <TextField
                           label={`${sku.cor} - ${sku.tamanho}`}
                           type="number"
@@ -456,7 +505,7 @@ const OrdensProducao = () => {
                       </Grid>
                     ))}
                     {(!produtos.find(p => p.id === produtoBaseId)?.skus || produtos.find(p => p.id === produtoBaseId)?.skus?.length === 0) && (
-                      <Grid item xs={12}>
+                      <Grid size={{ xs: 12 }}>
                         <Typography variant="body2" color="error">Este produto não possui grade (SKUs) cadastrada. Crie a grade antes de gerar a OP.</Typography>
                       </Grid>
                     )}
@@ -526,6 +575,153 @@ const OrdensProducao = () => {
           </div>
         )}
       </Modal>
+      {/* Drawer de Detalhes da OP */}
+      {/* @ts-ignore - MUI Drawer Types in this version are complaining but it works */}
+      <Drawer
+        anchor="right"
+        open={isDetailsOpen}
+        onClose={() => setIsDetailsOpen(false)}
+        PaperProps={{ sx: { width: { xs: '100%', md: '600px' }, bgcolor: 'var(--bg-default)', borderLeft: '1px solid var(--border-color)' } } as any}
+      >
+        {selectedOrdem && (
+          <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <Box sx={{ p: 3, borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography variant="h6" sx={{ color: 'var(--text-primary)', fontWeight: 600 }}>
+                Detalhes da OP #{selectedOrdem.numero}
+              </Typography>
+              <Chip 
+                label={STATUS_COLORS[selectedOrdem.status]?.label || selectedOrdem.status}
+                size="small"
+                sx={{
+                  bgcolor: STATUS_COLORS[selectedOrdem.status]?.bgColor || 'transparent',
+                  color: STATUS_COLORS[selectedOrdem.status]?.color || 'var(--text-primary)',
+                  fontWeight: 600
+                }}
+              />
+            </Box>
+            
+            <Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)} sx={{ borderBottom: '1px solid var(--border-color)', px: 2 }}>
+              <Tab label="Resumo" />
+              <Tab label="Grade (SKUs)" />
+              <Tab label="Rastreamento (Pacotes)" />
+            </Tabs>
+            
+            <Box sx={{ p: 3, overflowY: 'auto', flex: 1 }}>
+              {activeTab === 0 && (
+                <Stack spacing={3}>
+                  <Box>
+                    <Typography variant="caption" sx={{ color: 'var(--text-muted)' }}>Produto Base</Typography>
+                    <Typography variant="body1" sx={{ color: 'var(--text-primary)', fontWeight: 500 }}>{selectedOrdem.produtoBaseNome}</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" sx={{ color: 'var(--text-muted)' }}>Ficha Técnica</Typography>
+                    <Typography variant="body1" sx={{ color: 'var(--text-primary)' }}>Versão {selectedOrdem.fichaTecnicaVersao}</Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', gap: 4 }}>
+                    <Box>
+                      <Typography variant="caption" sx={{ color: 'var(--text-muted)' }}>Qtd. Solicitada</Typography>
+                      <Typography variant="h6" sx={{ color: 'var(--text-primary)' }}>{selectedOrdem.quantidade} un</Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="caption" sx={{ color: 'var(--text-muted)' }}>Qtd. Produzida</Typography>
+                      <Typography variant="h6" sx={{ color: 'var(--success)' }}>{selectedOrdem.quantidadeProduzida || 0} un</Typography>
+                    </Box>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" sx={{ color: 'var(--text-muted)' }}>Progresso</Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                      <Box sx={{ flex: 1, mr: 2 }}>
+                        <LinearProgress 
+                          variant="determinate" 
+                          value={selectedOrdem.quantidade > 0 ? ((selectedOrdem.quantidadeProduzida || 0) / selectedOrdem.quantidade) * 100 : 0} 
+                          sx={{ height: 8, borderRadius: 4, bgcolor: 'var(--border-color)', '& .MuiLinearProgress-bar': { bgcolor: 'var(--success)' } }} 
+                        />
+                      </Box>
+                      <Typography variant="body2" sx={{ color: 'var(--text-secondary)' }}>
+                        {selectedOrdem.quantidade > 0 ? Math.round(((selectedOrdem.quantidadeProduzida || 0) / selectedOrdem.quantidade) * 100) : 0}%
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Stack>
+              )}
+              
+              {activeTab === 1 && (
+                <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid var(--border-color)', background: 'transparent' }}>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow sx={{ bgcolor: 'rgba(255,255,255,0.02)' }}>
+                        <TableCell>Cor</TableCell>
+                        <TableCell>Tamanho</TableCell>
+                        <TableCell align="right">Qtd.</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {selectedOrdem.itens && selectedOrdem.itens.length > 0 ? selectedOrdem.itens.map(item => (
+                        <TableRow key={item.id}>
+                          <TableCell>{item.produtoSkuCor || '-'}</TableCell>
+                          <TableCell>{item.produtoSkuTamanho || '-'}</TableCell>
+                          <TableCell align="right" sx={{ fontWeight: 500 }}>{item.quantidade}</TableCell>
+                        </TableRow>
+                      )) : (
+                        <TableRow>
+                          <TableCell colSpan={3} align="center" sx={{ py: 3, color: 'var(--text-muted)' }}>Nenhuma grade detalhada para esta OP.</TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
+              
+              {activeTab === 2 && (
+                <Box>
+                  {loadingCupons ? (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}><CircularProgress size={32} sx={{ color: 'var(--accent-primary)' }} /></Box>
+                  ) : opCupons.length === 0 ? (
+                    <Box sx={{ textAlign: 'center', p: 4, color: 'var(--text-muted)' }}>
+                      <Package size={48} style={{ opacity: 0.2, margin: '0 auto 16px' }} />
+                      <Typography>Nenhum pacote/cupom gerado ainda.</Typography>
+                    </Box>
+                  ) : (
+                    <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid var(--border-color)', background: 'transparent' }}>
+                      <Table size="small">
+                        <TableHead>
+                          <TableRow sx={{ bgcolor: 'rgba(255,255,255,0.02)' }}>
+                            <TableCell>Pacote</TableCell>
+                            <TableCell>Operação</TableCell>
+                            <TableCell align="right">Qtd.</TableCell>
+                            <TableCell>Status</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {opCupons.map(c => (
+                            <TableRow key={c.id}>
+                              <TableCell sx={{ fontSize: '0.85rem' }}>Pkt {c.pacoteSequencial}</TableCell>
+                              <TableCell sx={{ fontSize: '0.85rem' }}>{c.operacaoNome}</TableCell>
+                              <TableCell align="right" sx={{ fontSize: '0.85rem' }}>{c.quantidadePecas}</TableCell>
+                              <TableCell>
+                                <Chip 
+                                  label={c.status === 'LIDO' ? 'Baixado' : 'Pendente'} 
+                                  size="small" 
+                                  sx={{ 
+                                    height: 20, 
+                                    fontSize: '0.7rem', 
+                                    bgcolor: c.status === 'LIDO' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)',
+                                    color: c.status === 'LIDO' ? 'var(--success)' : 'var(--warning)'
+                                  }} 
+                                />
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  )}
+                </Box>
+              )}
+            </Box>
+          </Box>
+        )}
+      </Drawer>
     </Box>
   );
 };
