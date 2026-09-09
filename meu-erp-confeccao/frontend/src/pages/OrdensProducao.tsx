@@ -26,15 +26,29 @@ import {
   Paper,
   Chip,
   Menu,
-  LinearProgress
+  LinearProgress,
+  Grid
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+
+interface ProdutoSku {
+  id: string;
+  tamanho: string;
+  cor: string;
+}
 
 interface ProdutoBase {
   id: string;
   codigo: string;
   nome: string;
+  skus?: ProdutoSku[];
+}
+
+interface OrdemProducaoItem {
+  id: string;
+  produtoSkuId: string;
+  quantidade: number;
 }
 
 interface OrdemProducao {
@@ -47,6 +61,7 @@ interface OrdemProducao {
   quantidadeProduzida: number;
   status: string;
   criadoEm: string;
+  itens?: OrdemProducaoItem[];
 }
 
 const STATUS_COLORS: Record<string, { label: string, color: string, bgColor: string }> = {
@@ -72,6 +87,7 @@ const OrdensProducao = () => {
   const [numero, setNumero] = useState('');
   const [produtoBaseId, setProdutoBaseId] = useState('');
   const [quantidade, setQuantidade] = useState('100');
+  const [skuQuantities, setSkuQuantities] = useState<Record<string, number>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // States for Actions Menu
@@ -105,7 +121,8 @@ const OrdensProducao = () => {
     setSelectedOrdem(null);
     setNumero('');
     setProdutoBaseId('');
-    setQuantidade('100');
+    setQuantidade('0');
+    setSkuQuantities({});
     setIsModalOpen(true);
   };
 
@@ -114,20 +131,36 @@ const OrdensProducao = () => {
     setNumero(op.numero);
     setProdutoBaseId(op.produtoBaseId);
     setQuantidade(op.quantidade.toString());
+    const initialSkus: Record<string, number> = {};
+    if (op.itens) {
+      op.itens.forEach(item => {
+        initialSkus[item.produtoSkuId] = item.quantidade;
+      });
+    }
+    setSkuQuantities(initialSkus);
     setIsModalOpen(true);
     handleCloseMenu();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!numero || !produtoBaseId || !quantidade) return;
+    if (!numero || !produtoBaseId) return;
+
+    const totalQuantidade = Object.values(skuQuantities).reduce((a, b) => a + (Number(b) || 0), 0);
+    if (totalQuantidade <= 0) {
+      alert('Informe a quantidade de pelo menos um tamanho/cor.');
+      return;
+    }
 
     try {
       setIsSubmitting(true);
       const payload = {
         numero,
         produtoBaseId,
-        quantidade: parseInt(quantidade)
+        quantidade: totalQuantidade,
+        itens: Object.entries(skuQuantities)
+          .filter(([_, qtd]) => qtd > 0)
+          .map(([skuId, qtd]) => ({ produtoSkuId: skuId, quantidade: Number(qtd) }))
       };
 
       if (selectedOrdem) {
@@ -389,7 +422,10 @@ const OrdensProducao = () => {
                   labelId="produto-label"
                   value={produtoBaseId}
                   label="Produto Base"
-                  onChange={e => setProdutoBaseId(e.target.value)}
+                  onChange={e => {
+                    setProdutoBaseId(e.target.value);
+                    setSkuQuantities({});
+                  }}
                 >
                   <MenuItem value=""><em>Selecione...</em></MenuItem>
                   {produtos.map(p => (
@@ -398,15 +434,43 @@ const OrdensProducao = () => {
                 </Select>
               </FormControl>
 
+              {produtoBaseId && (
+                <Box>
+                  <Typography variant="subtitle2" sx={{ mb: 1, color: 'var(--text-secondary)' }}>Grade do Produto (Qtd. por SKU)</Typography>
+                  <Grid container spacing={2}>
+                    {produtos.find(p => p.id === produtoBaseId)?.skus?.map(sku => (
+                      <Grid item xs={6} sm={4} key={sku.id}>
+                        <TextField
+                          label={`${sku.cor} - ${sku.tamanho}`}
+                          type="number"
+                          variant="outlined"
+                          fullWidth
+                          size="small"
+                          slotProps={{ htmlInput: { min: 0 } }}
+                          value={skuQuantities[sku.id] || ''}
+                          onChange={e => {
+                            const val = e.target.value;
+                            setSkuQuantities(prev => ({ ...prev, [sku.id]: val === '' ? 0 : parseInt(val) }));
+                          }}
+                        />
+                      </Grid>
+                    ))}
+                    {(!produtos.find(p => p.id === produtoBaseId)?.skus || produtos.find(p => p.id === produtoBaseId)?.skus?.length === 0) && (
+                      <Grid item xs={12}>
+                        <Typography variant="body2" color="error">Este produto não possui grade (SKUs) cadastrada. Crie a grade antes de gerar a OP.</Typography>
+                      </Grid>
+                    )}
+                  </Grid>
+                </Box>
+              )}
+
               <TextField
-                label="Quantidade"
+                label="Quantidade Total"
                 type="number"
                 variant="outlined"
                 fullWidth
-                required
-                slotProps={{ htmlInput: { min: 1 } }}
-                value={quantidade}
-                onChange={e => setQuantidade(e.target.value)}
+                disabled
+                value={Object.values(skuQuantities).reduce((a, b) => a + (Number(b) || 0), 0)}
               />
 
               <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 2, gap: 2 }}>
