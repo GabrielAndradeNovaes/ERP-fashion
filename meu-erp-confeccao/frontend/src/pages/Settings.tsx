@@ -1,12 +1,36 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, Paper, Avatar, Divider, Button, Chip, Switch, FormControlLabel } from '@mui/material';
 import { Sun, Moon, Palette, Mail, Shield, Building, Key, Bell, CheckCircle, Smartphone, Lock } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useThemeContext } from '../contexts/ThemeContext';
+import api from '../api/axios';
 
 const Settings = () => {
   const { user, impersonatedTenantId } = useAuth();
   const { mode, setMode } = useThemeContext() as any; 
+  const [activeModules, setActiveModules] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchModules = async () => {
+      try {
+        if (user?.role === 'SUPERADMIN' && impersonatedTenantId && impersonatedTenantId !== 'master') {
+          const response = await api.get(`/admin/tenants/${impersonatedTenantId}/modules`);
+          if (Array.isArray(response.data) && response.data.length > 0) {
+            const mods = response.data.filter((m: any) => m.active).map((m: any) => m.moduleName);
+            setActiveModules(mods.length > 0 ? mods : ['CORE']);
+          } else {
+            setActiveModules(['CORE']); // Fallback caso retorne vazio mas devia ter algo
+          }
+        } else {
+          setActiveModules(user?.modulosAtivos || ['CORE']);
+        }
+      } catch (error) {
+        console.error('Erro ao buscar modulos', error);
+        setActiveModules(user?.modulosAtivos || ['CORE']);
+      }
+    };
+    fetchModules();
+  }, [user, impersonatedTenantId]);
 
   return (
     <Box sx={{ p: 4, maxWidth: 1200, margin: '0 auto', animation: 'fadeIn 0.3s ease-in-out' }}>
@@ -171,7 +195,7 @@ const Settings = () => {
             </Typography>
 
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-              {(user?.modulosAtivos || ['PCP', 'ESTOQUE', 'FINANCEIRO', 'VENDAS']).map((mod, i) => (
+              {activeModules.map((mod, i) => (
                 <Chip 
                   key={i} 
                   label={mod} 
