@@ -15,6 +15,7 @@ public class GrupoFuncionario {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "empresa_id")
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private Empresa empresa;
 
     @Column(nullable = false, length = 100)
