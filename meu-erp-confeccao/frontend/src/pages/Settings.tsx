@@ -76,14 +76,13 @@ const Settings = () => {
           </Paper>
         </Box>
 
-        {/* Aparência */}
-        <Box sx={{ flex: '2 1 500px' }}>
+        {/* Aparência e Segurança */}
+        <Box sx={{ flex: '2 1 500px', display: 'flex', flexDirection: 'column', gap: 4 }}>
           <Paper sx={{ 
             p: 4, 
             borderRadius: 4, 
             background: 'var(--bg-card)', 
-            border: '1px solid var(--border-color)',
-            height: '100%'
+            border: '1px solid var(--border-color)'
           }}>
             <Typography variant="h6" sx={{ fontWeight: 700, color: 'var(--text-primary)', mb: 1 }}>
               Aparência do Sistema
@@ -120,7 +119,6 @@ const Settings = () => {
           {/* Segurança */}
           <Paper sx={{ 
             p: 4, 
-            mt: 4,
             borderRadius: 4, 
             background: 'var(--bg-card)', 
             border: '1px solid var(--border-color)'
