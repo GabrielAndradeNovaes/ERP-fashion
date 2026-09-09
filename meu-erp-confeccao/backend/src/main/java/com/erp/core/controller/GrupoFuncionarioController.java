@@ -30,8 +30,11 @@ public class GrupoFuncionarioController {
 
     @PostMapping
     public GrupoFuncionario criar(@RequestBody GrupoFuncionario grupo) {
-        Empresa empresa = entityManager.getReference(Empresa.class, TenantContext.getCurrentTenant());
-        grupo.setEmpresa(empresa);
+        java.util.List<java.util.UUID> empresas = com.erp.core.tenant.EmpresaContext.getEmpresas();
+        if (empresas != null && !empresas.isEmpty()) {
+            Empresa empresa = entityManager.getReference(Empresa.class, empresas.get(0));
+            grupo.setEmpresa(empresa);
+        }
         return repository.save(grupo);
     }
 }

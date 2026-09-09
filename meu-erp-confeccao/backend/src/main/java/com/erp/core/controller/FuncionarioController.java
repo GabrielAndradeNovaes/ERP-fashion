@@ -31,7 +31,10 @@ public class FuncionarioController {
             }
             com.erp.core.domain.GrupoFuncionario novo = new com.erp.core.domain.GrupoFuncionario();
             novo.setNome(grupo.getNome());
-            novo.setEmpresa(entityManager.getReference(com.erp.core.domain.Empresa.class, com.erp.core.tenant.TenantContext.getCurrentTenant()));
+            java.util.List<java.util.UUID> empresas = com.erp.core.tenant.EmpresaContext.getEmpresas();
+            if (empresas != null && !empresas.isEmpty()) {
+                novo.setEmpresa(entityManager.getReference(com.erp.core.domain.Empresa.class, empresas.get(0)));
+            }
             return grupoFuncionarioRepository.save(novo);
         }
         return null;
