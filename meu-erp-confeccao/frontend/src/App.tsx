@@ -285,7 +285,7 @@ const MainApp = () => {
 
 import AdminBilling from './pages/Admin/AdminBilling';
 import AdminSettings from './pages/Admin/AdminSettings';
-import { CreditCard, Settings } from 'lucide-react';
+import { CreditCard, Settings as SettingsIcon } from 'lucide-react';
 
 const AdminSidebar = () => {
   const location = useLocation();
@@ -359,8 +359,8 @@ const AdminSidebar = () => {
             textDecoration: 'none'
           }}
         >
-          <Settings size={20} />
-          Configurações
+          <SettingsIcon size={20} />
+          Configurações (Global)
         </Link>
       </nav>
 
