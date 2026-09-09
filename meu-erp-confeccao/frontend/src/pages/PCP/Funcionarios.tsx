@@ -46,7 +46,9 @@ const Funcionarios: React.FC = () => {
     jornadas: []
   });
   
-  const [novaJornada, setNovaJornada] = useState<Partial<Jornada>>({ diaSemana: 1, entrada: '07:00', saida: '17:00' });
+  const [diasSelecionados, setDiasSelecionados] = useState<number[]>([]);
+  const [horarioEntrada, setHorarioEntrada] = useState<string>('07:00');
+  const [horarioSaida, setHorarioSaida] = useState<string>('17:00');
 
   const { hasPermission } = useAuth();
   const canEdit = hasPermission('PCP_EDIT');
@@ -100,12 +102,22 @@ const Funcionarios: React.FC = () => {
   };
 
   const addJornada = () => {
-    if (novaJornada.entrada && novaJornada.saida) {
+    if (diasSelecionados.length > 0 && horarioEntrada && horarioSaida) {
+      const novas = diasSelecionados.map(d => ({
+        diaSemana: d,
+        entrada: horarioEntrada,
+        saida: horarioSaida
+      }));
+      
+      const jornadasAtuais = editingFuncionario.jornadas || [];
+      const diasNovos = novas.map(n => n.diaSemana);
+      const jornadasFiltradas = jornadasAtuais.filter(j => !diasNovos.includes(j.diaSemana));
+
       setEditingFuncionario({
         ...editingFuncionario,
-        jornadas: [...(editingFuncionario.jornadas || []), novaJornada as Jornada]
+        jornadas: [...jornadasFiltradas, ...novas]
       });
-      setNovaJornada({ diaSemana: novaJornada.diaSemana, entrada: '07:00', saida: '17:00' });
+      setDiasSelecionados([]);
     }
   };
   
@@ -244,18 +256,23 @@ const Funcionarios: React.FC = () => {
             <Box sx={{ gridColumn: 'span 12', mt: 2 }}>
               <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>Grade de Horários</Typography>
               <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2 }}>
-                <FormControl sx={{ minWidth: 150 }}>
-                  <InputLabel>Dia da Semana</InputLabel>
+                <FormControl sx={{ minWidth: 200, flex: 1 }}>
+                  <InputLabel>Dias da Semana</InputLabel>
                   <Select 
-                    value={novaJornada.diaSemana} 
-                    label="Dia da Semana"
-                    onChange={e => setNovaJornada({...novaJornada, diaSemana: Number(e.target.value)})}
+                    multiple
+                    value={diasSelecionados} 
+                    label="Dias da Semana"
+                    onChange={e => {
+                      const val = e.target.value;
+                      setDiasSelecionados(typeof val === 'string' ? val.split(',').map(Number) : val as number[]);
+                    }}
+                    renderValue={(selected) => selected.map(val => diasSemana[val - 1]).join(', ')}
                   >
                     {diasSemana.map((d, i) => <MenuItem key={i+1} value={i+1}>{d}</MenuItem>)}
                   </Select>
                 </FormControl>
-                <TextField type="time" label="Entrada" value={novaJornada.entrada || ''} onChange={e => setNovaJornada({...novaJornada, entrada: e.target.value})} slotProps={{ inputLabel: { shrink: true } }} />
-                <TextField type="time" label="Saída" value={novaJornada.saida || ''} onChange={e => setNovaJornada({...novaJornada, saida: e.target.value})} slotProps={{ inputLabel: { shrink: true } }} />
+                <TextField type="time" label="Entrada" value={horarioEntrada} onChange={e => setHorarioEntrada(e.target.value)} slotProps={{ inputLabel: { shrink: true } }} />
+                <TextField type="time" label="Saída" value={horarioSaida} onChange={e => setHorarioSaida(e.target.value)} slotProps={{ inputLabel: { shrink: true } }} />
                 <Button variant="contained" onClick={addJornada}>Adicionar</Button>
               </Box>
 
