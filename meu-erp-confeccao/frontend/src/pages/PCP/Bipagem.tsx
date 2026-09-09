@@ -16,7 +16,8 @@ import {
   ListItemIcon,
   Divider,
   Tabs,
-  Tab
+  Tab,
+  Button
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
@@ -52,6 +53,8 @@ const Bipagem: React.FC = () => {
   });
 
   const [activeTab, setActiveTab] = useState(0);
+  const [tempoManual, setTempoManual] = useState<string>('');
+  const [observacaoManual, setObservacaoManual] = useState<string>('');
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -132,7 +135,7 @@ const Bipagem: React.FC = () => {
           });
           playBeep('success');
           showFeedback(`Cupom da operação ${currentCode} processado com sucesso!`, 'success', currentCode);
-        } else {
+        } else if (activeTab === 1) {
           // Bipar Pacote (Entrada no Estoque)
           await api.post('/pcp/bipagem/pacote', {
             codigoBarras: currentCode
@@ -145,6 +148,33 @@ const Bipagem: React.FC = () => {
         playBeep('error');
         showFeedback(errorMsg, 'error', currentCode);
       }
+    }
+  };
+
+  const handleManualSubmit = async () => {
+    if (!selectedFuncionario) {
+      showFeedback('Selecione um funcionário primeiro.', 'error', 'MANUAL');
+      return;
+    }
+    if (!tempoManual || isNaN(Number(tempoManual)) || Number(tempoManual) <= 0) {
+      showFeedback('Informe um tempo válido em minutos.', 'error', 'MANUAL');
+      return;
+    }
+
+    try {
+      await api.post('/production/apontamentos-manuais', {
+        funcionarioId: selectedFuncionario,
+        minutos: Number(tempoManual),
+        observacao: observacaoManual
+      });
+      playBeep('success');
+      showFeedback(`Tempo manual de ${tempoManual} minutos registrado com sucesso!`, 'success', 'MANUAL');
+      setTempoManual('');
+      setObservacaoManual('');
+    } catch (err: any) {
+      const errorMsg = err.response?.data?.message || err.message || 'Erro ao registrar tempo manual.';
+      playBeep('error');
+      showFeedback(errorMsg, 'error', 'MANUAL');
     }
   };
 
@@ -168,10 +198,11 @@ const Bipagem: React.FC = () => {
           <Tabs value={activeTab} onChange={(e, val) => { setActiveTab(val); setCodigoBarras(''); }} centered>
             <Tab label="Operações (Costureira)" />
             <Tab label="Entrada no Estoque (Pacote)" />
+            <Tab label="Tempo Manual" />
           </Tabs>
         </Box>
 
-        {activeTab === 0 && (
+        {(activeTab === 0 || activeTab === 2) && (
           <FormControl fullWidth sx={{ mb: 4 }}>
             <InputLabel id="funcionario-label">Operador / Costureira</InputLabel>
             <Select
@@ -187,25 +218,54 @@ const Bipagem: React.FC = () => {
           </FormControl>
         )}
 
-        <TextField
-          fullWidth
-          label="Código de Barras (Bipe Aqui)"
-          variant="outlined"
-          value={codigoBarras}
-          onChange={(e) => setCodigoBarras(e.target.value)}
-          onKeyDown={handleKeyDown}
-          inputRef={inputRef}
-          disabled={(activeTab === 0 && !selectedFuncionario) || !canEdit}
-          sx={{ 
-            '& .MuiInputBase-input': { fontSize: '1.5rem', py: 2, textAlign: 'center' },
-            '& .MuiInputLabel-root': { fontSize: '1.2rem' }
-          }}
-          placeholder={canEdit ? "O leitor de código de barras irá preencher este campo automaticamente" : "Você não tem permissão para bipar."}
-        />
+        {activeTab === 2 && (
+          <Box sx={{ width: '100%' }}>
+            <TextField
+              fullWidth
+              label="Tempo (Minutos)"
+              type="number"
+              value={tempoManual}
+              onChange={(e) => setTempoManual(e.target.value)}
+              sx={{ mb: 4 }}
+            />
+            <TextField
+              fullWidth
+              label="Observação / Justificativa"
+              value={observacaoManual}
+              onChange={(e) => setObservacaoManual(e.target.value)}
+              sx={{ mb: 4 }}
+              multiline
+              rows={2}
+            />
+            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+              <Button variant="contained" color="primary" onClick={handleManualSubmit} disabled={!canEdit}>
+                Registrar Tempo Manual
+              </Button>
+            </Box>
+          </Box>
+        )}
+
+        {activeTab !== 2 && (
+          <TextField
+            fullWidth
+            label="Código de Barras (Bipe Aqui)"
+            variant="outlined"
+            value={codigoBarras}
+            onChange={(e) => setCodigoBarras(e.target.value)}
+            onKeyDown={handleKeyDown}
+            inputRef={inputRef}
+            disabled={(activeTab === 0 && !selectedFuncionario) || !canEdit}
+            sx={{ 
+              '& .MuiInputBase-input': { fontSize: '1.5rem', py: 2, textAlign: 'center' },
+              '& .MuiInputLabel-root': { fontSize: '1.2rem' }
+            }}
+            autoFocus
+          />
+        )}
         
         {canEdit ? (
           <Typography variant="body2" color="textSecondary" sx={{ mt: 2, textAlign: 'center' }}>
-            {activeTab === 0 ? '* Selecione um funcionário. O campo ficará em foco. Bipe o código de uma operação.' : '* O campo ficará em foco. Bipe o código do PACOTE (ex: PKT-123-1) para dar entrada no estoque.'}
+            {activeTab === 0 ? '* Selecione um funcionário. O campo ficará em foco. Bipe o código de uma operação.' : activeTab === 1 ? '* O campo ficará em foco. Bipe o código do PACOTE (ex: PKT-123-1) para dar entrada no estoque.' : '* Preencha o tempo em minutos e justifique, depois clique em Registrar.'}
           </Typography>
         ) : (
           <Typography variant="body2" color="error" sx={{ mt: 2, textAlign: 'center' }}>

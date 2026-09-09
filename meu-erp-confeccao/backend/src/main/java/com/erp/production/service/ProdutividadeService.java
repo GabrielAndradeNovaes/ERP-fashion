@@ -1,7 +1,9 @@
 package com.erp.production.service;
 
 import com.erp.production.repository.ApontamentoRepository;
+import com.erp.production.repository.ApontamentoManualRepository;
 import com.erp.production.domain.Apontamento;
+import com.erp.production.domain.ApontamentoManual;
 import com.erp.production.dto.ProdutividadeResumo;
 import com.erp.core.repository.FuncionarioRepository;
 import com.erp.core.domain.Funcionario;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -18,11 +21,13 @@ import java.util.UUID;
 public class ProdutividadeService {
 
     private final ApontamentoRepository apontamentoRepository;
+    private final ApontamentoManualRepository apontamentoManualRepository;
     private final FuncionarioRepository funcionarioRepository;
     private final FinanceiroService financeiroService;
 
-    public ProdutividadeService(ApontamentoRepository apontamentoRepository, FuncionarioRepository funcionarioRepository, FinanceiroService financeiroService) {
+    public ProdutividadeService(ApontamentoRepository apontamentoRepository, ApontamentoManualRepository apontamentoManualRepository, FuncionarioRepository funcionarioRepository, FinanceiroService financeiroService) {
         this.apontamentoRepository = apontamentoRepository;
+        this.apontamentoManualRepository = apontamentoManualRepository;
         this.funcionarioRepository = funcionarioRepository;
         this.financeiroService = financeiroService;
     }
@@ -30,10 +35,29 @@ public class ProdutividadeService {
     public List<ProdutividadeResumo> getResumo(LocalDateTime start, LocalDateTime end) {
         List<Funcionario> costureiras = funcionarioRepository.findByGrupoProducao();
         List<ProdutividadeResumo> comApontamentos = apontamentoRepository.getProdutividadeResumo(start, end);
+        List<Object[]> manuais = apontamentoManualRepository.getSomaMinutosNaoPagos(start, end);
         
         java.util.Map<UUID, ProdutividadeResumo> mapa = new java.util.HashMap<>();
         for (ProdutividadeResumo r : comApontamentos) {
             mapa.put(r.funcionarioId(), r);
+        }
+
+        // Soma os minutos manuais convertidos para centesimal
+        for (Object[] m : manuais) {
+            UUID fId = (UUID) m[0];
+            Long minutosL = (Long) m[1];
+            BigDecimal tempoManualCentesimal = new BigDecimal(minutosL).divide(new BigDecimal(60), 2, RoundingMode.HALF_UP);
+            
+            ProdutividadeResumo existente = mapa.get(fId);
+            if (existente != null) {
+                BigDecimal novoTempo = (existente.tempoPadraoProduzido() != null ? existente.tempoPadraoProduzido() : BigDecimal.ZERO).add(tempoManualCentesimal);
+                mapa.put(fId, new ProdutividadeResumo(existente.funcionarioId(), existente.funcionarioNome(), existente.totalCupons(), novoTempo, existente.metaMinima(), existente.premio100(), existente.tempoTeorico()));
+            } else {
+                Funcionario f = costureiras.stream().filter(c -> c.getId().equals(fId)).findFirst().orElse(null);
+                if (f != null) {
+                    mapa.put(fId, new ProdutividadeResumo(f.getId(), f.getNome(), 0L, tempoManualCentesimal, f.getMetaMinima(), f.getPremio100(), 0));
+                }
+            }
         }
 
         return costureiras.stream().map(f -> {
@@ -65,7 +89,9 @@ public class ProdutividadeService {
         Funcionario funcionario = funcionarioRepository.findById(funcionarioId).orElseThrow();
         
         List<Apontamento> apontamentos = apontamentoRepository.findNaoPagosByFuncionarioAndPeriod(funcionarioId, start, end);
-        if (apontamentos.isEmpty()) return;
+        List<ApontamentoManual> manuais = apontamentoManualRepository.findNaoPagosByFuncionarioAndPeriod(funcionarioId, start, end);
+        
+        if (apontamentos.isEmpty() && manuais.isEmpty()) return;
 
         LocalDateTime now = LocalDateTime.now();
         for (Apontamento a : apontamentos) {
@@ -73,6 +99,12 @@ public class ProdutividadeService {
             a.setDataPagamento(now);
         }
         apontamentoRepository.saveAll(apontamentos);
+
+        for (ApontamentoManual am : manuais) {
+            am.setPago(true);
+            am.setDataPagamento(now);
+        }
+        apontamentoManualRepository.saveAll(manuais);
 
         String descricao = "Pagamento de Produtividade - Período: " + start.toLocalDate() + " a " + end.toLocalDate();
         financeiroService.criarTituloPagamentoFuncionario(funcionario.getEmpresa(), funcionario, valorPagar, descricao);
