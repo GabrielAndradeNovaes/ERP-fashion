@@ -51,7 +51,9 @@ const Produtividade: React.FC = () => {
     
     if (minutosTrabalhados <= 0) return { produtividade: 0, valorPagar: 0 };
 
-    const produtividade = (resumo.tempoPadraoProduzido / minutosTrabalhados) * 100;
+    // Convertendo tempo padrao de centesimal (horas) para minutos para igualar a base
+    const tempoPadraoMinutos = resumo.tempoPadraoProduzido * 60;
+    const produtividade = (tempoPadraoMinutos / minutosTrabalhados) * 100;
     
     if (produtividade <= resumo.metaMinima) {
       return { produtividade, valorPagar: 0 };
@@ -147,7 +149,7 @@ const Produtividade: React.FC = () => {
                     <TableRow key={r.funcionarioId} hover>
                       <TableCell>{r.funcionarioNome}</TableCell>
                       <TableCell>{r.totalCupons}</TableCell>
-                      <TableCell>{r.tempoPadraoProduzido}</TableCell>
+                      <TableCell>{(r.tempoPadraoProduzido * 60).toFixed(0)}</TableCell>
                       <TableCell>{r.tempoTeorico}</TableCell>
                       <TableCell>
                         <TextField 
