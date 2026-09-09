@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useThemeContext } from '../contexts/ThemeContext';
 
 const Settings = () => {
-  const { user } = useAuth();
+  const { user, impersonatedTenantId } = useAuth();
   const { mode, setMode } = useThemeContext() as any; 
 
   return (
@@ -69,7 +69,7 @@ const Settings = () => {
                   <Building size={16} /> ID do Tenant
                 </Typography>
                 <Typography variant="body2" sx={{ fontWeight: 600, color: 'var(--text-primary)' }}>
-                  {user?.tenantId}
+                  {impersonatedTenantId || user?.tenantId}
                 </Typography>
               </Box>
             </Box>
