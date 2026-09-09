@@ -15,7 +15,7 @@ import Categorias from './pages/Categorias';
 import CadastrosAuxiliares from './pages/CadastrosAuxiliares';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
-import { Users, Truck, Tags, Ruler, ScanLine, UserCog, BarChart, FileText, Tag } from 'lucide-react';
+import { Users, Truck, Tags, Ruler, ScanLine, UserCog, BarChart, FileText, Tag, Settings as SettingsIcon } from 'lucide-react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useThemeContext } from './contexts/ThemeContext';
 import Empresas from './pages/Empresas';
@@ -104,6 +104,12 @@ const Sidebar = () => {
       module: 'CORE',
       items: [
         { path: '/financeiro/contas-pagar', label: 'Contas a Pagar', icon: <ClipboardList size={20} />, perm: 'PCP_VIEW' }, // TODO proper perm
+      ]
+    },
+    {
+      title: 'Sistema',
+      items: [
+        { path: '/settings', label: 'Configurações', icon: <SettingsIcon size={20} /> },
       ]
     }
   ];
