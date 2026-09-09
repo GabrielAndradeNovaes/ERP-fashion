@@ -136,28 +136,7 @@ const Sidebar = () => {
         </h1>
       </div>
 
-      {impersonatedTenantId && user?.role === 'SUPERADMIN' && (
-        <Box sx={{ p: 2, mb: 2, bgcolor: 'rgba(239, 68, 68, 0.1)', borderRadius: 2, border: '1px solid var(--danger)' }}>
-          <Typography variant="body2" sx={{ color: 'var(--danger)', fontWeight: 'bold', mb: 0.5 }}>
-            Modo Suporte
-          </Typography>
-          <Typography variant="caption" display="block" sx={{ mb: 1, color: 'var(--text-secondary)' }}>
-            Acessando: {impersonatedTenantId}
-          </Typography>
-          <button 
-            onClick={() => { 
-              setImpersonatedTenant(null); 
-              const port = window.location.port ? ':' + window.location.port : '';
-              const parts = window.location.hostname.split('.');
-              const rootDomain = parts.length > 1 ? parts.slice(1).join('.') : 'localhost';
-              window.location.href = window.location.protocol + '//admin.' + rootDomain + port + '/tenants'; 
-            }}
-            style={{ width: '100%', background: 'var(--danger)', color: 'white', border: 'none', padding: '6px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}
-          >
-            Voltar ao Master
-          </button>
-        </Box>
-      )}
+
       
       <nav style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1, overflowY: 'auto', paddingBottom: '1rem' }}>
         
