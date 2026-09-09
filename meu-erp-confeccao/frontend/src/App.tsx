@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
-import { LayoutDashboard, Clock, Scissors, PackageSearch, Package, ClipboardList, LogOut, Sun, Moon, Building2 } from 'lucide-react';
+import { LayoutDashboard, Clock, Scissors, PackageSearch, Package, ClipboardList, LogOut, Sun, Moon, Palette, Building2 } from 'lucide-react';
 import { Box, Typography } from '@mui/material';
 import Estoque from './pages/Estoque';
 import Produtos from './pages/Produtos';
@@ -232,10 +232,24 @@ const Sidebar = () => {
         <Box sx={{ display: 'flex', gap: 1 }}>
           <button 
             onClick={toggleTheme}
-            style={{ background: 'rgba(99, 102, 241, 0.1)', border: 'none', color: 'var(--accent-primary)', cursor: 'pointer', padding: '0.5rem', borderRadius: 'var(--radius-sm)', display: 'flex' }}
-            title={mode === 'dark' ? "Modo Claro" : "Modo Escuro"}
+            style={{
+              background: 'var(--bg-color)',
+              border: '1px solid var(--border-color)',
+              color: 'var(--text-primary)',
+              cursor: 'pointer',
+              padding: '0.5rem',
+              borderRadius: 'var(--radius-sm)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '100%',
+              marginBottom: '1rem'
+            }}
           >
-            {mode === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+            {mode === 'light' ? <Moon size={20} /> : (mode === 'dark' ? <Palette size={20} /> : <Sun size={20} />)}
+            <span style={{ marginLeft: '0.5rem', fontWeight: 500 }}>
+              {mode === 'light' ? 'Modo Escuro' : (mode === 'dark' ? 'Modo Rose' : 'Modo Claro')}
+            </span>
           </button>
           <button 
             onClick={logout}
@@ -376,7 +390,9 @@ const AdminSidebar = () => {
           <Typography variant="caption" sx={{ color: 'var(--accent-primary)', fontWeight: 600 }}>SUPERADMIN</Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: 1 }}>
-          <button onClick={toggleTheme} style={{ background: 'rgba(99, 102, 241, 0.1)', border: 'none', color: 'var(--accent-primary)', cursor: 'pointer', padding: '0.5rem', borderRadius: 'var(--radius-sm)', display: 'flex' }}><Sun size={18} /></button>
+          <button onClick={toggleTheme} title={`Alternar Tema (${mode})`} style={{ background: 'rgba(99, 102, 241, 0.1)', border: 'none', color: 'var(--accent-primary)', cursor: 'pointer', padding: '0.5rem', borderRadius: 'var(--radius-sm)', display: 'flex' }}>
+            {mode === 'light' ? <Moon size={18} /> : (mode === 'dark' ? <Palette size={18} /> : <Sun size={18} />)}
+          </button>
           <button onClick={logout} style={{ background: 'rgba(239, 68, 68, 0.1)', border: 'none', color: 'var(--danger)', cursor: 'pointer', padding: '0.5rem', borderRadius: 'var(--radius-sm)', display: 'flex' }}><LogOut size={18} /></button>
         </Box>
       </Box>

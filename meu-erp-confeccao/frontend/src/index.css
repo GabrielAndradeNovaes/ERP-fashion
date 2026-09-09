@@ -74,6 +74,43 @@
   --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+:root[data-theme='warm'] {
+  /* Premium Warm Elegance / Rose Gold Colors */
+  --bg-color: #fdfbf7;
+  --bg-card: #ffffff;
+  --text-primary: #2d2625;
+  --text-secondary: #796d6a;
+  --text-muted: #a69a98;
+  --border-color: rgba(121, 109, 106, 0.15);
+  
+  /* Vibrant Accents */
+  --accent-primary: #d4af37; /* Champagne Gold */
+  --accent-secondary: #e3a8b4; /* Rose */
+  --accent-hover: #b8962f;
+  --accent-gradient: linear-gradient(135deg, #d4af37 0%, #e3a8b4 100%);
+  
+  /* Status Colors (Softened) */
+  --success: #4c7a5f;
+  --warning: #b58c42;
+  --danger: #a35154;
+  --info: #5e7c8f;
+
+  /* Glassmorphism */
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(121, 109, 106, 0.1);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
+
+  /* Utilities */
+  --sidebar-width: 280px;
+  --topbar-height: 70px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 * {
   box-sizing: border-box;
   margin: 0;

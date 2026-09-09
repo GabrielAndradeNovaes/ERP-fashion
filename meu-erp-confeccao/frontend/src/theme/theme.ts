@@ -1,23 +1,29 @@
 import { createTheme } from '@mui/material/styles';
 
-export const getTheme = (mode: 'light' | 'dark') => createTheme({
+export const getTheme = (mode: 'light' | 'dark' | 'warm') => {
+  // MUI só entende light e dark nativamente, então para o warm (que é claro), passamos 'light'
+  const muiMode = mode === 'dark' ? 'dark' : 'light';
+  const isDark = mode === 'dark';
+  const isWarm = mode === 'warm';
+
+  return createTheme({
   palette: {
-    mode,
+    mode: muiMode,
     primary: {
-      main: mode === 'dark' ? '#6366f1' : '#4f46e5',
+      main: isDark ? '#6366f1' : (isWarm ? '#d4af37' : '#4f46e5'),
     },
     secondary: {
-      main: '#ec4899', 
+      main: isWarm ? '#e3a8b4' : '#ec4899', 
     },
     background: {
-      default: mode === 'dark' ? '#0b0f19' : '#f8fafc',
-      paper: mode === 'dark' ? '#151b2b' : '#ffffff',
+      default: isDark ? '#0b0f19' : (isWarm ? '#fdfbf7' : '#f8fafc'),
+      paper: isDark ? '#151b2b' : '#ffffff',
     },
     text: {
-      primary: mode === 'dark' ? '#f8fafc' : '#0f172a',
-      secondary: mode === 'dark' ? '#94a3b8' : '#475569',
+      primary: isDark ? '#f8fafc' : (isWarm ? '#2d2625' : '#0f172a'),
+      secondary: isDark ? '#94a3b8' : (isWarm ? '#796d6a' : '#475569'),
     },
-    divider: mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(15, 23, 42, 0.1)',
+    divider: isDark ? 'rgba(255, 255, 255, 0.08)' : (isWarm ? 'rgba(121, 109, 106, 0.15)' : 'rgba(15, 23, 42, 0.1)'),
   },
   typography: {
     fontFamily: [
@@ -86,3 +92,4 @@ export const getTheme = (mode: 'light' | 'dark') => createTheme({
     },
   },
 });
+};
