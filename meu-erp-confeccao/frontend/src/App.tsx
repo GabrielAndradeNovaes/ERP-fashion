@@ -291,7 +291,7 @@ const MainApp = () => {
 
 import AdminBilling from './pages/Admin/AdminBilling';
 import AdminSettings from './pages/Admin/AdminSettings';
-import { CreditCard, Settings as SettingsIcon } from 'lucide-react';
+import { CreditCard } from 'lucide-react';
 
 const AdminSidebar = () => {
   const location = useLocation();
