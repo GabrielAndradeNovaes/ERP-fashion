@@ -45,7 +45,7 @@ public class Pacote {
     }
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(length = 20)
     private PacoteStatus status = PacoteStatus.PENDENTE;
 
     public UUID getId() { return id; }

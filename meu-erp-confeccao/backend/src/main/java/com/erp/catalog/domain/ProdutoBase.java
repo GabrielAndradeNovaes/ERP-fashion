@@ -183,6 +183,7 @@ public class ProdutoBase {
     public void addSku(ProdutoSku sku) {
         skus.add(sku);
         sku.setProdutoBase(this);
+        sku.setEmpresa(this.getEmpresa());
     }
 
     public void removeSku(ProdutoSku sku) {

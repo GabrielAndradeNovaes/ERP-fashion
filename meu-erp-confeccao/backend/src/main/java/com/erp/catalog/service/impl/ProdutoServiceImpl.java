@@ -48,7 +48,7 @@ public class ProdutoServiceImpl implements ProdutoService {
                 ProdutoSku sku = new ProdutoSku();
                 sku.setCor(skuDto.cor());
                 sku.setTamanho(skuDto.tamanho());
-                sku.setCodigoBarras(skuDto.codigoBarras());
+                sku.setCodigoBarras((skuDto.codigoBarras() != null && skuDto.codigoBarras().isBlank()) ? null : skuDto.codigoBarras());
                 sku.setPrecoVenda(skuDto.precoVenda());
                 
                 produtoBase.addSku(sku);
@@ -107,14 +107,14 @@ public class ProdutoServiceImpl implements ProdutoService {
                 if (skuExistenteOpt.isPresent()) {
                     // Atualiza os dados do SKU existente (Preço e Código de Barras)
                     ProdutoSku skuExistente = skuExistenteOpt.get();
-                    skuExistente.setCodigoBarras(skuDto.codigoBarras());
+                    skuExistente.setCodigoBarras((skuDto.codigoBarras() != null && skuDto.codigoBarras().isBlank()) ? null : skuDto.codigoBarras());
                     skuExistente.setPrecoVenda(skuDto.precoVenda());
                 } else {
                     // Adiciona novo SKU
                     ProdutoSku novoSku = new ProdutoSku();
                     novoSku.setCor(skuDto.cor());
                     novoSku.setTamanho(skuDto.tamanho());
-                    novoSku.setCodigoBarras(skuDto.codigoBarras());
+                    novoSku.setCodigoBarras((skuDto.codigoBarras() != null && skuDto.codigoBarras().isBlank()) ? null : skuDto.codigoBarras());
                     novoSku.setPrecoVenda(skuDto.precoVenda());
                     produto.addSku(novoSku);
                 }
