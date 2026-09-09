@@ -110,12 +110,10 @@ const Funcionarios: React.FC = () => {
       }));
       
       const jornadasAtuais = editingFuncionario.jornadas || [];
-      const diasNovos = novas.map(n => n.diaSemana);
-      const jornadasFiltradas = jornadasAtuais.filter(j => !diasNovos.includes(j.diaSemana));
 
       setEditingFuncionario({
         ...editingFuncionario,
-        jornadas: [...jornadasFiltradas, ...novas]
+        jornadas: [...jornadasAtuais, ...novas]
       });
       setDiasSelecionados([]);
     }
@@ -286,7 +284,7 @@ const Funcionarios: React.FC = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {(editingFuncionario.jornadas || []).sort((a,b) => a.diaSemana - b.diaSemana).map((j, i) => (
+                  {(editingFuncionario.jornadas || []).sort((a,b) => a.diaSemana === b.diaSemana ? a.entrada.localeCompare(b.entrada) : a.diaSemana - b.diaSemana).map((j, i) => (
                     <TableRow key={i}>
                       <TableCell>{diasSemana[j.diaSemana - 1]}</TableCell>
                       <TableCell>{j.entrada}</TableCell>
