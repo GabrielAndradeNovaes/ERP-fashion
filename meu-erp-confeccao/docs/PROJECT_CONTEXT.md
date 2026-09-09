@@ -4,9 +4,9 @@
 O sistema será um ERP comercial (SaaS) vendido em massa para pequenas e médias indústrias de confecção. O maior desafio técnico é lidar com a matriz multidimensional de produtos (grades de tamanhos e cores) e o fluxo descentralizado de produção (facções terceirizadas).
 
 ## 2. Arquitetura Multi-Tenant
-Para garantir escalabilidade, segurança e suporte a planos Enterprise, adotaremos o padrão **Database-per-Tenant** com um Banco Master de roteamento.
-- **Control Plane (Banco Master):** Guarda os cadastros das empresas contratantes (`clientes_tenant`), usuários de acesso e as credenciais (`instancias_db`) apontando para onde estão os dados físicos de cada cliente.
-- **Tenant DB (Banco do Cliente):** Cada cliente possui seu próprio banco de dados relacional isolado (ou schema), contendo suas tabelas de produtos, estoque e ordens de produção.
+Para garantir escalabilidade, segurança e suporte a planos Enterprise, adotamos o padrão **Schema-per-Tenant** com um Banco Master de roteamento na mesma instância do PostgreSQL.
+- **Schema Master:** Guarda os cadastros das empresas contratantes (`clientes_tenant`), usuários de acesso e a estrutura lógica do SaaS.
+- **Tenant Schema (Schema do Cliente):** Cada cliente possui seu próprio schema relacional isolado (ex: `tenant_1`, `tenant_c2b84f0e`), contendo suas tabelas de produtos, estoque e ordens de produção. Isso facilita manutenções e garante isolamento sem o custo operacional de múltiplos bancos físicos.
 
 ## 3. Stack Tecnológica
 - **Backend:** Java 17+ com Spring Boot 3. (Escolhido pela robustez corporativa, tipagem estática e suporte nativo a transações complexas e roteamento multi-tenant).
