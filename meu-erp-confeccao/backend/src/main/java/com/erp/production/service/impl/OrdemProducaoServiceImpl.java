@@ -244,6 +244,22 @@ public class OrdemProducaoServiceImpl implements OrdemProducaoService {
         
         // A entrada de estoque (CONCLUIDA) agora é feita gradativamente através do biparPacote().
         // Sendo assim, não adicionamos estoque de forma automática na mudança de status para evitar duplicação.
+        // EXCEÇÃO: Se a OP estava em FACCAO, ela retorna e é concluída sem bipagem de pacotes.
+        // Neste caso, precisamos dar entrada integral no estoque.
+        if (op.getStatus() == OrdemProducaoStatus.FACCAO && novoStatus == OrdemProducaoStatus.CONCLUIDA) {
+            int producaoAtual = op.getQuantidadeProduzida() != null ? op.getQuantidadeProduzida() : 0;
+            if (producaoAtual < op.getQuantidade()) {
+                // Dar entrada no estoque para todos os itens proporcionalmente ao que falta,
+                // mas como Facção não bipa pacote, vamos considerar que produziu tudo planejado.
+                for (OrdemProducaoItem item : op.getItens()) {
+                    ProdutoSku sku = item.getProdutoSku();
+                    int currentStock = sku.getQuantidadeAtual() != null ? sku.getQuantidadeAtual() : 0;
+                    sku.setQuantidadeAtual(currentStock + item.getQuantidade());
+                    produtoSkuRepository.save(sku);
+                }
+                op.setQuantidadeProduzida(op.getQuantidade());
+            }
+        }
         
         op.setStatus(novoStatus);
         OrdemProducao saved = ordemProducaoRepository.save(op);
