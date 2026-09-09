@@ -25,6 +25,7 @@ import TenantsList from './pages/Backoffice/TenantsList';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import LandingPage from './pages/LandingPage';
 import ContasPagar from './pages/Financeiro/ContasPagar';
+import Settings from './pages/Settings';
 
 const isMasterDomain = window.location.hostname === 'localhost' || window.location.hostname.startsWith('admin.') || window.location.hostname.startsWith('www.');
 
@@ -231,32 +232,11 @@ const Sidebar = () => {
         </Box>
         <Box sx={{ display: 'flex', gap: 1 }}>
           <button 
-            onClick={toggleTheme}
-            style={{
-              background: 'var(--bg-color)',
-              border: '1px solid var(--border-color)',
-              color: 'var(--text-primary)',
-              cursor: 'pointer',
-              padding: '0.5rem',
-              borderRadius: 'var(--radius-sm)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '100%',
-              marginBottom: '1rem'
-            }}
-          >
-            {mode === 'light' ? <Moon size={20} /> : (mode === 'dark' ? <Palette size={20} /> : <Sun size={20} />)}
-            <span style={{ marginLeft: '0.5rem', fontWeight: 500 }}>
-              {mode === 'light' ? 'Modo Escuro' : (mode === 'dark' ? 'Modo Rose' : 'Modo Claro')}
-            </span>
-          </button>
-          <button 
             onClick={logout}
-            style={{ background: 'rgba(239, 68, 68, 0.1)', border: 'none', color: 'var(--danger)', cursor: 'pointer', padding: '0.5rem', borderRadius: 'var(--radius-sm)', display: 'flex' }}
+            style={{ background: 'rgba(239, 68, 68, 0.1)', border: 'none', color: 'var(--danger)', cursor: 'pointer', padding: '0.75rem', borderRadius: 'var(--radius-sm)', display: 'flex', width: '100%', justifyContent: 'center' }}
             title="Sair"
           >
-            <LogOut size={18} />
+            <LogOut size={20} />
           </button>
         </Box>
       </Box>
@@ -286,6 +266,7 @@ const MainApp = () => {
           <Route path="/pcp/funcionarios" element={<PrivateRoute requiredPermission="PCP_VIEW"><Funcionarios /></PrivateRoute>} />
           <Route path="/pcp/produtividade" element={<PrivateRoute requiredPermission="PCP_VIEW"><Produtividade /></PrivateRoute>} />
           <Route path="/financeiro/contas-pagar" element={<PrivateRoute requiredPermission="PCP_VIEW"><ContasPagar /></PrivateRoute>} />
+          <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
           
           <Route path="/admin/tenants" element={
             isMasterDomain ? (
@@ -390,10 +371,7 @@ const AdminSidebar = () => {
           <Typography variant="caption" sx={{ color: 'var(--accent-primary)', fontWeight: 600 }}>SUPERADMIN</Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: 1 }}>
-          <button onClick={toggleTheme} title={`Alternar Tema (${mode})`} style={{ background: 'rgba(99, 102, 241, 0.1)', border: 'none', color: 'var(--accent-primary)', cursor: 'pointer', padding: '0.5rem', borderRadius: 'var(--radius-sm)', display: 'flex' }}>
-            {mode === 'light' ? <Moon size={18} /> : (mode === 'dark' ? <Palette size={18} /> : <Sun size={18} />)}
-          </button>
-          <button onClick={logout} style={{ background: 'rgba(239, 68, 68, 0.1)', border: 'none', color: 'var(--danger)', cursor: 'pointer', padding: '0.5rem', borderRadius: 'var(--radius-sm)', display: 'flex' }}><LogOut size={18} /></button>
+          <button onClick={logout} title="Sair" style={{ background: 'rgba(239, 68, 68, 0.1)', border: 'none', color: 'var(--danger)', cursor: 'pointer', padding: '0.5rem', borderRadius: 'var(--radius-sm)', display: 'flex', width: '100%', justifyContent: 'center' }}><LogOut size={18} /></button>
         </Box>
       </Box>
     </div>
@@ -409,7 +387,7 @@ const AdminApp = () => {
           <Route path="/" element={<PrivateRoute requireSuperAdmin><AdminDashboard /></PrivateRoute>} />
           <Route path="/tenants" element={<PrivateRoute requireSuperAdmin><TenantsList /></PrivateRoute>} />
           <Route path="/billing" element={<PrivateRoute requireSuperAdmin><AdminBilling /></PrivateRoute>} />
-          <Route path="/settings" element={<PrivateRoute requireSuperAdmin><AdminSettings /></PrivateRoute>} />
+          <Route path="/settings" element={<PrivateRoute requireSuperAdmin><Settings /></PrivateRoute>} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>

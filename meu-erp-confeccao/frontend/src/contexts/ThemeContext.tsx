@@ -6,6 +6,7 @@ type ThemeMode = 'light' | 'dark' | 'warm';
 
 interface ThemeContextData {
   mode: ThemeMode;
+  setMode: (mode: ThemeMode) => void;
   toggleTheme: () => void;
 }
 
@@ -34,7 +35,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   return (
-    <ThemeContext.Provider value={{ mode, toggleTheme }}>
+    <ThemeContext.Provider value={{ mode, setMode, toggleTheme }}>
       <MUIThemeProvider theme={getTheme(mode)}>
         {children}
       </MUIThemeProvider>
