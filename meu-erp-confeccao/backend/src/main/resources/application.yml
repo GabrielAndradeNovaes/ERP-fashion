@@ -1,3 +1,9 @@
+logging:
+  file:
+    name: application.log
+  level:
+    root: INFO
+    org.springframework.web: DEBUG
 spring:
   application:
     name: backend

@@ -14,6 +14,7 @@ public class EstoqueProdutoMovimentacao {
 
     @jakarta.persistence.ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
     @jakarta.persistence.JoinColumn(name = "empresa_id")
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private Empresa empresa;
     
     public Empresa getEmpresa() { return empresa; }
