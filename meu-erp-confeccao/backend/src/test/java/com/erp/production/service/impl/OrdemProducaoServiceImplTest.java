@@ -7,6 +7,7 @@ import com.erp.catalog.repository.ProdutoSkuRepository;
 import com.erp.inventory.domain.Material;
 import com.erp.inventory.domain.TipoMovimentacao;
 import com.erp.inventory.service.EstoqueMovimentacaoService;
+import com.erp.inventory.service.EstoqueProdutoMovimentacaoService;
 import com.erp.production.domain.FichaTecnica;
 import com.erp.production.domain.FichaTecnicaMaterial;
 import com.erp.production.domain.FichaTecnicaOperacao;
@@ -47,6 +48,8 @@ public class OrdemProducaoServiceImplTest {
     private ProdutoBaseRepository produtoBaseRepository;
     @Mock
     private EstoqueMovimentacaoService estoqueMovimentacaoService;
+    @Mock
+    private EstoqueProdutoMovimentacaoService estoqueProdutoMovimentacaoService;
     @Mock
     private ProdutoSkuRepository produtoSkuRepository;
     @Mock
