@@ -8,6 +8,7 @@ import com.erp.production.domain.FichaTecnica;
 import com.erp.production.domain.FichaTecnicaMaterial;
 import com.erp.production.domain.FichaTecnicaOperacao;
 import com.erp.production.domain.TabelaTempoPadrao;
+import com.erp.production.domain.TipoTrajeto;
 import com.erp.production.dto.*;
 import com.erp.production.repository.FichaTecnicaOperacaoRepository;
 import com.erp.production.repository.FichaTecnicaRepository;
