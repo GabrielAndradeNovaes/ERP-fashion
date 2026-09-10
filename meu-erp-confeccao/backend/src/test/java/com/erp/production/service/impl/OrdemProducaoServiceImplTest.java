@@ -251,4 +251,87 @@ public class OrdemProducaoServiceImplTest {
         verify(pacoteRepository, times(2)).save(any(Pacote.class)); // 10 itens / 5 por pacote = 2 pacotes
         verify(cupomRepository, times(2)).save(any()); // 1 operacao * 2 pacotes = 2 cupons
     }
+
+    @Test
+    void shouldThrowWhenGerarPacotesWithInvalidStatus() {
+        mockOp.setStatus(OrdemProducaoStatus.PENDENTE);
+        when(ordemProducaoRepository.findById(mockOp.getId())).thenReturn(Optional.of(mockOp));
+        
+        assertThrows(IllegalStateException.class, () -> service.gerarPacotes(mockOp.getId(), 5));
+    }
+
+    @Test
+    void shouldThrowWhenGerarPacotesAlreadyGenerated() {
+        mockOp.setStatus(OrdemProducaoStatus.EM_ANDAMENTO);
+        when(ordemProducaoRepository.findById(mockOp.getId())).thenReturn(Optional.of(mockOp));
+        when(pacoteRepository.findByOrdemProducaoId(mockOp.getId())).thenReturn(List.of(new Pacote()));
+        
+        assertThrows(IllegalStateException.class, () -> service.gerarPacotes(mockOp.getId(), 5));
+    }
+
+    @Test
+    void shouldThrowWhenGerarPacotesSemFichaOperacoes() {
+        mockOp.setStatus(OrdemProducaoStatus.EM_ANDAMENTO);
+        mockFicha.setOperacoes(new ArrayList<>());
+        when(ordemProducaoRepository.findById(mockOp.getId())).thenReturn(Optional.of(mockOp));
+        
+        assertThrows(IllegalStateException.class, () -> service.gerarPacotes(mockOp.getId(), 5));
+    }
+
+    @Test
+    void shouldBiparPacoteAndCompleteOp() {
+        Pacote mockPacote = new Pacote();
+        mockPacote.setCodigoBarras("PKT-1");
+        mockPacote.setStatus(Pacote.PacoteStatus.PENDENTE);
+        mockPacote.setQuantidadePecas(10);
+        mockPacote.setProdutoSku(mockSku);
+        mockPacote.setOrdemProducao(mockOp);
+        
+        when(pacoteRepository.findByCodigoBarras("PKT-1")).thenReturn(Optional.of(mockPacote));
+
+        service.biparPacote("PKT-1");
+
+        assertEquals(Pacote.PacoteStatus.PRODUZIDO, mockPacote.getStatus());
+        assertEquals(20, mockSku.getQuantidadeAtual()); // 10 original + 10 pacote
+        assertEquals(OrdemProducaoStatus.CONCLUIDA, mockOp.getStatus()); // Op completa pois chegou a 10
+    }
+
+    @Test
+    void shouldThrowWhenBiparPacoteAlreadyBipado() {
+        Pacote mockPacote = new Pacote();
+        mockPacote.setStatus(Pacote.PacoteStatus.PRODUZIDO);
+        when(pacoteRepository.findByCodigoBarras("PKT-1")).thenReturn(Optional.of(mockPacote));
+
+        assertThrows(IllegalStateException.class, () -> service.biparPacote("PKT-1"));
+    }
+
+    @Test
+    void shouldAtualizarOrdemProducao() {
+        mockOp.setStatus(OrdemProducaoStatus.PENDENTE);
+        when(ordemProducaoRepository.findById(mockOp.getId())).thenReturn(Optional.of(mockOp));
+        when(produtoBaseRepository.findById(mockProduto.getId())).thenReturn(Optional.of(mockProduto));
+        when(produtoSkuRepository.findById(mockSku.getId())).thenReturn(Optional.of(mockSku));
+        when(ordemProducaoRepository.save(any())).thenReturn(mockOp);
+
+        OrdemProducaoResponse response = service.atualizarOrdemProducao(mockOp.getId(), mockRequest);
+
+        assertNotNull(response);
+        assertEquals("OP-001", response.numero());
+    }
+
+    @Test
+    void shouldThrowWhenAtualizarOrdemProducaoNotPendente() {
+        mockOp.setStatus(OrdemProducaoStatus.EM_ANDAMENTO);
+        when(ordemProducaoRepository.findById(mockOp.getId())).thenReturn(Optional.of(mockOp));
+        
+        assertThrows(IllegalStateException.class, () -> service.atualizarOrdemProducao(mockOp.getId(), mockRequest));
+    }
+    
+    @Test
+    void shouldThrowWhenEstornarOrdemProducaoStatusInvalido() {
+        mockOp.setStatus(OrdemProducaoStatus.PENDENTE);
+        when(ordemProducaoRepository.findById(mockOp.getId())).thenReturn(Optional.of(mockOp));
+
+        assertThrows(IllegalStateException.class, () -> service.estornarOrdemProducao(mockOp.getId()));
+    }
 }

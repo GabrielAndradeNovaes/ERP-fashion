@@ -173,4 +173,50 @@ public class FichaTecnicaServiceImplTest {
         
         assertTrue(mockFicha.getOperacoes().isEmpty());
     }
+
+    @Test
+    void shouldUpdateOperacao() {
+        mockFicha.addOperacao(mockOperacao);
+        when(fichaTecnicaRepository.findById(mockFicha.getId())).thenReturn(Optional.of(mockFicha));
+        when(fichaTecnicaOperacaoRepository.findById(mockOperacao.getId())).thenReturn(Optional.of(mockOperacao));
+        
+        TabelaTempoPadrao ttp = new TabelaTempoPadrao();
+        ttp.setTempoCentesimal(new BigDecimal("20.0"));
+        when(tabelaTempoPadraoRepository.findByIndiceAndGrauDificuldadeAndFaixaComprimento(anyInt(), any(), any())).thenReturn(Optional.of(ttp));
+        
+        when(fichaTecnicaRepository.save(any())).thenReturn(mockFicha);
+
+        FichaTecnicaOperacaoRequest req = new FichaTecnicaOperacaoRequest(
+                "Costura Alterada", "MaquinaNova", 2, 5, 2, GrauDificuldade.FACIL, com.erp.production.domain.FaixaComprimentoCostura.DE_61_A_90
+        );
+
+        FichaTecnicaResponse res = service.updateOperacao(mockFicha.getId(), mockOperacao.getId(), req);
+
+        assertEquals("Costura Alterada", mockOperacao.getNome());
+        assertEquals("MaquinaNova", mockOperacao.getMaquina());
+        assertEquals(new BigDecimal("20.0"), mockOperacao.getTempoCalculadoCentesimal());
+    }
+
+    @Test
+    void shouldThrowWhenUpdateOperacaoNotBelongsToFicha() {
+        FichaTecnica outraFicha = new FichaTecnica();
+        outraFicha.setId(UUID.randomUUID());
+        mockOperacao.setFichaTecnica(outraFicha);
+
+        when(fichaTecnicaRepository.findById(mockFicha.getId())).thenReturn(Optional.of(mockFicha));
+        when(fichaTecnicaOperacaoRepository.findById(mockOperacao.getId())).thenReturn(Optional.of(mockOperacao));
+
+        FichaTecnicaOperacaoRequest req = new FichaTecnicaOperacaoRequest(
+                "Costura", "Reta", 1, 10, 5, GrauDificuldade.MEDIO, com.erp.production.domain.FaixaComprimentoCostura.DE_0_A_60
+        );
+
+        assertThrows(IllegalArgumentException.class, () -> service.updateOperacao(mockFicha.getId(), mockOperacao.getId(), req));
+    }
+
+    @Test
+    void shouldThrowWhenRemoveMaterialNotFound() {
+        when(fichaTecnicaRepository.findById(mockFicha.getId())).thenReturn(Optional.of(mockFicha));
+
+        assertThrows(IllegalArgumentException.class, () -> service.removeMaterial(mockFicha.getId(), UUID.randomUUID()));
+    }
 }
