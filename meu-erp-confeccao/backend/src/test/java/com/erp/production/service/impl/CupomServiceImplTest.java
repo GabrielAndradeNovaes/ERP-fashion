@@ -39,10 +39,16 @@ public class CupomServiceImplTest {
         OrdemProducao op = new OrdemProducao();
         op.setNumero("OP-001");
 
+        com.erp.catalog.domain.ProdutoBase produtoBase = new com.erp.catalog.domain.ProdutoBase();
+        produtoBase.setNome("Camiseta");
+        com.erp.catalog.domain.ProdutoSku sku = new com.erp.catalog.domain.ProdutoSku();
+        sku.setProdutoBase(produtoBase);
+
         Pacote pacote = new Pacote();
         pacote.setSequencial(1);
         pacote.setQuantidadePecas(30);
         pacote.setOrdemProducao(op);
+        pacote.setProdutoSku(sku);
 
         FichaTecnicaOperacao opTec = new FichaTecnicaOperacao();
         opTec.setNome("Corte");

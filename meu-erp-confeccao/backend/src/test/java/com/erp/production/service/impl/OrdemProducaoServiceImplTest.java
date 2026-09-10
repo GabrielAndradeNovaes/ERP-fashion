@@ -186,8 +186,9 @@ public class OrdemProducaoServiceImplTest {
         service.atualizarStatus(mockOp.getId(), OrdemProducaoStatus.CONCLUIDA);
 
         assertEquals(OrdemProducaoStatus.CONCLUIDA, mockOp.getStatus());
-        verify(produtoSkuRepository, times(1)).save(mockSku);
-        assertEquals(20, mockSku.getQuantidadeAtual()); // 10 original + 10 da OP
+        verify(estoqueProdutoMovimentacaoService, times(1)).registrarMovimentacao(
+                mockSku.getId(), TipoMovimentacao.ENTRADA, 10, "OP-" + mockOp.getId()
+        );
     }
     
     @Test
@@ -214,8 +215,9 @@ public class OrdemProducaoServiceImplTest {
         service.estornarOrdemProducao(mockOp.getId());
 
         assertEquals(OrdemProducaoStatus.PENDENTE, mockOp.getStatus());
-        verify(produtoSkuRepository, times(1)).save(mockSku);
-        assertEquals(10, mockSku.getQuantidadeAtual()); // 20 - 10 da OP
+        verify(estoqueProdutoMovimentacaoService, times(1)).registrarMovimentacao(
+                mockSku.getId(), TipoMovimentacao.SAIDA, 10, "Estorno OP-" + mockOp.getId()
+        );
     }
 
     @Test
