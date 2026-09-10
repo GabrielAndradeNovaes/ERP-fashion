@@ -534,6 +534,7 @@ const Produtos = () => {
             <Button
               variant="contained"
               startIcon={<AddIcon />}
+              onClick={() => setIsAddModalOpen(true)}
               sx={{
                 background: 'var(--accent-gradient)',
                 borderRadius: 'var(--radius-md)',
