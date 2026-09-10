@@ -182,16 +182,22 @@ public class OrdemProducaoServiceImplTest {
 
     @Test
     void shouldAtualizarStatusParaConcluida() {
-        mockOp.setStatus(OrdemProducaoStatus.EM_ANDAMENTO);
+        mockOp.setStatus(OrdemProducaoStatus.FACCAO); // A logica so salva estoque automatico se vier da FACCAO
+        mockOp.setQuantidade(10);
+        mockOp.setItens(new ArrayList<>());
+        OrdemProducaoItem item = new OrdemProducaoItem();
+        item.setProdutoSku(mockSku);
+        item.setQuantidade(10);
+        mockOp.addItem(item);
+
         when(ordemProducaoRepository.findById(mockOp.getId())).thenReturn(Optional.of(mockOp));
         when(ordemProducaoRepository.save(any(OrdemProducao.class))).thenReturn(mockOp);
 
         service.atualizarStatus(mockOp.getId(), OrdemProducaoStatus.CONCLUIDA);
 
         assertEquals(OrdemProducaoStatus.CONCLUIDA, mockOp.getStatus());
-        verify(estoqueProdutoMovimentacaoService, times(1)).registrarMovimentacao(
-                mockSku.getId(), TipoMovimentacao.ENTRADA, 10, "OP-" + mockOp.getId()
-        );
+        verify(produtoSkuRepository, times(1)).save(mockSku);
+        assertEquals(20, mockSku.getQuantidadeAtual()); // 10 original + 10 da OP
     }
     
     @Test
@@ -199,6 +205,7 @@ public class OrdemProducaoServiceImplTest {
         mockOp.setStatus(OrdemProducaoStatus.EM_ANDAMENTO);
         when(ordemProducaoRepository.findById(mockOp.getId())).thenReturn(Optional.of(mockOp));
         when(ordemProducaoRepository.save(any(OrdemProducao.class))).thenReturn(mockOp);
+        when(pacoteRepository.findByOrdemProducaoId(mockOp.getId())).thenReturn(new ArrayList<>());
 
         service.estornarOrdemProducao(mockOp.getId());
 
@@ -212,15 +219,21 @@ public class OrdemProducaoServiceImplTest {
     void shouldEstornarOrdemProducaoConcluida() {
         mockOp.setStatus(OrdemProducaoStatus.CONCLUIDA);
         mockSku.setQuantidadeAtual(20);
+        
+        Pacote mockPacote = new Pacote();
+        mockPacote.setProdutoSku(mockSku);
+        mockPacote.setStatus(Pacote.PacoteStatus.PRODUZIDO);
+        mockPacote.setQuantidadePecas(10);
+        
         when(ordemProducaoRepository.findById(mockOp.getId())).thenReturn(Optional.of(mockOp));
         when(ordemProducaoRepository.save(any(OrdemProducao.class))).thenReturn(mockOp);
+        when(pacoteRepository.findByOrdemProducaoId(mockOp.getId())).thenReturn(List.of(mockPacote));
 
         service.estornarOrdemProducao(mockOp.getId());
 
         assertEquals(OrdemProducaoStatus.PENDENTE, mockOp.getStatus());
-        verify(estoqueProdutoMovimentacaoService, times(1)).registrarMovimentacao(
-                mockSku.getId(), TipoMovimentacao.SAIDA, 10, "Estorno OP-" + mockOp.getId()
-        );
+        verify(produtoSkuRepository, times(1)).save(mockSku);
+        assertEquals(10, mockSku.getQuantidadeAtual()); // 20 - 10 da OP
     }
 
     @Test
