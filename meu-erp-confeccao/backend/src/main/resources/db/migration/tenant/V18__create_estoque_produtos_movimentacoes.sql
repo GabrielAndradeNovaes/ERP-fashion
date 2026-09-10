@@ -1,4 +1,4 @@
-CREATE TABLE estoque_produtos_movimentacoes (
+CREATE TABLE IF NOT EXISTS estoque_produtos_movimentacoes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     produto_sku_id UUID NOT NULL REFERENCES produtos_skus(id),
     tipo VARCHAR(20) NOT NULL,
