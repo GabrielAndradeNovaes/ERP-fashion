@@ -24,20 +24,25 @@ public class MotorCalculoSamService {
             throw new IllegalArgumentException("RPM da máquina inválido.");
         }
         if (input.getPontosPorCm() == null || input.getPontosPorCm().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Pontos por CM inválido.");
+            throw new IllegalArgumentException("Pontos por CM / Pontos Totais inválido.");
         }
-        if (input.getComprimentoCosturaCm() == null || input.getComprimentoCosturaCm().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Comprimento de costura inválido.");
+        
+        boolean isCicloFixo = input.getTipoTrajeto() == TipoTrajeto.CICLO_FIXO;
+        
+        if (!isCicloFixo && (input.getComprimentoCosturaCm() == null || input.getComprimentoCosturaCm().compareTo(BigDecimal.ZERO) <= 0)) {
+            throw new IllegalArgumentException("Comprimento de costura inválido para trajeto contínuo.");
         }
 
-        double comprimento = input.getComprimentoCosturaCm().doubleValue();
+        double comprimento = input.getComprimentoCosturaCm() != null ? input.getComprimentoCosturaCm().doubleValue() : 0.0;
 
         // 3. Regra de Negócio: Proporcionalidade de Paradas
         int paradasCalculadas;
         if (input.getParadasForcadas() != null) {
             paradasCalculadas = input.getParadasForcadas();
         } else {
-            if (input.getTipoTrajeto() == TipoTrajeto.RETA) {
+            if (isCicloFixo) {
+                paradasCalculadas = 1; // Máquinas de ciclo fixo costumam ter 1 parada por ciclo de peça
+            } else if (input.getTipoTrajeto() == TipoTrajeto.RETA) {
                 paradasCalculadas = (int) Math.floor(comprimento / 25.0);
             } else { // CURVA
                 paradasCalculadas = (int) Math.floor(comprimento / 12.0);
@@ -45,7 +50,13 @@ public class MotorCalculoSamService {
         }
 
         // 4. Etapa A: Tempo de Máquina (Exato)
-        double totalPontos = comprimento * input.getPontosPorCm().doubleValue();
+        double totalPontos;
+        if (isCicloFixo) {
+            totalPontos = input.getPontosPorCm().doubleValue(); // Aproveitando o campo para pontos totais
+        } else {
+            totalPontos = comprimento * input.getPontosPorCm().doubleValue();
+        }
+        
         double rpmEfetiva = input.getRpmMaquina() * EFICIENCIA_MAQUINA;
         double tempoMaquinaSegundos = (totalPontos / rpmEfetiva) * 60.0;
 
@@ -92,11 +103,11 @@ public class MotorCalculoSamService {
         BigDecimal samTotalPeca = BigDecimal.ZERO;
 
         for (FichaTecnicaOperacao op : operacoes) {
-            if (op.getRpmMaquina() != null && op.getPontosPorCm() != null && op.getComprimentoCosturaCm() != null) {
+            if (op.getRpmMaquina() != null && op.getPontosPorCm() != null && (op.getTipoTrajeto() == TipoTrajeto.CICLO_FIXO || op.getComprimentoCosturaCm() != null)) {
                 CalculoSamInput input = new CalculoSamInput();
                 input.setRpmMaquina(op.getRpmMaquina());
                 input.setPontosPorCm(op.getPontosPorCm());
-                input.setComprimentoCosturaCm(op.getComprimentoCosturaCm());
+                input.setComprimentoCosturaCm(op.getComprimentoCosturaCm() != null ? op.getComprimentoCosturaCm() : BigDecimal.ZERO);
                 input.setQuantidadeFolhas(op.getQuantidadeFolhas());
                 input.setDificuldadeTecido(op.getDificuldadeTecido());
                 input.setTipoTrajeto(op.getTipoTrajeto());

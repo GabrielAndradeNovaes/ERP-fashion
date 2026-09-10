@@ -54,7 +54,23 @@ interface Material {
   custoUnitario: number;
 }
 
+
+const MAQUINAS = [
+  { id: 'RETA_ELETRONICA', nome: 'Reta Eletrônica', rpm: 5000, tipo: 'CONTINUA' },
+  { id: 'RETA_CONVENCIONAL', nome: 'Reta Convencional (Mecânica)', rpm: 4000, tipo: 'CONTINUA' },
+  { id: 'OVERLOCK', nome: 'Overlock (3 ou 4 fios)', rpm: 6500, tipo: 'CONTINUA' },
+  { id: 'INTERLOCK', nome: 'Interlock (5 fios)', rpm: 6000, tipo: 'CONTINUA' },
+  { id: 'GALONEIRA', nome: 'Galoneira', rpm: 5000, tipo: 'CONTINUA' },
+  { id: 'PESPONTADEIRA', nome: 'Pespontadeira (2 Agulhas)', rpm: 3500, tipo: 'CONTINUA' },
+  { id: 'ELASTIQUEIRA', nome: 'Elastiqueira / Catraca', rpm: 4000, tipo: 'CONTINUA' },
+  { id: 'FECHADEIRA_BRACO', nome: 'Fechadeira de Braço', rpm: 3600, tipo: 'CONTINUA' },
+  { id: 'TRAVETE', nome: 'Travete Eletrônica', rpm: 3200, tipo: 'FIXO' },
+  { id: 'CASEADEIRA', nome: 'Caseadeira', rpm: 3600, tipo: 'FIXO' },
+  { id: 'BOTONEIRA', nome: 'Botoneira', rpm: 2000, tipo: 'FIXO' }
+];
+
 const Produtos = () => {
+
   const [produtos, setProdutos] = useState<ProdutoBase[]>([]);
   const [estoque, setEstoque] = useState<Material[]>([]);
   const [loading, setLoading] = useState(true);
@@ -269,22 +285,41 @@ const Produtos = () => {
     }
   }
 
+
+  const handleSelectMaquina = (maquinaId: string) => {
+    setOpMaquina(maquinaId);
+    const maquina = MAQUINAS.find(m => m.id === maquinaId);
+    if (maquina) {
+      setOpRpmMaquina(maquina.rpm.toString());
+      if (maquina.tipo === 'FIXO') {
+        setOpTipoTrajeto('CICLO_FIXO');
+        setOpComprimentoCosturaCm('0');
+      } else {
+        setOpTipoTrajeto('RETA');
+      }
+    }
+  };
+
   const handleAddOperacao = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedProduto?.fichaTecnica || !opNome) return;
 
     try {
       setIsSubmitting(true);
+
+      const maquinaSelecionada = MAQUINAS.find(m => m.id === opMaquina);
+      const isFixo = maquinaSelecionada?.tipo === 'FIXO' || opTipoTrajeto === 'CICLO_FIXO';
+      
       const payload = {
         nome: opNome,
-        maquina: opMaquina,
+        maquina: maquinaSelecionada ? maquinaSelecionada.nome : opMaquina,
         ordemExecucao: parseInt(opOrdem) || 1,
         quantidadeFolhas: parseInt(opFolhas) || 0,
         quantidadeParadas: parseInt(opParadas) || 0,
         rpmMaquina: parseInt(opRpmMaquina) || 4000,
         pontosPorCm: parseFloat(opPontosPorCm) || 4.0,
-        comprimentoCosturaCm: parseFloat(opComprimentoCosturaCm) || 0.0,
-        tipoTrajeto: opTipoTrajeto,
+        comprimentoCosturaCm: isFixo ? 0.0 : (parseFloat(opComprimentoCosturaCm) || 0.0),
+        tipoTrajeto: isFixo ? 'CICLO_FIXO' : opTipoTrajeto,
         dificuldadeTecido: opDificuldadeTecido
       };
 
@@ -309,7 +344,8 @@ const Produtos = () => {
   const handleEditOperacao = (op: any) => {
     setEditingOperacaoId(op.id);
     setOpNome(op.nome);
-    setOpMaquina(op.maquina || '');
+    const maquinaEnc = MAQUINAS.find(m => m.nome === op.maquina);
+    setOpMaquina(maquinaEnc ? maquinaEnc.id : op.maquina || '');
     setOpOrdem(op.ordemExecucao.toString());
     setOpFolhas(op.quantidadeFolhas.toString());
     setOpParadas(op.quantidadeParadas.toString());
@@ -940,7 +976,14 @@ const Produtos = () => {
                           <TextField label="Nome da Operação" fullWidth required size="small" value={opNome} onChange={e => setOpNome(e.target.value)} />
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6 }}>
-                          <TextField label="Máquina" fullWidth size="small" value={opMaquina} onChange={e => setOpMaquina(e.target.value)} />
+                          <FormControl fullWidth size="small" required>
+                            <InputLabel>Máquina</InputLabel>
+                            <Select value={opMaquina} label="Máquina" onChange={e => handleSelectMaquina(e.target.value)}>
+                              {MAQUINAS.map(m => (
+                                <MenuItem key={m.id} value={m.id}>{m.nome} (RPM: {m.rpm})</MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
                         </Grid>
                         
                         <Grid size={{ xs: 6, sm: 2 }}>
@@ -955,21 +998,35 @@ const Produtos = () => {
                         <Grid size={{ xs: 6, sm: 2 }}>
                           <TextField label="RPM" type="number" required size="small" value={opRpmMaquina} onChange={e => setOpRpmMaquina(e.target.value)} fullWidth />
                         </Grid>
-                        <Grid size={{ xs: 6, sm: 2 }}>
-                          <TextField label="Pts/cm" type="number" slotProps={{ htmlInput: { step: '0.1' } }} required size="small" value={opPontosPorCm} onChange={e => setOpPontosPorCm(e.target.value)} fullWidth />
-                        </Grid>
-                        <Grid size={{ xs: 6, sm: 2 }}>
-                          <TextField label="Comp.(cm)" type="number" slotProps={{ htmlInput: { step: '0.1' } }} required size="small" value={opComprimentoCosturaCm} onChange={e => setOpComprimentoCosturaCm(e.target.value)} fullWidth />
-                        </Grid>
-                        <Grid size={{ xs: 6, sm: 3 }}>
-                          <FormControl fullWidth size="small">
-                            <InputLabel>Trajeto</InputLabel>
-                            <Select value={opTipoTrajeto} label="Trajeto" onChange={e => setOpTipoTrajeto(e.target.value)}>
-                              <MenuItem value="RETA">Reta</MenuItem>
-                              <MenuItem value="CURVA">Curva</MenuItem>
-                            </Select>
-                          </FormControl>
-                        </Grid>
+                        
+                        {(() => {
+                          const maquinaSelecionada = MAQUINAS.find(m => m.id === opMaquina);
+                          const isFixo = maquinaSelecionada?.tipo === 'FIXO' || opTipoTrajeto === 'CICLO_FIXO';
+                          return (
+                            <>
+                              <Grid size={{ xs: 6, sm: 2 }}>
+                                <TextField label={isFixo ? "Tot. Pontos" : "Pts/cm"} type="number" slotProps={{ htmlInput: { step: '0.1' } }} required size="small" value={opPontosPorCm} onChange={e => setOpPontosPorCm(e.target.value)} fullWidth />
+                              </Grid>
+                              {!isFixo && (
+                                <Grid size={{ xs: 6, sm: 2 }}>
+                                  <TextField label="Comp.(cm)" type="number" slotProps={{ htmlInput: { step: '0.1' } }} required size="small" value={opComprimentoCosturaCm} onChange={e => setOpComprimentoCosturaCm(e.target.value)} fullWidth />
+                                </Grid>
+                              )}
+                              {!isFixo && (
+                                <Grid size={{ xs: 6, sm: 3 }}>
+                                  <FormControl fullWidth size="small">
+                                    <InputLabel>Trajeto</InputLabel>
+                                    <Select value={opTipoTrajeto} label="Trajeto" onChange={e => setOpTipoTrajeto(e.target.value)}>
+                                      <MenuItem value="RETA">Reta</MenuItem>
+                                      <MenuItem value="CURVA">Curva</MenuItem>
+                                    </Select>
+                                  </FormControl>
+                                </Grid>
+                              )}
+                            </>
+                          );
+                        })()}
+                        
                         <Grid size={{ xs: 6, sm: 3 }}>
                           <FormControl fullWidth size="small">
                             <InputLabel>Tecido</InputLabel>

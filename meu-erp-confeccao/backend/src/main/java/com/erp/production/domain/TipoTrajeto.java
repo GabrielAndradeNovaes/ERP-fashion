@@ -2,5 +2,6 @@ package com.erp.production.domain;
 
 public enum TipoTrajeto {
     RETA,
-    CURVA
+    CURVA,
+    CICLO_FIXO
 }

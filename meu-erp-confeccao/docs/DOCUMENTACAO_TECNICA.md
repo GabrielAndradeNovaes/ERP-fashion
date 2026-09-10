@@ -96,7 +96,7 @@ Roteiro de costura e operações. Agora suporta cálculo exato do Tempo Padrão 
 - `rpm_maquina` (Integer): Velocidade de costura (RPM) da máquina.
 - `pontos_por_cm` (Decimal): Quantidade de pontos por centímetro.
 - `comprimento_costura_cm` (Decimal): Distância percorrida na costura em centímetros.
-- `tipo_trajeto` (Enum): RETA ou CURVA.
+- `tipo_trajeto` (Enum): RETA, CURVA ou CICLO_FIXO.
 - `dificuldade_tecido` (Enum): NORMAL, MALHA, ESCORREGADIO, etc.
 - `quantidade_folhas` (Integer): Quantidade de partes (folhas) que serão manuseadas.
 - `quantidade_paradas` (Integer): Número de paradas (forçadas + calculadas) na operação.

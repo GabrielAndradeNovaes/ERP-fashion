@@ -125,8 +125,9 @@ public class FichaTecnicaServiceImpl implements FichaTecnicaService {
         operacao.setTipoTrajeto(request.tipoTrajeto());
         operacao.setDificuldadeTecido(request.dificuldadeTecido());
         
-        if (request.rpmMaquina() != null && request.pontosPorCm() != null && request.comprimentoCosturaCm() != null) {
-            CalculoSamInput samInput = new CalculoSamInput(request.rpmMaquina(), request.pontosPorCm(), request.comprimentoCosturaCm(), qFolhas, request.dificuldadeTecido(), request.tipoTrajeto(), request.quantidadeParadas());
+        if (request.rpmMaquina() != null && request.pontosPorCm() != null && (request.tipoTrajeto() == TipoTrajeto.CICLO_FIXO || request.comprimentoCosturaCm() != null)) {
+            BigDecimal comprimento = request.comprimentoCosturaCm() != null ? request.comprimentoCosturaCm() : BigDecimal.ZERO;
+            CalculoSamInput samInput = new CalculoSamInput(request.rpmMaquina(), request.pontosPorCm(), comprimento, qFolhas, request.dificuldadeTecido(), request.tipoTrajeto(), request.quantidadeParadas());
             CalculoSamOutput samOutput = motorCalculoSamService.calcularOperacao(samInput);
             operacao.setSamMinutos(samOutput.getSamMinutos());
             operacao.setQuantidadeParadas(samOutput.getParadasUtilizadas());
@@ -166,8 +167,9 @@ public class FichaTecnicaServiceImpl implements FichaTecnicaService {
         operacao.setTipoTrajeto(request.tipoTrajeto());
         operacao.setDificuldadeTecido(request.dificuldadeTecido());
 
-        if (request.rpmMaquina() != null && request.pontosPorCm() != null && request.comprimentoCosturaCm() != null) {
-            CalculoSamInput samInput = new CalculoSamInput(request.rpmMaquina(), request.pontosPorCm(), request.comprimentoCosturaCm(), qFolhas, request.dificuldadeTecido(), request.tipoTrajeto(), request.quantidadeParadas());
+        if (request.rpmMaquina() != null && request.pontosPorCm() != null && (request.tipoTrajeto() == TipoTrajeto.CICLO_FIXO || request.comprimentoCosturaCm() != null)) {
+            BigDecimal comprimento = request.comprimentoCosturaCm() != null ? request.comprimentoCosturaCm() : BigDecimal.ZERO;
+            CalculoSamInput samInput = new CalculoSamInput(request.rpmMaquina(), request.pontosPorCm(), comprimento, qFolhas, request.dificuldadeTecido(), request.tipoTrajeto(), request.quantidadeParadas());
             CalculoSamOutput samOutput = motorCalculoSamService.calcularOperacao(samInput);
             operacao.setSamMinutos(samOutput.getSamMinutos());
             operacao.setQuantidadeParadas(samOutput.getParadasUtilizadas());
