@@ -23,8 +23,25 @@ public class BipagemControllerTest {
     @Mock
     private PcpService pcpService;
 
+    @Mock
+    private com.erp.production.service.OrdemProducaoService ordemProducaoService;
+
     @InjectMocks
     private BipagemController controller;
+
+    @Test
+    void testBiparPacote() {
+        java.util.Map<String, String> payload = java.util.Map.of("codigoBarras", "PKT-100-1");
+        ResponseEntity<Void> result = controller.biparPacote(payload);
+        verify(ordemProducaoService).biparPacote("PKT-100-1");
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+    }
+
+    @Test
+    void testBiparPacoteWithoutCodigoBarras() {
+        java.util.Map<String, String> payload = java.util.Map.of();
+        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> controller.biparPacote(payload));
+    }
 
     @Test
     void testBiparCupom() {

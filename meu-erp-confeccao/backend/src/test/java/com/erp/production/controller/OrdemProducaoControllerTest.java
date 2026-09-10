@@ -63,4 +63,42 @@ public class OrdemProducaoControllerTest {
         verify(service).gerarPacotes(id, 20);
         assertEquals(HttpStatus.OK, result.getStatusCode());
     }
+
+    @Test
+    void testAtualizarStatus() {
+        UUID id = UUID.randomUUID();
+        java.util.Map<String, String> payload = java.util.Map.of("status", "EM_ANDAMENTO");
+        OrdemProducaoResponse res = new OrdemProducaoResponse(null, null, null, null, null, null, null, null, null, null, null);
+        when(service.atualizarStatus(id, com.erp.production.domain.OrdemProducaoStatus.EM_ANDAMENTO)).thenReturn(res);
+        
+        ResponseEntity<OrdemProducaoResponse> result = controller.atualizarStatus(id, payload);
+        
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertEquals(res, result.getBody());
+    }
+
+    @Test
+    void testAtualizar() {
+        UUID id = UUID.randomUUID();
+        OrdemProducaoRequest req = new OrdemProducaoRequest(null, null, null, null);
+        OrdemProducaoResponse res = new OrdemProducaoResponse(null, null, null, null, null, null, null, null, null, null, null);
+        when(service.atualizarOrdemProducao(id, req)).thenReturn(res);
+        
+        ResponseEntity<OrdemProducaoResponse> result = controller.atualizar(id, req);
+        
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertEquals(res, result.getBody());
+    }
+
+    @Test
+    void testEstornar() {
+        UUID id = UUID.randomUUID();
+        OrdemProducaoResponse res = new OrdemProducaoResponse(null, null, null, null, null, null, null, null, null, null, null);
+        when(service.estornarOrdemProducao(id)).thenReturn(res);
+        
+        ResponseEntity<OrdemProducaoResponse> result = controller.estornar(id);
+        
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertEquals(res, result.getBody());
+    }
 }

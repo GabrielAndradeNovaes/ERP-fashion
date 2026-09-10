@@ -1,0 +1,500 @@
+﻿        pb1_0.descricao,
+        pb1_0.empresa_id,
+        pb1_0.genero,
+        pb1_0.marca,
+        pb1_0.ncm,
+        pb1_0.nome,
+        pb1_0.origem,
+        pb1_0.peso_bruto,
+        pb1_0.peso_liquido,
+        pb1_0.preco_custo,
+        pb1_0.preco_venda,
+        pb1_0.status 
+    from
+        produtos_base pb1_0
+Hibernate: 
+    select
+        ft1_0.id,
+        ft1_0.criado_em,
+        ft1_0.empresa_id,
+        ft1_0.observacoes,
+        ft1_0.produto_base_id,
+        pb1_0.id,
+        pb1_0.categoria,
+        pb1_0.cest,
+        pb1_0.codigo,
+        pb1_0.colecao,
+        pb1_0.criado_em,
+        pb1_0.descricao,
+        pb1_0.empresa_id,
+        pb1_0.genero,
+        pb1_0.marca,
+        pb1_0.ncm,
+        pb1_0.nome,
+        pb1_0.origem,
+        pb1_0.peso_bruto,
+        pb1_0.peso_liquido,
+        pb1_0.preco_custo,
+        pb1_0.preco_venda,
+        pb1_0.status,
+        ft1_0.versao 
+    from
+        fichas_tecnicas ft1_0 
+    join
+        produtos_base pb1_0 
+            on pb1_0.id=ft1_0.produto_base_id 
+    where
+        ft1_0.produto_base_id=?
+Hibernate: 
+    select
+        s1_0.produto_base_id,
+        s1_0.id,
+        s1_0.codigo_barras,
+        s1_0.cor,
+        s1_0.criado_em,
+        s1_0.empresa_id,
+        s1_0.preco_venda,
+        s1_0.quantidade_atual,
+        s1_0.tamanho 
+    from
+        produtos_skus s1_0 
+    where
+        s1_0.produto_base_id=?
+Hibernate: 
+    select
+        o1_0.ficha_tecnica_id,
+        o1_0.id,
+        o1_0.empresa_id,
+        o1_0.faixa_comprimento,
+        o1_0.grau_dificuldade,
+        o1_0.maquina,
+        o1_0.nome,
+        o1_0.ordem_execucao,
+        o1_0.quantidade_folhas,
+        o1_0.quantidade_paradas,
+        o1_0.tempo_calculado_centesimal 
+    from
+        fichas_tecnicas_operacoes o1_0 
+    where
+        o1_0.ficha_tecnica_id=?
+Hibernate: 
+    select
+        m1_0.ficha_tecnica_id,
+        m1_0.id,
+        m1_0.empresa_id,
+        m1_0.material_id,
+        m2_0.id,
+        m2_0.codigo,
+        m2_0.composicao,
+        m2_0.criado_em,
+        m2_0.custo_unitario,
+        m2_0.descricao,
+        m2_0.empresa_id,
+        m2_0.fator_conversao,
+        m2_0.fornecedor_padrao_id,
+        m2_0.gramatura,
+        m2_0.largura,
+        m2_0.ncm,
+        m2_0.nome,
+        m2_0.quantidade_atual,
+        m2_0.rendimento,
+        m2_0.status,
+        m2_0.tipo_material,
+        m2_0.unidade_compra,
+        m2_0.unidade_medida,
+        m1_0.quantidade 
+    from
+        fichas_tecnicas_materiais m1_0 
+    left join
+        materiais m2_0 
+            on m2_0.id=m1_0.material_id 
+    where
+        m1_0.ficha_tecnica_id=?
+2026-09-09T14:30:51.603Z DEBUG 1 --- [backend] [nio-8080-exec-2] o.s.security.web.FilterChainProxy        : Securing OPTIONS /api/production/ordens/c296a640-8927-411b-8326-892dbc628177/gerar-pacotes?tamanhoPacote=20
+2026-09-09T14:30:51.608Z DEBUG 1 --- [backend] [nio-8080-exec-8] o.s.security.web.FilterChainProxy        : Securing POST /api/production/ordens/c296a640-8927-411b-8326-892dbc628177/gerar-pacotes?tamanhoPacote=20
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.ativo,
+        u1_0.cargo,
+        u1_0.cpf,
+        u1_0.criado_em,
+        u1_0.data_nascimento,
+        u1_0.departamento,
+        u1_0.email,
+        u1_0.filial_principal_id,
+        u1_0.foto_url,
+        u1_0.nome,
+        u1_0.role,
+        u1_0.senha,
+        u1_0.telefone,
+        u1_0.tenant_id 
+    from
+        master.usuarios u1_0 
+    where
+        u1_0.email=?
+Hibernate: 
+    select
+        p1_0.usuario_id,
+        p1_0.permissao 
+    from
+        master.usuario_permissoes p1_0 
+    where
+        p1_0.usuario_id=?
+2026-09-09T14:30:51.618Z DEBUG 1 --- [backend] [nio-8080-exec-8] o.s.security.web.FilterChainProxy        : Secured POST /api/production/ordens/c296a640-8927-411b-8326-892dbc628177/gerar-pacotes?tamanhoPacote=20
+Hibernate: 
+    select
+        t1_0.id,
+        t1_0.ativo,
+        t1_0.bairro,
+        t1_0.cep,
+        t1_0.cidade,
+        t1_0.cnae_principal_codigo,
+        t1_0.cnae_principal_descricao,
+        t1_0.cnpj,
+        t1_0.complemento,
+        t1_0.criado_em,
+        t1_0.data_abertura,
+        t1_0.email_principal,
+        t1_0.estado,
+        t1_0.logradouro,
+        t1_0.natureza_juridica,
+        t1_0.nome_empresa,
+        t1_0.nome_fantasia,
+        t1_0.numero,
+        t1_0.porte,
+        t1_0.razao_social,
+        t1_0.receita_federal_raw_data,
+        t1_0.schema_name,
+        t1_0.simples_nacional,
+        t1_0.slug,
+        t1_0.status,
+        t1_0.status_rfb,
+        t1_0.telefone 
+    from
+        master.clientes_tenant t1_0 
+    where
+        t1_0.slug=?
+Hibernate: 
+    select
+        op1_0.id,
+        op1_0.criado_em,
+        op1_0.data_inicio,
+        op1_0.empresa_id,
+        op1_0.ficha_tecnica_id,
+        ft1_0.id,
+        ft1_0.criado_em,
+        ft1_0.empresa_id,
+        ft1_0.observacoes,
+        ft1_0.produto_base_id,
+        pb1_0.id,
+        pb1_0.categoria,
+        pb1_0.cest,
+        pb1_0.codigo,
+        pb1_0.colecao,
+        pb1_0.criado_em,
+        pb1_0.descricao,
+        pb1_0.empresa_id,
+        pb1_0.genero,
+        pb1_0.marca,
+        pb1_0.ncm,
+        pb1_0.nome,
+        pb1_0.origem,
+        pb1_0.peso_bruto,
+        pb1_0.peso_liquido,
+        pb1_0.preco_custo,
+        pb1_0.preco_venda,
+        pb1_0.status,
+        ft1_0.versao,
+        op1_0.numero,
+        op1_0.produto_base_id,
+        pb2_0.id,
+        pb2_0.categoria,
+        pb2_0.cest,
+        pb2_0.codigo,
+        pb2_0.colecao,
+        pb2_0.criado_em,
+        pb2_0.descricao,
+        pb2_0.empresa_id,
+        ft2_0.id,
+        ft2_0.criado_em,
+        ft2_0.empresa_id,
+        ft2_0.observacoes,
+        ft2_0.produto_base_id,
+        ft2_0.versao,
+        pb2_0.genero,
+        pb2_0.marca,
+        pb2_0.ncm,
+        pb2_0.nome,
+        pb2_0.origem,
+        pb2_0.peso_bruto,
+        pb2_0.peso_liquido,
+        pb2_0.preco_custo,
+        pb2_0.preco_venda,
+        pb2_0.status,
+        op1_0.quantidade,
+        op1_0.quantidade_produzida,
+        op1_0.status 
+    from
+        ordens_producao op1_0 
+    join
+        fichas_tecnicas ft1_0 
+            on ft1_0.id=op1_0.ficha_tecnica_id 
+    left join
+        produtos_base pb1_0 
+            on pb1_0.id=ft1_0.produto_base_id 
+    join
+        produtos_base pb2_0 
+            on pb2_0.id=op1_0.produto_base_id 
+    left join
+        fichas_tecnicas ft2_0 
+            on pb2_0.id=ft2_0.produto_base_id 
+    where
+        op1_0.id=?
+Hibernate: 
+    select
+        p1_0.id,
+        p1_0.codigo_barras,
+        p1_0.empresa_id,
+        p1_0.ordem_producao_id,
+        p1_0.produto_sku_id,
+        p1_0.quantidade_pecas,
+        p1_0.sequencial,
+        p1_0.status 
+    from
+        pacotes p1_0 
+    join
+        ordens_producao op1_0 
+            on op1_0.id=p1_0.ordem_producao_id 
+    where
+        op1_0.id=?
+2026-09-09T14:30:51.639Z  WARN 1 --- [backend] [nio-8080-exec-8] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 42703
+2026-09-09T14:30:51.639Z ERROR 1 --- [backend] [nio-8080-exec-8] o.h.engine.jdbc.spi.SqlExceptionHelper   : ERROR: column p1_0.codigo_barras does not exist
+  Position: 16
+2026-09-09T14:30:51.642Z ERROR 1 --- [backend] [nio-8080-exec-8] o.a.c.c.C.[.[.[/].[dispatcherServlet]    : Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed: org.springframework.dao.InvalidDataAccessResourceUsageException: JDBC exception executing SQL [select p1_0.id,p1_0.codigo_barras,p1_0.empresa_id,p1_0.ordem_producao_id,p1_0.produto_sku_id,p1_0.quantidade_pecas,p1_0.sequencial,p1_0.status from pacotes p1_0 join ordens_producao op1_0 on op1_0.id=p1_0.ordem_producao_id where op1_0.id=?] [ERROR: column p1_0.codigo_barras does not exist
+  Position: 16] [n/a]; SQL [n/a]] with root cause
+
+org.postgresql.util.PSQLException: ERROR: column p1_0.codigo_barras does not exist
+  Position: 16
+	at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2713) ~[postgresql-42.6.1.jar!/:42.6.1]
+	at org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2401) ~[postgresql-42.6.1.jar!/:42.6.1]
+	at org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:368) ~[postgresql-42.6.1.jar!/:42.6.1]
+	at org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:498) ~[postgresql-42.6.1.jar!/:42.6.1]
+	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:415) ~[postgresql-42.6.1.jar!/:42.6.1]
+	at org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:190) ~[postgresql-42.6.1.jar!/:42.6.1]
+	at org.postgresql.jdbc.PgPreparedStatement.executeQuery(PgPreparedStatement.java:134) ~[postgresql-42.6.1.jar!/:42.6.1]
+	at com.zaxxer.hikari.pool.ProxyPreparedStatement.executeQuery(ProxyPreparedStatement.java:52) ~[HikariCP-5.0.1.jar!/:na]
+	at com.zaxxer.hikari.pool.HikariProxyPreparedStatement.executeQuery(HikariProxyPreparedStatement.java) ~[HikariCP-5.0.1.jar!/:na]
+	at org.hibernate.sql.results.jdbc.internal.DeferredResultSetAccess.executeQuery(DeferredResultSetAccess.java:246) ~[hibernate-core-6.4.4.Final.jar!/:6.4.4.Final]
+	at org.hibernate.sql.results.jdbc.internal.DeferredResultSetAccess.getResultSet(DeferredResultSetAccess.java:167) ~[hibernate-core-6.4.4.Final.jar!/:6.4.4.Final]
+	at org.hibernate.sql.results.jdbc.internal.JdbcValuesResultSetImpl.advanceNext(JdbcValuesResultSetImpl.java:218) ~[hibernate-core-6.4.4.Final.jar!/:6.4.4.Final]
+	at org.hibernate.sql.results.jdbc.internal.JdbcValuesResultSetImpl.processNext(JdbcValuesResultSetImpl.java:98) ~[hibernate-core-6.4.4.Final.jar!/:6.4.4.Final]
+	at org.hibernate.sql.results.jdbc.internal.AbstractJdbcValues.next(AbstractJdbcValues.java:19) ~[hibernate-core-6.4.4.Final.jar!/:6.4.4.Final]
+	at org.hibernate.sql.results.internal.RowProcessingStateStandardImpl.next(RowProcessingStateStandardImpl.java:66) ~[hibernate-core-6.4.4.Final.jar!/:6.4.4.Final]
+	at org.hibernate.sql.results.spi.ListResultsConsumer.consume(ListResultsConsumer.java:202) ~[hibernate-core-6.4.4.Final.jar!/:6.4.4.Final]
+	at org.hibernate.sql.results.spi.ListResultsConsumer.consume(ListResultsConsumer.java:33) ~[hibernate-core-6.4.4.Final.jar!/:6.4.4.Final]
+	at org.hibernate.sql.exec.internal.JdbcSelectExecutorStandardImpl.doExecuteQuery(JdbcSelectExecutorStandardImpl.java:209) ~[hibernate-core-6.4.4.Final.jar!/:6.4.4.Final]
+	at org.hibernate.sql.exec.internal.JdbcSelectExecutorStandardImpl.executeQuery(JdbcSelectExecutorStandardImpl.java:83) ~[hibernate-core-6.4.4.Final.jar!/:6.4.4.Final]
+	at org.hibernate.sql.exec.spi.JdbcSelectExecutor.list(JdbcSelectExecutor.java:76) ~[hibernate-core-6.4.4.Final.jar!/:6.4.4.Final]
+	at org.hibernate.sql.exec.spi.JdbcSelectExecutor.list(JdbcSelectExecutor.java:65) ~[hibernate-core-6.4.4.Final.jar!/:6.4.4.Final]
+	at org.hibernate.query.sqm.internal.ConcreteSqmSelectQueryPlan.lambda$new$2(ConcreteSqmSelectQueryPlan.java:137) ~[hibernate-core-6.4.4.Final.jar!/:6.4.4.Final]
+	at org.hibernate.query.sqm.internal.ConcreteSqmSelectQueryPlan.withCacheableSqmInterpretation(ConcreteSqmSelectQueryPlan.java:362) ~[hibernate-core-6.4.4.Final.jar!/:6.4.4.Final]
+	at org.hibernate.query.sqm.internal.ConcreteSqmSelectQueryPlan.performList(ConcreteSqmSelectQueryPlan.java:303) ~[hibernate-core-6.4.4.Final.jar!/:6.4.4.Final]
+	at org.hibernate.query.sqm.internal.QuerySqmImpl.doList(QuerySqmImpl.java:509) ~[hibernate-core-6.4.4.Final.jar!/:6.4.4.Final]
+	at org.hibernate.query.spi.AbstractSelectionQuery.list(AbstractSelectionQuery.java:427) ~[hibernate-core-6.4.4.Final.jar!/:6.4.4.Final]
+	at org.hibernate.query.Query.getResultList(Query.java:120) ~[hibernate-core-6.4.4.Final.jar!/:6.4.4.Final]
+	at org.springframework.data.jpa.repository.query.JpaQueryExecution$CollectionExecution.doExecute(JpaQueryExecution.java:129) ~[spring-data-jpa-3.2.3.jar!/:3.2.3]
+	at org.springframework.data.jpa.repository.query.JpaQueryExecution.execute(JpaQueryExecution.java:92) ~[spring-data-jpa-3.2.3.jar!/:3.2.3]
+	at org.springframework.data.jpa.repository.query.AbstractJpaQuery.doExecute(AbstractJpaQuery.java:149) ~[spring-data-jpa-3.2.3.jar!/:3.2.3]
+	at org.springframework.data.jpa.repository.query.AbstractJpaQuery.execute(AbstractJpaQuery.java:137) ~[spring-data-jpa-3.2.3.jar!/:3.2.3]
+	at org.springframework.data.repository.core.support.RepositoryMethodInvoker.doInvoke(RepositoryMethodInvoker.java:170) ~[spring-data-commons-3.2.3.jar!/:3.2.3]
+	at org.springframework.data.repository.core.support.RepositoryMethodInvoker.invoke(RepositoryMethodInvoker.java:158) ~[spring-data-commons-3.2.3.jar!/:3.2.3]
+	at org.springframework.data.repository.core.support.QueryExecutorMethodInterceptor.doInvoke(QueryExecutorMethodInterceptor.java:164) ~[spring-data-commons-3.2.3.jar!/:3.2.3]
+	at org.springframework.data.repository.core.support.QueryExecutorMethodInterceptor.invoke(QueryExecutorMethodInterceptor.java:143) ~[spring-data-commons-3.2.3.jar!/:3.2.3]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.1.4.jar!/:6.1.4]
+	at org.springframework.data.projection.DefaultMethodInvokingMethodInterceptor.invoke(DefaultMethodInvokingMethodInterceptor.java:70) ~[spring-data-commons-3.2.3.jar!/:3.2.3]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.1.4.jar!/:6.1.4]
+	at org.springframework.transaction.interceptor.TransactionInterceptor$1.proceedWithInvocation(TransactionInterceptor.java:123) ~[spring-tx-6.1.4.jar!/:6.1.4]
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:385) ~[spring-tx-6.1.4.jar!/:6.1.4]
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:119) ~[spring-tx-6.1.4.jar!/:6.1.4]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.1.4.jar!/:6.1.4]
+	at org.springframework.dao.support.PersistenceExceptionTranslationInterceptor.invoke(PersistenceExceptionTranslationInterceptor.java:137) ~[spring-tx-6.1.4.jar!/:6.1.4]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.1.4.jar!/:6.1.4]
+	at org.springframework.data.jpa.repository.support.CrudMethodMetadataPostProcessor$CrudMethodMetadataPopulatingMethodInterceptor.invoke(CrudMethodMetadataPostProcessor.java:135) ~[spring-data-jpa-3.2.3.jar!/:3.2.3]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.1.4.jar!/:6.1.4]
+	at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:97) ~[spring-aop-6.1.4.jar!/:6.1.4]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.1.4.jar!/:6.1.4]
+	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:220) ~[spring-aop-6.1.4.jar!/:6.1.4]
+	at jdk.proxy2/jdk.proxy2.$Proxy161.findByOrdemProducaoId(Unknown Source) ~[na:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[na:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(Unknown Source) ~[na:na]
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Unknown Source) ~[na:na]
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:351) ~[spring-aop-6.1.4.jar!/:6.1.4]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:196) ~[spring-aop-6.1.4.jar!/:6.1.4]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163) ~[spring-aop-6.1.4.jar!/:6.1.4]
+	at org.springframework.dao.support.PersistenceExceptionTranslationInterceptor.invoke(PersistenceExceptionTranslationInterceptor.java:137) ~[spring-tx-6.1.4.jar!/:6.1.4]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.1.4.jar!/:6.1.4]
+	at org.springframework.aop.framework.adapter.MethodBeforeAdviceInterceptor.invoke(MethodBeforeAdviceInterceptor.java:58) ~[spring-aop-6.1.4.jar!/:6.1.4]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.1.4.jar!/:6.1.4]
+	at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:97) ~[spring-aop-6.1.4.jar!/:6.1.4]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.1.4.jar!/:6.1.4]
+	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:220) ~[spring-aop-6.1.4.jar!/:6.1.4]
+	at jdk.proxy2/jdk.proxy2.$Proxy161.findByOrdemProducaoId(Unknown Source) ~[na:na]
+	at com.erp.production.service.impl.OrdemProducaoServiceImpl.gerarPacotes(OrdemProducaoServiceImpl.java:148) ~[!/:0.0.1-SNAPSHOT]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[na:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(Unknown Source) ~[na:na]
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Unknown Source) ~[na:na]
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:351) ~[spring-aop-6.1.4.jar!/:6.1.4]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:196) ~[spring-aop-6.1.4.jar!/:6.1.4]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163) ~[spring-aop-6.1.4.jar!/:6.1.4]
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:765) ~[spring-aop-6.1.4.jar!/:6.1.4]
+	at org.springframework.transaction.interceptor.TransactionInterceptor$1.proceedWithInvocation(TransactionInterceptor.java:123) ~[spring-tx-6.1.4.jar!/:6.1.4]
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:385) ~[spring-tx-6.1.4.jar!/:6.1.4]
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:119) ~[spring-tx-6.1.4.jar!/:6.1.4]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.1.4.jar!/:6.1.4]
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:765) ~[spring-aop-6.1.4.jar!/:6.1.4]
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:717) ~[spring-aop-6.1.4.jar!/:6.1.4]
+	at com.erp.production.service.impl.OrdemProducaoServiceImpl$$SpringCGLIB$$0.gerarPacotes(<generated>) ~[!/:0.0.1-SNAPSHOT]
+	at com.erp.production.controller.OrdemProducaoController.gerarPacotes(OrdemProducaoController.java:42) ~[!/:0.0.1-SNAPSHOT]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[na:na]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(Unknown Source) ~[na:na]
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Unknown Source) ~[na:na]
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:259) ~[spring-web-6.1.4.jar!/:6.1.4]
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:192) ~[spring-web-6.1.4.jar!/:6.1.4]
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:118) ~[spring-webmvc-6.1.4.jar!/:6.1.4]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:920) ~[spring-webmvc-6.1.4.jar!/:6.1.4]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:830) ~[spring-webmvc-6.1.4.jar!/:6.1.4]
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87) ~[spring-webmvc-6.1.4.jar!/:6.1.4]
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089) ~[spring-webmvc-6.1.4.jar!/:6.1.4]
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979) ~[spring-webmvc-6.1.4.jar!/:6.1.4]
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014) ~[spring-webmvc-6.1.4.jar!/:6.1.4]
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:914) ~[spring-webmvc-6.1.4.jar!/:6.1.4]
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:590) ~[tomcat-embed-core-10.1.19.jar!/:na]
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885) ~[spring-webmvc-6.1.4.jar!/:6.1.4]
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658) ~[tomcat-embed-core-10.1.19.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:205) ~[tomcat-embed-core-10.1.19.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.19.jar!/:na]
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51) ~[tomcat-embed-websocket-10.1.19.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174) ~[tomcat-embed-core-10.1.19.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.19.jar!/:na]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:110) ~[spring-web-6.1.4.jar!/:6.1.4]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174) ~[tomcat-embed-core-10.1.19.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.19.jar!/:na]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108) ~[spring-web-6.1.4.jar!/:6.1.4]
+	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:231) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:365) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:100) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:126) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:120) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:131) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:85) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:179) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at com.erp.core.security.JwtAuthenticationFilter.doFilterInternal(JwtAuthenticationFilter.java:99) ~[!/:0.0.1-SNAPSHOT]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.4.jar!/:6.1.4]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:107) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:93) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91) ~[spring-web-6.1.4.jar!/:6.1.4]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.4.jar!/:6.1.4]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.4.jar!/:6.1.4]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.4.jar!/:6.1.4]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.4.jar!/:6.1.4]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:233) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:191) ~[spring-security-web-6.2.2.jar!/:6.2.2]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.1.4.jar!/:6.1.4]
+	at org.springframework.web.servlet.handler.HandlerMappingIntrospector.lambda$createCacheFilter$3(HandlerMappingIntrospector.java:195) ~[spring-webmvc-6.1.4.jar!/:6.1.4]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.1.4.jar!/:6.1.4]
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74) ~[spring-web-6.1.4.jar!/:6.1.4]
+	at org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebMvcSecurityConfiguration.java:230) ~[spring-security-config-6.2.2.jar!/:6.2.2]
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:352) ~[spring-web-6.1.4.jar!/:6.1.4]
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:268) ~[spring-web-6.1.4.jar!/:6.1.4]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174) ~[tomcat-embed-core-10.1.19.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.19.jar!/:na]
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100) ~[spring-web-6.1.4.jar!/:6.1.4]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.4.jar!/:6.1.4]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174) ~[tomcat-embed-core-10.1.19.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.19.jar!/:na]
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93) ~[spring-web-6.1.4.jar!/:6.1.4]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.4.jar!/:6.1.4]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174) ~[tomcat-embed-core-10.1.19.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.19.jar!/:na]
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201) ~[spring-web-6.1.4.jar!/:6.1.4]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.4.jar!/:6.1.4]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:174) ~[tomcat-embed-core-10.1.19.jar!/:na]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:149) ~[tomcat-embed-core-10.1.19.jar!/:na]
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167) ~[tomcat-embed-core-10.1.19.jar!/:na]
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90) ~[tomcat-embed-core-10.1.19.jar!/:na]
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:482) ~[tomcat-embed-core-10.1.19.jar!/:na]
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115) ~[tomcat-embed-core-10.1.19.jar!/:na]
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93) ~[tomcat-embed-core-10.1.19.jar!/:na]
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74) ~[tomcat-embed-core-10.1.19.jar!/:na]
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344) ~[tomcat-embed-core-10.1.19.jar!/:na]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:391) ~[tomcat-embed-core-10.1.19.jar!/:na]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) ~[tomcat-embed-core-10.1.19.jar!/:na]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:896) ~[tomcat-embed-core-10.1.19.jar!/:na]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1744) ~[tomcat-embed-core-10.1.19.jar!/:na]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) ~[tomcat-embed-core-10.1.19.jar!/:na]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1191) ~[tomcat-embed-core-10.1.19.jar!/:na]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659) ~[tomcat-embed-core-10.1.19.jar!/:na]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63) ~[tomcat-embed-core-10.1.19.jar!/:na]
+	at java.base/java.lang.Thread.run(Unknown Source) ~[na:na]
+
+2026-09-09T14:30:51.651Z DEBUG 1 --- [backend] [nio-8080-exec-8] o.s.security.web.FilterChainProxy        : Securing POST /error?tamanhoPacote=20
+2026-09-09T14:30:51.652Z DEBUG 1 --- [backend] [nio-8080-exec-8] o.s.security.web.FilterChainProxy        : Secured POST /error?tamanhoPacote=20
+Hibernate: 
+    select
+        t1_0.id,
+        t1_0.ativo,
+        t1_0.bairro,
+        t1_0.cep,
+        t1_0.cidade,
+        t1_0.cnae_principal_codigo,
+        t1_0.cnae_principal_descricao,
+        t1_0.cnpj,
+        t1_0.complemento,
+        t1_0.criado_em,
+        t1_0.data_abertura,
+        t1_0.email_principal,
+        t1_0.estado,
+        t1_0.logradouro,
+        t1_0.natureza_juridica,
+        t1_0.nome_empresa,
+        t1_0.nome_fantasia,
+        t1_0.numero,
+        t1_0.porte,
+        t1_0.razao_social,
+        t1_0.receita_federal_raw_data,
+        t1_0.schema_name,
+        t1_0.simples_nacional,
+        t1_0.slug,
+        t1_0.status,
+        t1_0.status_rfb,
+        t1_0.telefone 
+    from
+        master.clientes_tenant t1_0 
+    where
+        t1_0.slug=?
+2026-09-09T14:30:51.659Z DEBUG 1 --- [backend] [nio-8080-exec-8] o.s.s.w.a.AnonymousAuthenticationFilter  : Set SecurityContextHolder to anonymous SecurityContext
