@@ -13,6 +13,7 @@ import com.erp.production.repository.FichaTecnicaOperacaoRepository;
 import com.erp.production.repository.FichaTecnicaRepository;
 import com.erp.production.repository.TabelaTempoPadraoRepository;
 import com.erp.production.service.FichaTecnicaService;
+import com.erp.production.service.MotorCalculoSamService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,17 +31,20 @@ public class FichaTecnicaServiceImpl implements FichaTecnicaService {
     private final MaterialRepository materialRepository;
     private final TabelaTempoPadraoRepository tabelaTempoPadraoRepository;
     private final FichaTecnicaOperacaoRepository fichaTecnicaOperacaoRepository;
+    private final MotorCalculoSamService motorCalculoSamService;
 
     public FichaTecnicaServiceImpl(FichaTecnicaRepository fichaTecnicaRepository, 
                                    ProdutoBaseRepository produtoBaseRepository, 
                                    MaterialRepository materialRepository,
                                    TabelaTempoPadraoRepository tabelaTempoPadraoRepository,
-                                   FichaTecnicaOperacaoRepository fichaTecnicaOperacaoRepository) {
+                                   FichaTecnicaOperacaoRepository fichaTecnicaOperacaoRepository,
+                                   MotorCalculoSamService motorCalculoSamService) {
         this.fichaTecnicaRepository = fichaTecnicaRepository;
         this.produtoBaseRepository = produtoBaseRepository;
         this.materialRepository = materialRepository;
         this.tabelaTempoPadraoRepository = tabelaTempoPadraoRepository;
         this.fichaTecnicaOperacaoRepository = fichaTecnicaOperacaoRepository;
+        this.motorCalculoSamService = motorCalculoSamService;
     }
 
     @Override
@@ -108,11 +112,6 @@ public class FichaTecnicaServiceImpl implements FichaTecnicaService {
 
         Integer qFolhas = request.quantidadeFolhas() != null ? request.quantidadeFolhas() : 0;
         Integer qParadas = request.quantidadeParadas() != null ? request.quantidadeParadas() : 0;
-        Integer indice = qFolhas + qParadas;
-
-        TabelaTempoPadrao tempoPadrao = tabelaTempoPadraoRepository.findByIndiceAndGrauDificuldadeAndFaixaComprimento(
-                indice, request.grauDificuldade(), request.faixaComprimento()
-        ).orElse(null);
 
         FichaTecnicaOperacao operacao = new FichaTecnicaOperacao();
         operacao.setNome(request.nome());
@@ -120,9 +119,19 @@ public class FichaTecnicaServiceImpl implements FichaTecnicaService {
         operacao.setOrdemExecucao(request.ordemExecucao());
         operacao.setQuantidadeFolhas(qFolhas);
         operacao.setQuantidadeParadas(qParadas);
-        operacao.setGrauDificuldade(request.grauDificuldade());
-        operacao.setFaixaComprimento(request.faixaComprimento());
-        operacao.setTempoCalculadoCentesimal(tempoPadrao != null ? tempoPadrao.getTempoCentesimal() : BigDecimal.ZERO);
+        operacao.setRpmMaquina(request.rpmMaquina());
+        operacao.setPontosPorCm(request.pontosPorCm());
+        operacao.setComprimentoCosturaCm(request.comprimentoCosturaCm());
+        operacao.setTipoTrajeto(request.tipoTrajeto());
+        operacao.setDificuldadeTecido(request.dificuldadeTecido());
+        
+        if (request.rpmMaquina() != null && request.pontosPorCm() != null && request.comprimentoCosturaCm() != null) {
+            CalculoSamInput samInput = new CalculoSamInput(request.rpmMaquina(), request.pontosPorCm(), request.comprimentoCosturaCm(), qFolhas, request.dificuldadeTecido(), request.tipoTrajeto(), request.quantidadeParadas());
+            CalculoSamOutput samOutput = motorCalculoSamService.calcularOperacao(samInput);
+            operacao.setSamMinutos(samOutput.getSamMinutos());
+            operacao.setQuantidadeParadas(samOutput.getParadasUtilizadas());
+        }
+
 
         fichaTecnica.addOperacao(operacao);
         
@@ -145,20 +154,24 @@ public class FichaTecnicaServiceImpl implements FichaTecnicaService {
 
         Integer qFolhas = request.quantidadeFolhas() != null ? request.quantidadeFolhas() : 0;
         Integer qParadas = request.quantidadeParadas() != null ? request.quantidadeParadas() : 0;
-        Integer indice = qFolhas + qParadas;
-
-        TabelaTempoPadrao tempoPadrao = tabelaTempoPadraoRepository.findByIndiceAndGrauDificuldadeAndFaixaComprimento(
-                indice, request.grauDificuldade(), request.faixaComprimento()
-        ).orElse(null);
 
         operacao.setNome(request.nome());
         operacao.setMaquina(request.maquina());
         operacao.setOrdemExecucao(request.ordemExecucao());
         operacao.setQuantidadeFolhas(qFolhas);
         operacao.setQuantidadeParadas(qParadas);
-        operacao.setGrauDificuldade(request.grauDificuldade());
-        operacao.setFaixaComprimento(request.faixaComprimento());
-        operacao.setTempoCalculadoCentesimal(tempoPadrao != null ? tempoPadrao.getTempoCentesimal() : BigDecimal.ZERO);
+        operacao.setRpmMaquina(request.rpmMaquina());
+        operacao.setPontosPorCm(request.pontosPorCm());
+        operacao.setComprimentoCosturaCm(request.comprimentoCosturaCm());
+        operacao.setTipoTrajeto(request.tipoTrajeto());
+        operacao.setDificuldadeTecido(request.dificuldadeTecido());
+
+        if (request.rpmMaquina() != null && request.pontosPorCm() != null && request.comprimentoCosturaCm() != null) {
+            CalculoSamInput samInput = new CalculoSamInput(request.rpmMaquina(), request.pontosPorCm(), request.comprimentoCosturaCm(), qFolhas, request.dificuldadeTecido(), request.tipoTrajeto(), request.quantidadeParadas());
+            CalculoSamOutput samOutput = motorCalculoSamService.calcularOperacao(samInput);
+            operacao.setSamMinutos(samOutput.getSamMinutos());
+            operacao.setQuantidadeParadas(samOutput.getParadasUtilizadas());
+        }
 
         FichaTecnica saved = fichaTecnicaRepository.save(fichaTecnica);
         return mapToResponse(saved);
@@ -267,8 +280,12 @@ public class FichaTecnicaServiceImpl implements FichaTecnicaService {
                             op.getOrdemExecucao(),
                             op.getQuantidadeFolhas(),
                             op.getQuantidadeParadas(),
-                            op.getGrauDificuldade(),
-                            op.getFaixaComprimento(),
+                            op.getRpmMaquina(),
+                            op.getPontosPorCm(),
+                            op.getComprimentoCosturaCm(),
+                            op.getTipoTrajeto(),
+                            op.getDificuldadeTecido(),
+                            op.getSamMinutos(),
                             op.getTempoCalculadoCentesimal()
                     )).collect(Collectors.toList());
         }

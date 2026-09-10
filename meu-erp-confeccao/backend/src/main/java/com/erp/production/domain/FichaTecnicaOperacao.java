@@ -42,16 +42,28 @@ public class FichaTecnicaOperacao {
     @Column(name = "quantidade_paradas", nullable = false)
     private Integer quantidadeParadas;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "grau_dificuldade", nullable = false, length = 30)
-    private GrauDificuldade grauDificuldade;
+    @Column(name = "rpm_maquina")
+    private Integer rpmMaquina;
+
+    @Column(name = "pontos_por_cm", precision = 10, scale = 2)
+    private BigDecimal pontosPorCm;
+
+    @Column(name = "comprimento_costura_cm", precision = 10, scale = 2)
+    private BigDecimal comprimentoCosturaCm;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "faixa_comprimento", nullable = false, length = 30)
-    private FaixaComprimentoCostura faixaComprimento;
+    @Column(name = "tipo_trajeto", length = 30)
+    private TipoTrajeto tipoTrajeto;
 
-    @Column(name = "tempo_calculado_centesimal", nullable = false, precision = 10, scale = 2)
-    private BigDecimal tempoCalculadoCentesimal;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "dificuldade_tecido", length = 30)
+    private DificuldadeTecido dificuldadeTecido;
+
+    @Column(name = "tempo_calculado_centesimal", precision = 10, scale = 2)
+    private BigDecimal tempoCalculadoCentesimal; // Keep as fallback/old if needed
+
+    @Column(name = "sam_minutos", precision = 10, scale = 6)
+    private BigDecimal samMinutos;
 
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
@@ -67,10 +79,18 @@ public class FichaTecnicaOperacao {
     public void setQuantidadeFolhas(Integer quantidadeFolhas) { this.quantidadeFolhas = quantidadeFolhas; }
     public Integer getQuantidadeParadas() { return quantidadeParadas; }
     public void setQuantidadeParadas(Integer quantidadeParadas) { this.quantidadeParadas = quantidadeParadas; }
-    public GrauDificuldade getGrauDificuldade() { return grauDificuldade; }
-    public void setGrauDificuldade(GrauDificuldade grauDificuldade) { this.grauDificuldade = grauDificuldade; }
-    public FaixaComprimentoCostura getFaixaComprimento() { return faixaComprimento; }
-    public void setFaixaComprimento(FaixaComprimentoCostura faixaComprimento) { this.faixaComprimento = faixaComprimento; }
     public BigDecimal getTempoCalculadoCentesimal() { return tempoCalculadoCentesimal; }
     public void setTempoCalculadoCentesimal(BigDecimal tempoCalculadoCentesimal) { this.tempoCalculadoCentesimal = tempoCalculadoCentesimal; }
+    public Integer getRpmMaquina() { return rpmMaquina; }
+    public void setRpmMaquina(Integer rpmMaquina) { this.rpmMaquina = rpmMaquina; }
+    public BigDecimal getPontosPorCm() { return pontosPorCm; }
+    public void setPontosPorCm(BigDecimal pontosPorCm) { this.pontosPorCm = pontosPorCm; }
+    public BigDecimal getComprimentoCosturaCm() { return comprimentoCosturaCm; }
+    public void setComprimentoCosturaCm(BigDecimal comprimentoCosturaCm) { this.comprimentoCosturaCm = comprimentoCosturaCm; }
+    public TipoTrajeto getTipoTrajeto() { return tipoTrajeto; }
+    public void setTipoTrajeto(TipoTrajeto tipoTrajeto) { this.tipoTrajeto = tipoTrajeto; }
+    public DificuldadeTecido getDificuldadeTecido() { return dificuldadeTecido; }
+    public void setDificuldadeTecido(DificuldadeTecido dificuldadeTecido) { this.dificuldadeTecido = dificuldadeTecido; }
+    public BigDecimal getSamMinutos() { return samMinutos; }
+    public void setSamMinutos(BigDecimal samMinutos) { this.samMinutos = samMinutos; }
 }

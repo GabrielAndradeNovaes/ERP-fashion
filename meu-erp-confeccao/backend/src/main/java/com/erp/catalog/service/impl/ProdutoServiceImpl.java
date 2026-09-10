@@ -155,7 +155,7 @@ public class ProdutoServiceImpl implements ProdutoService {
                     produtoBase.getFichaTecnica().getTempoPadraoTotalCentesimal(),
                     java.math.BigDecimal.ZERO, // getCustoTotalMateriais() not defined
                     produtoBase.getFichaTecnica().getMateriais().stream().map(m -> new com.erp.production.dto.FichaTecnicaMaterialResponse(m.getId(), m.getMaterial().getId(), m.getMaterial().getNome(), m.getMaterial().getUnidadeMedida(), m.getQuantidade())).collect(Collectors.toList()),
-                    produtoBase.getFichaTecnica().getOperacoes().stream().map(op -> new com.erp.production.dto.FichaTecnicaOperacaoResponse(op.getId(), op.getNome(), op.getMaquina(), op.getOrdemExecucao(), op.getQuantidadeFolhas(), op.getQuantidadeParadas(), op.getGrauDificuldade(), op.getFaixaComprimento(), op.getTempoCalculadoCentesimal())).collect(Collectors.toList())
+                    produtoBase.getFichaTecnica().getOperacoes().stream().map(op -> new com.erp.production.dto.FichaTecnicaOperacaoResponse(op.getId(), op.getNome(), op.getMaquina(), op.getOrdemExecucao(), op.getQuantidadeFolhas(), op.getQuantidadeParadas(), op.getRpmMaquina(), op.getPontosPorCm(), op.getComprimentoCosturaCm(), op.getTipoTrajeto(), op.getDificuldadeTecido(), op.getSamMinutos(), op.getTempoCalculadoCentesimal())).collect(Collectors.toList())
             );
         }
 

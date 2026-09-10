@@ -1,7 +1,8 @@
 package com.erp.production.dto;
 
-import com.erp.production.domain.FaixaComprimentoCostura;
-import com.erp.production.domain.GrauDificuldade;
+import com.erp.production.domain.DificuldadeTecido;
+import com.erp.production.domain.TipoTrajeto;
+
 import java.math.BigDecimal;
 import java.util.UUID;
 
@@ -12,7 +13,12 @@ public record FichaTecnicaOperacaoResponse(
         Integer ordemExecucao,
         Integer quantidadeFolhas,
         Integer quantidadeParadas,
-        GrauDificuldade grauDificuldade,
-        FaixaComprimentoCostura faixaComprimento,
+        Integer rpmMaquina,
+        BigDecimal pontosPorCm,
+        BigDecimal comprimentoCosturaCm,
+        TipoTrajeto tipoTrajeto,
+        DificuldadeTecido dificuldadeTecido,
+        BigDecimal samMinutos,
         BigDecimal tempoCalculadoCentesimal
-) {}
+) {
+}

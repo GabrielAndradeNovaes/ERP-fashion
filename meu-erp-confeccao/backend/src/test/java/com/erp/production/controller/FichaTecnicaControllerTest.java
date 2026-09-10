@@ -62,7 +62,7 @@ public class FichaTecnicaControllerTest {
     @Test
     void testAddOperacao() {
         UUID id = UUID.randomUUID();
-        FichaTecnicaOperacaoRequest req = new FichaTecnicaOperacaoRequest(null, null, null, null, null, null, null);
+        FichaTecnicaOperacaoRequest req = new FichaTecnicaOperacaoRequest(null, null, null, null, null, null, null, null, null, null);
         FichaTecnicaResponse res = new FichaTecnicaResponse(null, null, null, null, null, null, null, null, null);
         when(service.addOperacao(id, req)).thenReturn(res);
         ResponseEntity<FichaTecnicaResponse> result = controller.addOperacao(id, req);

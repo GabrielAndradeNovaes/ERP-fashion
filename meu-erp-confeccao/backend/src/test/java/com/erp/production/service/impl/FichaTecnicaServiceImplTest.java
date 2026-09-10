@@ -7,8 +7,9 @@ import com.erp.inventory.repository.MaterialRepository;
 import com.erp.production.domain.FichaTecnica;
 import com.erp.production.domain.FichaTecnicaMaterial;
 import com.erp.production.domain.FichaTecnicaOperacao;
-import com.erp.production.domain.GrauDificuldade;
 import com.erp.production.domain.TabelaTempoPadrao;
+import com.erp.production.domain.TipoTrajeto;
+import com.erp.production.domain.DificuldadeTecido;
 import com.erp.production.dto.FichaTecnicaMaterialRequest;
 import com.erp.production.dto.FichaTecnicaOperacaoRequest;
 import com.erp.production.dto.FichaTecnicaRequest;
@@ -22,6 +23,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import com.erp.production.service.MotorCalculoSamService;
+import com.erp.production.dto.CalculoSamInput;
+import com.erp.production.dto.CalculoSamOutput;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -46,6 +50,8 @@ public class FichaTecnicaServiceImplTest {
     private TabelaTempoPadraoRepository tabelaTempoPadraoRepository;
     @Mock
     private FichaTecnicaOperacaoRepository fichaTecnicaOperacaoRepository;
+    @Mock
+    private MotorCalculoSamService motorCalculoSamService;
 
     @InjectMocks
     private FichaTecnicaServiceImpl service;
@@ -148,18 +154,19 @@ public class FichaTecnicaServiceImplTest {
         when(fichaTecnicaRepository.findById(mockFicha.getId())).thenReturn(Optional.of(mockFicha));
         when(fichaTecnicaRepository.save(any())).thenReturn(mockFicha);
         
-        TabelaTempoPadrao ttp = new TabelaTempoPadrao();
-        ttp.setTempoCentesimal(new BigDecimal("15.5"));
-        when(tabelaTempoPadraoRepository.findByIndiceAndGrauDificuldadeAndFaixaComprimento(anyInt(), any(), any())).thenReturn(Optional.of(ttp));
+        CalculoSamOutput mockOutput = new CalculoSamOutput();
+        mockOutput.setSamMinutos(new BigDecimal("0.204125"));
+        mockOutput.setParadasUtilizadas(2);
+        when(motorCalculoSamService.calcularOperacao(any())).thenReturn(mockOutput);
 
         FichaTecnicaOperacaoRequest req = new FichaTecnicaOperacaoRequest(
-                "Costura", "Reta", 1, 10, 5, GrauDificuldade.MEDIO, com.erp.production.domain.FaixaComprimentoCostura.DE_0_A_60
+                "Costura", "Reta", 1, 2, 0, 4000, new BigDecimal("4"), new BigDecimal("50"), TipoTrajeto.RETA, DificuldadeTecido.NORMAL
         );
         
         FichaTecnicaResponse res = service.addOperacao(mockFicha.getId(), req);
         
         assertEquals(1, mockFicha.getOperacoes().size());
-        assertEquals(new BigDecimal("15.5"), mockFicha.getOperacoes().get(0).getTempoCalculadoCentesimal());
+        assertEquals(new BigDecimal("0.204125"), mockFicha.getOperacoes().get(0).getSamMinutos());
     }
 
     @Test
@@ -180,21 +187,22 @@ public class FichaTecnicaServiceImplTest {
         when(fichaTecnicaRepository.findById(mockFicha.getId())).thenReturn(Optional.of(mockFicha));
         when(fichaTecnicaOperacaoRepository.findById(mockOperacao.getId())).thenReturn(Optional.of(mockOperacao));
         
-        TabelaTempoPadrao ttp = new TabelaTempoPadrao();
-        ttp.setTempoCentesimal(new BigDecimal("20.0"));
-        when(tabelaTempoPadraoRepository.findByIndiceAndGrauDificuldadeAndFaixaComprimento(anyInt(), any(), any())).thenReturn(Optional.of(ttp));
+        CalculoSamOutput mockOutput = new CalculoSamOutput();
+        mockOutput.setSamMinutos(new BigDecimal("0.250000"));
+        mockOutput.setParadasUtilizadas(3);
+        when(motorCalculoSamService.calcularOperacao(any())).thenReturn(mockOutput);
         
         when(fichaTecnicaRepository.save(any())).thenReturn(mockFicha);
 
         FichaTecnicaOperacaoRequest req = new FichaTecnicaOperacaoRequest(
-                "Costura Alterada", "MaquinaNova", 2, 5, 2, GrauDificuldade.FACIL, com.erp.production.domain.FaixaComprimentoCostura.DE_61_A_90
+                "Costura Alterada", "MaquinaNova", 2, 2, 0, 3000, new BigDecimal("4"), new BigDecimal("60"), TipoTrajeto.CURVA, DificuldadeTecido.MALHA
         );
 
         FichaTecnicaResponse res = service.updateOperacao(mockFicha.getId(), mockOperacao.getId(), req);
 
         assertEquals("Costura Alterada", mockOperacao.getNome());
         assertEquals("MaquinaNova", mockOperacao.getMaquina());
-        assertEquals(new BigDecimal("20.0"), mockOperacao.getTempoCalculadoCentesimal());
+        assertEquals(new BigDecimal("0.250000"), mockOperacao.getSamMinutos());
     }
 
     @Test
@@ -207,7 +215,7 @@ public class FichaTecnicaServiceImplTest {
         when(fichaTecnicaOperacaoRepository.findById(mockOperacao.getId())).thenReturn(Optional.of(mockOperacao));
 
         FichaTecnicaOperacaoRequest req = new FichaTecnicaOperacaoRequest(
-                "Costura", "Reta", 1, 10, 5, GrauDificuldade.MEDIO, com.erp.production.domain.FaixaComprimentoCostura.DE_0_A_60
+                "Costura", "Reta", 1, 2, 0, 4000, new BigDecimal("4"), new BigDecimal("50"), TipoTrajeto.RETA, DificuldadeTecido.NORMAL
         );
 
         assertThrows(IllegalArgumentException.class, () -> service.updateOperacao(mockFicha.getId(), mockOperacao.getId(), req));

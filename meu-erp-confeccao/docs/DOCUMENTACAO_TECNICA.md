@@ -89,11 +89,18 @@ Itens (ingredientes) da Ficha Técnica.
 - `quantidade` (Decimal 10,4): Quantidade do material consumida.
 
 #### Tabela: `fichas_tecnicas_operacoes`
-Roteiro de costura e operações.
+Roteiro de costura e operações. Agora suporta cálculo exato do Tempo Padrão (SAM) via parâmetros físicos da operação.
 - `id` (UUID, PK): Identificador único.
 - `ficha_tecnica_id` (UUID, FK): Vínculo com a `fichas_tecnicas`.
 - `nome` (Varchar): Nome da operação (Ex: Fechar lateral).
-- `tempo_calculado_centesimal` (Decimal): Tempo base da operação.
+- `rpm_maquina` (Integer): Velocidade de costura (RPM) da máquina.
+- `pontos_por_cm` (Decimal): Quantidade de pontos por centímetro.
+- `comprimento_costura_cm` (Decimal): Distância percorrida na costura em centímetros.
+- `tipo_trajeto` (Enum): RETA ou CURVA.
+- `dificuldade_tecido` (Enum): NORMAL, MALHA, ESCORREGADIO, etc.
+- `quantidade_folhas` (Integer): Quantidade de partes (folhas) que serão manuseadas.
+- `quantidade_paradas` (Integer): Número de paradas (forçadas + calculadas) na operação.
+- `sam_minutos` (Decimal): Tempo final calculado para executar esta operação em minutos (Standard Allowed Minute).
 
 ---
 
