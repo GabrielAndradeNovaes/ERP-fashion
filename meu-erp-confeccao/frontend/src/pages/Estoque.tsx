@@ -552,7 +552,7 @@ const Estoque = () => {
               slotProps={{ 
                 htmlInput: {
                   step: activeTab === 0 ? "0.001" : "1",
-                  min: "0.001"
+                  min: activeTab === 0 ? "0.001" : "1"
                 }
               }}
               value={movQtd}
