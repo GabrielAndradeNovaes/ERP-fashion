@@ -95,9 +95,12 @@ const Produtos = () => {
   const [opMaquina, setOpMaquina] = useState('');
   const [opOrdem, setOpOrdem] = useState('1');
   const [opFolhas, setOpFolhas] = useState('2');
-  const [opParadas, setOpParadas] = useState('1');
-  const [opDificuldade, setOpDificuldade] = useState('MEDIO');
-  const [opComprimento, setOpComprimento] = useState('DE_0_A_60');
+  const [opParadas, setOpParadas] = useState('0');
+  const [opRpmMaquina, setOpRpmMaquina] = useState('4000');
+  const [opPontosPorCm, setOpPontosPorCm] = useState('4.0');
+  const [opComprimentoCosturaCm, setOpComprimentoCosturaCm] = useState('50.0');
+  const [opTipoTrajeto, setOpTipoTrajeto] = useState('RETA');
+  const [opDificuldadeTecido, setOpDificuldadeTecido] = useState('NORMAL');
   const [editingOperacaoId, setEditingOperacaoId] = useState<string | null>(null);
   
   // Form State (Add SKU Matrix)
@@ -278,8 +281,11 @@ const Produtos = () => {
         ordemExecucao: parseInt(opOrdem) || 1,
         quantidadeFolhas: parseInt(opFolhas) || 0,
         quantidadeParadas: parseInt(opParadas) || 0,
-        grauDificuldade: opDificuldade,
-        faixaComprimento: opComprimento
+        rpmMaquina: parseInt(opRpmMaquina) || 4000,
+        pontosPorCm: parseFloat(opPontosPorCm) || 4.0,
+        comprimentoCosturaCm: parseFloat(opComprimentoCosturaCm) || 0.0,
+        tipoTrajeto: opTipoTrajeto,
+        dificuldadeTecido: opDificuldadeTecido
       };
 
       if (editingOperacaoId) {
@@ -307,8 +313,11 @@ const Produtos = () => {
     setOpOrdem(op.ordemExecucao.toString());
     setOpFolhas(op.quantidadeFolhas.toString());
     setOpParadas(op.quantidadeParadas.toString());
-    setOpDificuldade(op.grauDificuldade);
-    setOpComprimento(op.faixaComprimento);
+    setOpRpmMaquina(op.rpmMaquina ? op.rpmMaquina.toString() : '4000');
+    setOpPontosPorCm(op.pontosPorCm ? op.pontosPorCm.toString() : '4.0');
+    setOpComprimentoCosturaCm(op.comprimentoCosturaCm ? op.comprimentoCosturaCm.toString() : '0.0');
+    setOpTipoTrajeto(op.tipoTrajeto || 'RETA');
+    setOpDificuldadeTecido(op.dificuldadeTecido || 'NORMAL');
   };
 
   const handleRemoveOperacao = async (operacaoId: string) => {
@@ -328,9 +337,12 @@ const Produtos = () => {
     setOpMaquina('');
     setOpOrdem((selectedProduto?.fichaTecnica?.operacoes?.length ? selectedProduto.fichaTecnica.operacoes.length + 1 : 1).toString());
     setOpFolhas('2');
-    setOpParadas('1');
-    setOpDificuldade('MEDIO');
-    setOpComprimento('DE_0_A_60');
+    setOpParadas('0');
+    setOpRpmMaquina('4000');
+    setOpPontosPorCm('4.0');
+    setOpComprimentoCosturaCm('50.0');
+    setOpTipoTrajeto('RETA');
+    setOpDificuldadeTecido('NORMAL');
   };
 
   const handleGenerateSkus = async (e: React.FormEvent) => {
@@ -941,28 +953,35 @@ const Produtos = () => {
                           <TextField label="Paradas" type="number" required size="small" value={opParadas} onChange={e => setOpParadas(e.target.value)} fullWidth />
                         </Grid>
                         <Grid size={{ xs: 6, sm: 2 }}>
-                          <FormControl fullWidth size="small">
-                            <InputLabel>Dif.</InputLabel>
-                            <Select value={opDificuldade} label="Dif." onChange={e => setOpDificuldade(e.target.value)}>
-                              <MenuItem value="MUITO_FACIL">Muito Fácil</MenuItem>
-                              <MenuItem value="FACIL">Fácil</MenuItem>
-                              <MenuItem value="MEDIO">Médio</MenuItem>
-                              <MenuItem value="MEDIO_DIFICIL">Médio Dif.</MenuItem>
-                              <MenuItem value="DIFICIL">Difícil</MenuItem>
-                            </Select>
-                          </FormControl>
+                          <TextField label="RPM" type="number" required size="small" value={opRpmMaquina} onChange={e => setOpRpmMaquina(e.target.value)} fullWidth />
                         </Grid>
                         <Grid size={{ xs: 6, sm: 2 }}>
+                          <TextField label="Pts/cm" type="number" slotProps={{ htmlInput: { step: '0.1' } }} required size="small" value={opPontosPorCm} onChange={e => setOpPontosPorCm(e.target.value)} fullWidth />
+                        </Grid>
+                        <Grid size={{ xs: 6, sm: 2 }}>
+                          <TextField label="Comp.(cm)" type="number" slotProps={{ htmlInput: { step: '0.1' } }} required size="small" value={opComprimentoCosturaCm} onChange={e => setOpComprimentoCosturaCm(e.target.value)} fullWidth />
+                        </Grid>
+                        <Grid size={{ xs: 6, sm: 3 }}>
                           <FormControl fullWidth size="small">
-                            <InputLabel>Comp.</InputLabel>
-                            <Select value={opComprimento} label="Comp." onChange={e => setOpComprimento(e.target.value)}>
-                              <MenuItem value="DE_0_A_60">0-60</MenuItem>
-                              <MenuItem value="DE_61_A_90">61-90</MenuItem>
-                              <MenuItem value="ACIMA_DE_91">{'>'} 91</MenuItem>
+                            <InputLabel>Trajeto</InputLabel>
+                            <Select value={opTipoTrajeto} label="Trajeto" onChange={e => setOpTipoTrajeto(e.target.value)}>
+                              <MenuItem value="RETA">Reta</MenuItem>
+                              <MenuItem value="CURVA">Curva</MenuItem>
                             </Select>
                           </FormControl>
                         </Grid>
-                        <Grid size={{ xs: 12, sm: 2 }}>
+                        <Grid size={{ xs: 6, sm: 3 }}>
+                          <FormControl fullWidth size="small">
+                            <InputLabel>Tecido</InputLabel>
+                            <Select value={opDificuldadeTecido} label="Tecido" onChange={e => setOpDificuldadeTecido(e.target.value)}>
+                              <MenuItem value="NORMAL">Normal</MenuItem>
+                              <MenuItem value="MALHA">Malha</MenuItem>
+                              <MenuItem value="ESCORREGADIO">Escorregadio</MenuItem>
+                              <MenuItem value="MUITO_ESCORREGADIO">Muito Escorregadio</MenuItem>
+                            </Select>
+                          </FormControl>
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
                           <Button 
                             type="submit" 
                             variant="contained" 
@@ -1007,7 +1026,7 @@ const Produtos = () => {
                           <TableCell sx={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>{op.ordemExecucao}</TableCell>
                           <TableCell sx={{ fontWeight: 500, borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>{op.nome}</TableCell>
                           <TableCell sx={{ color: 'var(--text-muted)', borderColor: 'var(--border-color)' }}>{op.maquina}</TableCell>
-                          <TableCell align="right" sx={{ fontWeight: 700, color: 'var(--warning)', borderColor: 'var(--border-color)' }}>{op.tempoCalculadoCentesimal}m</TableCell>
+                          <TableCell align="right" sx={{ fontWeight: 700, color: 'var(--warning)', borderColor: 'var(--border-color)' }}>{op.samMinutos ? op.samMinutos.toFixed(4) : op.tempoCalculadoCentesimal}m</TableCell>
                           <TableCell align="right" sx={{ borderColor: 'var(--border-color)' }}>
                             <IconButton size="small" onClick={() => handleEditOperacao(op)} sx={{ color: 'var(--accent-primary)', mr: 1 }}>
                               <Edit size={16} />
