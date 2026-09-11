@@ -157,6 +157,27 @@ Registro de leitura do cupom (bipagem) ou apontamento de tempo manual pelas cost
 
 ---
 
+### 2.6. Módulo: Financeiro (Schema Tenant)
+
+#### Tabela: `titulos_receber`
+Contas a receber dos clientes.
+- `id` (UUID, PK): Identificador do título.
+- `descricao` (Varchar): Descrição do título.
+- `valor` (Decimal 19,4): Valor do título.
+- `data_vencimento` (Date): Data de vencimento.
+- `status` (Enum): PENDING, PAID, CANCELED, REFUNDED.
+
+#### Tabela: `transacoes_pagamento`
+Registro das transações individuais de um título a receber.
+- `id` (UUID, PK): Identificador da transação.
+- `titulo_receber_id` (UUID, FK): Vínculo com `titulos_receber`.
+- `gateway` (Enum): MERCADOPAGO, MOCK, etc.
+- `gateway_transacao_id` (Varchar): Identificador externo.
+- `status` (Enum): PENDING, PAID, REJECTED, REFUNDED, EXPIRED.
+- `qr_code_payload` (Text): Payload PIX Copia e Cola.
+
+---
+
 ## 3. Integração e Endpoints da API
 
 Todos os endpoints requerem autenticação JWT (`Authorization: Bearer <token>`), cujo token inclui a identificação da empresa internamente.
@@ -173,6 +194,8 @@ Todos os endpoints requerem autenticação JWT (`Authorization: Bearer <token>`)
 | Bipagem | `/api/production/apontamentos` | Recebe a leitura do código do cupom ou tempo manual para pontuar o funcionário. |
 | RH | `/api/funcionarios` | Cadastro de funcionários e jornadas detalhadas. |
 | Produtividade| `/api/production/produtividade` | Geração do relatório de produtividade (Tempo Teórico vs Tempo Real vs Rendimento). |
+| Financeiro Admin | `/api/financeiro/receber` | Cadastro e listagem de Títulos a Receber, geração manual de pagamentos PIX. |
+| Checkout Público | `/api/public/checkout` | Consulta de detalhes de pagamento (QR Code Pix) e mock webhooks simulados via polling. |
 
 ---
 
