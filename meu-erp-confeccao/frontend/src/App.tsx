@@ -27,6 +27,7 @@ import LandingPage from './pages/LandingPage';
 import ContasPagar from './pages/Financeiro/ContasPagar';
 
 import Checkout from './pages/Checkout';
+import TenantBilling from './pages/TenantBilling';
 import Settings from './pages/Settings';
 
 const isMasterDomain = window.location.hostname === 'localhost' || window.location.hostname.startsWith('admin.') || window.location.hostname.startsWith('www.');
@@ -113,6 +114,13 @@ const Sidebar = () => {
       title: 'Sistema',
       items: [
         { path: '/settings', label: 'Configurações', icon: <SettingsIcon size={20} /> },
+      ]
+    },
+    {
+      title: 'Configurações',
+      module: 'CORE',
+      items: [
+        { path: '/assinatura', label: 'Minha Assinatura', icon: <CreditCard size={20} /> },
       ]
     }
   ];
@@ -264,7 +272,7 @@ const MainApp = () => {
               <Navigate to="/" />
             )
           } />
-          
+          <Route path="/assinatura" element={<PrivateRoute><TenantBilling /></PrivateRoute>} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>
@@ -400,6 +408,7 @@ const AppRouter = () => {
     return (
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/pagamento/:id" element={<Checkout />} />
         <Route path="/*" element={<AdminApp />} />
       </Routes>
     );

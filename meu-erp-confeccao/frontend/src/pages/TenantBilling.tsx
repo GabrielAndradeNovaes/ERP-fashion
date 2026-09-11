@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Paper, Chip, Button, IconButton, CircularProgress } from '@mui/material';
 import { ExternalLink, CreditCard, RefreshCw } from 'lucide-react';
-import api from '../../api/axios';
+import api from "../api/axios";
 
 interface FaturaSaaS {
   id: string;
@@ -13,7 +13,7 @@ interface FaturaSaaS {
   status: 'PENDING' | 'PAID' | 'CANCELED' | 'REFUNDED';
 }
 
-const AdminBilling = () => {
+const TenantBilling = () => {
   const [faturas, setFaturas] = useState<FaturaSaaS[]>([]);
   const [loading, setLoading] = useState(true);
   const [gerando, setGerando] = useState<string | null>(null);
@@ -61,11 +61,11 @@ const AdminBilling = () => {
     <Box sx={{ p: 4, maxWidth: 1400, margin: '0 auto' }}>
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Box>
-          <Typography variant="h4" sx={{ fontWeight: 800, mb: 1 }}>
-            Faturamento (Global)
+          <Typography variant="h4" sx={{ fontWeight: 800, color: 'var(--text-primary)' }}>
+            Minha Assinatura
           </Typography>
-          <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-            Gestão financeira do ERP e assinaturas
+          <Typography variant="body1" sx={{ color: 'var(--text-secondary)', mt: 1 }}>
+            Gerencie o pagamento da sua assinatura do sistema
           </Typography>
         </Box>
         <Button 
@@ -155,4 +155,4 @@ const AdminBilling = () => {
   );
 };
 
-export default AdminBilling;
+export default TenantBilling;

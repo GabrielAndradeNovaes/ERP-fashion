@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Box, Typography, Card, CircularProgress, Button, Divider, Alert } from '@mui/material';
 import { CheckCircle, Copy, ShieldCheck, CreditCard } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
-import axios from 'axios';
+import api from '../api/axios';
 
 interface CheckoutDetails {
   tituloDescricao: string;
@@ -23,7 +23,7 @@ const Checkout = () => {
 
   const fetchDetails = async () => {
     try {
-      const response = await axios.get(`/api/public/checkout-saas/${id}`);
+      const response = await api.get(`/public/checkout-saas/${id}`);
       setDetails(response.data);
       if (response.data.status === 'PAID') {
         setLoading(false);
@@ -58,7 +58,7 @@ const Checkout = () => {
 
   const handleSimulatePayment = async () => {
     try {
-      await axios.post(`/api/public/checkout-saas/webhook/mock`, {
+      await api.post(`/public/checkout-saas/webhook/mock`, {
         gatewayTransacaoId: details?.gatewayTransacaoId,
         status: 'PAID'
       });
