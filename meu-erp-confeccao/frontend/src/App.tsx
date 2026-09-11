@@ -25,7 +25,7 @@ import TenantsList from './pages/Backoffice/TenantsList';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import LandingPage from './pages/LandingPage';
 import ContasPagar from './pages/Financeiro/ContasPagar';
-import TitulosReceber from './pages/Financeiro/TitulosReceber';
+
 import Checkout from './pages/Checkout';
 import Settings from './pages/Settings';
 
@@ -254,7 +254,7 @@ const MainApp = () => {
           <Route path="/pcp/funcionarios" element={<PrivateRoute requiredPermission="PCP_VIEW"><Funcionarios /></PrivateRoute>} />
           <Route path="/pcp/produtividade" element={<PrivateRoute requiredPermission="PCP_VIEW"><Produtividade /></PrivateRoute>} />
           <Route path="/financeiro/contas-pagar" element={<PrivateRoute requiredPermission="PCP_VIEW"><ContasPagar /></PrivateRoute>} />
-          <Route path="/financeiro/receber" element={<PrivateRoute requiredPermission="PCP_VIEW"><TitulosReceber /></PrivateRoute>} />
+
           <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
           
           <Route path="/admin/tenants" element={

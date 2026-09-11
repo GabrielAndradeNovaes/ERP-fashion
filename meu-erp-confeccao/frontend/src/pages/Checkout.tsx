@@ -23,9 +23,9 @@ const Checkout = () => {
 
   const fetchDetails = async () => {
     try {
-      const response = await axios.get(`/api/public/checkout/${id}`);
+      const response = await axios.get(`/api/public/checkout-saas/${id}`);
       setDetails(response.data);
-      if (response.data.statusTitulo === 'PAID' || response.data.statusTransacao === 'PAID') {
+      if (response.data.status === 'PAID') {
         setLoading(false);
       }
     } catch (err) {
@@ -40,13 +40,13 @@ const Checkout = () => {
     
     // Polling a cada 5 segundos se não estiver pago
     const interval = setInterval(() => {
-      if (details?.statusTitulo !== 'PAID') {
+      if (details?.status !== 'PAID') {
         fetchDetails();
       }
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [id, details?.statusTitulo]);
+  }, [id, details?.status]);
 
   const handleCopyPix = () => {
     if (details?.qrCodePayload) {
@@ -58,7 +58,10 @@ const Checkout = () => {
 
   const handleSimulatePayment = async () => {
     try {
-      await axios.post(`/api/public/checkout/mock-webhook/${id}`);
+      await axios.post(`/api/public/checkout-saas/webhook/mock`, {
+        gatewayTransacaoId: details?.gatewayTransacaoId,
+        status: 'PAID'
+      });
       fetchDetails();
     } catch (err) {
       console.error(err);
@@ -81,7 +84,7 @@ const Checkout = () => {
     );
   }
 
-  const isPaid = details.statusTitulo === 'PAID' || details.statusTransacao === 'PAID';
+  const isPaid = details.status === 'PAID';
 
   return (
     <Box sx={{ 

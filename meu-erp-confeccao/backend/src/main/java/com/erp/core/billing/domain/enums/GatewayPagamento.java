@@ -1,4 +1,4 @@
-package com.erp.finance.domain.enums;
+package com.erp.core.billing.domain.enums;
 
 public enum GatewayPagamento {
     MOCK,

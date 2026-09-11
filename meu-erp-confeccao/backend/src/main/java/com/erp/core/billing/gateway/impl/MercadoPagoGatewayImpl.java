@@ -1,9 +1,9 @@
-package com.erp.finance.gateway.impl;
+package com.erp.core.billing.gateway.impl;
 
-import com.erp.finance.domain.enums.GatewayPagamento;
-import com.erp.finance.gateway.PaymentGateway;
-import com.erp.finance.gateway.dto.PaymentRequest;
-import com.erp.finance.gateway.dto.PaymentResponse;
+import com.erp.core.billing.domain.enums.GatewayPagamento;
+import com.erp.core.billing.gateway.PaymentGateway;
+import com.erp.core.billing.gateway.dto.PaymentRequest;
+import com.erp.core.billing.gateway.dto.PaymentResponse;
 import org.springframework.stereotype.Component;
 
 @Component

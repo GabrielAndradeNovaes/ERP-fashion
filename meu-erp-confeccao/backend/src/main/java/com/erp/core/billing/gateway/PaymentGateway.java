@@ -1,7 +1,7 @@
-package com.erp.finance.gateway;
+package com.erp.core.billing.gateway;
 
-import com.erp.finance.gateway.dto.PaymentRequest;
-import com.erp.finance.gateway.dto.PaymentResponse;
+import com.erp.core.billing.gateway.dto.PaymentRequest;
+import com.erp.core.billing.gateway.dto.PaymentResponse;
 
 public interface PaymentGateway {
     

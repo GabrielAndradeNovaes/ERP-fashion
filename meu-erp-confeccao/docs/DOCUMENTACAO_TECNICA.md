@@ -34,6 +34,23 @@ Central de autenticação e contas de acesso.
 - `tenant_id` (UUID, FK): Vínculo com qual `clientes_tenant` este usuário pertence.
 - `role` (Varchar): Papel no sistema (Ex: ADMIN, USER).
 
+#### Tabela: `faturas_saas`
+Representa as cobranças mensais ou assinaturas geradas pelo sistema para os Tenants.
+- `id` (UUID, PK): Identificador da fatura.
+- `tenant_id` (UUID, FK): Vínculo com `clientes_tenant`.
+- `valor` (Decimal 19,4): Valor da fatura.
+- `data_vencimento` (Date): Data limite para pagamento.
+- `status` (Enum): PENDING, PAID, CANCELED.
+
+#### Tabela: `faturas_transacoes`
+Transações e integrações com Gateways de Pagamento (Mercado Pago, Mock, etc).
+- `id` (UUID, PK): Identificador da transação.
+- `fatura_id` (UUID, FK): Vínculo com `faturas_saas`.
+- `gateway` (Enum): MERCADO_PAGO, MOCK.
+- `gateway_transacao_id` (Varchar): ID retornado pelo Gateway.
+- `status` (Enum): PENDING, PAID, CANCELED.
+- `qr_code_payload` (Text): Payload PIX Copia e Cola.
+
 ---
 
 ### 2.1. Módulo: Catálogo de Produtos (Schema Tenant)

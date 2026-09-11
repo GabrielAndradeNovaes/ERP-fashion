@@ -1,6 +1,6 @@
-package com.erp.finance.gateway.dto;
+package com.erp.core.billing.gateway.dto;
 
-import com.erp.finance.domain.enums.MetodoPagamento;
+import com.erp.core.billing.domain.enums.MetodoPagamento;
 import java.math.BigDecimal;
 
 public class PaymentRequest {

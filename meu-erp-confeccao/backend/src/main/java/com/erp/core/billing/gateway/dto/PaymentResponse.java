@@ -1,6 +1,6 @@
-package com.erp.finance.gateway.dto;
+package com.erp.core.billing.gateway.dto;
 
-import com.erp.finance.domain.enums.StatusTransacao;
+import com.erp.core.billing.domain.enums.StatusTransacao;
 
 public class PaymentResponse {
 

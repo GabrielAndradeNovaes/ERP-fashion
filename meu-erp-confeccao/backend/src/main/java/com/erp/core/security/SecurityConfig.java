@@ -39,7 +39,7 @@ public class SecurityConfig {
                 .requestMatchers("/", "/error").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/public/**").permitAll()
-                // .requestMatchers("/api/**").permitAll() // Removido para proteger a API
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
