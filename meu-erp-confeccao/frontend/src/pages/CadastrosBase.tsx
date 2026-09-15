@@ -283,7 +283,7 @@ const tabsConfig = [
     items: [
       {
         label: 'Categorias',
-        endpoint: '/catalog/categorias',
+        endpoint: '/core/categorias',
         columns: [
           { key: 'nome', label: 'Nome' },
           { key: 'ativo', label: 'Ativo', format: (v: any) => v ? 'Sim' : 'Não' }
