@@ -153,7 +153,7 @@ const Dashboard = () => {
 
       {/* KPI Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard 
             title="Total de Produtos" 
             value={metrics?.totalProdutos || 0} 
@@ -162,7 +162,7 @@ const Dashboard = () => {
             gradient="linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard 
             title="OPs em Andamento" 
             value={metrics?.opsEmAndamento || 0} 
@@ -171,7 +171,7 @@ const Dashboard = () => {
             gradient="linear-gradient(135deg, #f59e0b 0%, #d97706 100%)"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard 
             title="OPs Concluídas" 
             value={metrics?.opsConcluidas || 0} 
@@ -180,7 +180,7 @@ const Dashboard = () => {
             gradient="linear-gradient(135deg, #10b981 0%, #059669 100%)"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard 
             title="Estoque (Custo)" 
             value={formatCurrency(metrics?.valorTotalEstoque || 0)} 
@@ -193,7 +193,7 @@ const Dashboard = () => {
 
       {/* Charts Section 1 */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} lg={8}>
+        <Grid size={{ xs: 12, lg: 8 }}>
           <GlassPanel title="Produtividade: Minutos Produzidos (7 Dias)">
             <Box sx={{ height: 350, width: '100%', mt: 2 }}>
               <ResponsiveContainer width="100%" height="100%">
@@ -215,7 +215,7 @@ const Dashboard = () => {
           </GlassPanel>
         </Grid>
 
-        <Grid item xs={12} lg={4}>
+        <Grid size={{ xs: 12, lg: 4 }}>
           <GlassPanel title="Status das OPs">
             <Box sx={{ height: 350, width: '100%', mt: 2, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               <ResponsiveContainer width="100%" height="100%">
@@ -245,7 +245,7 @@ const Dashboard = () => {
 
       {/* Charts Section 2 */}
       <Grid container spacing={3}>
-        <Grid item xs={12} lg={12}>
+        <Grid size={{ xs: 12 }}>
           <GlassPanel title="Projeção Financeira: Contas a Receber (Próximas Semanas)">
             <Box sx={{ height: 350, width: '100%', mt: 2 }}>
               <ResponsiveContainer width="100%" height="100%">
