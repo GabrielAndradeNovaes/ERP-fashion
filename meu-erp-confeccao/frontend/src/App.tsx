@@ -12,7 +12,7 @@ import Faccoes from './pages/PCP/Faccoes';
 import Clientes from './pages/Clientes';
 import Fornecedores from './pages/Fornecedores';
 import Categorias from './pages/Categorias';
-import CadastrosAuxiliares from './pages/CadastrosAuxiliares';
+import CadastrosBase from './pages/CadastrosBase';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import { Users, Truck, Tags, Ruler, ScanLine, UserCog, BarChart, FileText, Tag, Settings as SettingsIcon } from 'lucide-react';
@@ -94,12 +94,10 @@ const Sidebar = () => {
       title: 'Cadastros Base',
       module: 'CORE',
       items: [
-        { path: '/core/cadastros-auxiliares', label: 'Cores e Tamanhos', icon: <Tag size={20} />, perm: 'PRODUTOS_VIEW' },
-        { path: '/core/empresas', label: 'Empresas/Filiais', icon: <Building2 size={20} />, perm: 'USUARIOS_ADMIN' },
+        { path: '/cadastros-base', label: 'Central de Cadastros', icon: <SettingsIcon size={20} />, perm: 'PRODUTOS_VIEW' },
         { path: '/core/usuarios', label: 'Usuários', icon: <UserCog size={20} />, perm: 'USUARIOS_ADMIN' },
         { path: '/core/clientes', label: 'Clientes', icon: <Users size={20} />, perm: 'CLIENTES_VIEW' },
         { path: '/core/fornecedores', label: 'Fornecedores', icon: <Truck size={20} />, perm: 'CLIENTES_VIEW' },
-        { path: '/core/categorias', label: 'Categorias', icon: <Tags size={20} />, perm: 'PRODUTOS_VIEW' },
       ]
     },
     {
@@ -247,12 +245,10 @@ const MainApp = () => {
       <main className="main-content">
         <Routes>
           <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-          <Route path="/core/empresas" element={<PrivateRoute requiredPermission="USUARIOS_ADMIN"><Empresas /></PrivateRoute>} />
+          <Route path="/cadastros-base" element={<PrivateRoute requiredPermission="PRODUTOS_VIEW"><CadastrosBase /></PrivateRoute>} />
           <Route path="/core/usuarios" element={<PrivateRoute requiredPermission="USUARIOS_ADMIN"><Usuarios /></PrivateRoute>} />
-          <Route path="/core/cadastros-auxiliares" element={<PrivateRoute requiredPermission="PRODUTOS_VIEW"><CadastrosAuxiliares /></PrivateRoute>} />
           <Route path="/core/clientes" element={<PrivateRoute requiredPermission="CLIENTES_VIEW"><Clientes /></PrivateRoute>} />
           <Route path="/core/fornecedores" element={<PrivateRoute requiredPermission="CLIENTES_VIEW"><Fornecedores /></PrivateRoute>} />
-          <Route path="/core/categorias" element={<PrivateRoute requiredPermission="PRODUTOS_VIEW"><Categorias /></PrivateRoute>} />
           <Route path="/catalog/produtos" element={<PrivateRoute requiredPermission="PRODUTOS_VIEW"><Produtos /></PrivateRoute>} />
           <Route path="/estoque" element={<PrivateRoute requiredPermission="ESTOQUE_VIEW"><Estoque /></PrivateRoute>} />
           <Route path="/pcp/ordens" element={<PrivateRoute requiredPermission="PCP_VIEW"><OrdensProducao /></PrivateRoute>} />
