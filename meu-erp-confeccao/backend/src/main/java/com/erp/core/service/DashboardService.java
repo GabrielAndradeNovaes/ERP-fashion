@@ -2,14 +2,20 @@ package com.erp.core.service;
 
 import com.erp.catalog.repository.ProdutoBaseRepository;
 import com.erp.core.dto.DashboardResumoDTO;
+import com.erp.inventory.domain.Material;
 import com.erp.inventory.repository.MaterialRepository;
+import com.erp.production.domain.OrdemProducao;
 import com.erp.production.domain.OrdemProducaoStatus;
 import com.erp.production.repository.OrdemProducaoRepository;
+import com.erp.finance.domain.TituloReceber;
+import com.erp.finance.repository.TituloReceberRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.math.BigDecimal;
 
 @Service
 public class DashboardService {
@@ -17,13 +23,16 @@ public class DashboardService {
     private final ProdutoBaseRepository produtoBaseRepository;
     private final OrdemProducaoRepository ordemProducaoRepository;
     private final MaterialRepository materialRepository;
+    private final TituloReceberRepository tituloReceberRepository;
 
     public DashboardService(ProdutoBaseRepository produtoBaseRepository,
                             OrdemProducaoRepository ordemProducaoRepository,
-                            MaterialRepository materialRepository) {
+                            MaterialRepository materialRepository,
+                            TituloReceberRepository tituloReceberRepository) {
         this.produtoBaseRepository = produtoBaseRepository;
         this.ordemProducaoRepository = ordemProducaoRepository;
         this.materialRepository = materialRepository;
+        this.tituloReceberRepository = tituloReceberRepository;
     }
 
     public Map<String, Object> getResumo() {
@@ -36,6 +45,7 @@ public class DashboardService {
         long opsConcluidas = ordemProducaoRepository.countByStatus(OrdemProducaoStatus.CONCLUIDA);
         
         Double valorEstoque = materialRepository.findAll().stream()
+                .filter(m -> m.getQuantidadeAtual() != null && m.getCustoUnitario() != null)
                 .mapToDouble(m -> m.getQuantidadeAtual().doubleValue() * m.getCustoUnitario().doubleValue())
                 .sum();
 
@@ -52,12 +62,10 @@ public class DashboardService {
         );
         response.put("opStatusDistribution", opStatusDistribution);
 
-        // 3. Productivity History (Last 7 days) - Mocked Seed Data since Apontamento isn't fully wired for this yet
+        // 3. Productivity History (Mocked until fully wired)
         List<Map<String, Object>> productivityHistory = new ArrayList<>();
         LocalDate today = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM");
-        
-        // Generating some realistic looking dummy data for the last 7 days
         int[] dummyMinutes = {450, 520, 480, 600, 590, 310, 490};
         for (int i = 6; i >= 0; i--) {
             LocalDate date = today.minusDays(i);
@@ -68,14 +76,57 @@ public class DashboardService {
         }
         response.put("productivityHistory", productivityHistory);
 
-        // 4. Upcoming Receivables (Mocked Seed Data)
-        List<Map<String, Object>> upcomingReceivables = Arrays.asList(
-            Map.of("name", "Semana 1", "receber", 12500.00, "inadimplente", 1200.00),
-            Map.of("name", "Semana 2", "receber", 8400.00, "inadimplente", 0.0),
-            Map.of("name", "Semana 3", "receber", 15200.00, "inadimplente", 3500.00),
-            Map.of("name", "Semana 4", "receber", 9800.00, "inadimplente", 800.00)
-        );
+        // 4. Upcoming Receivables (Real Data)
+        List<TituloReceber> titulosReceber = tituloReceberRepository.findAll();
+        List<Map<String, Object>> upcomingReceivables = new ArrayList<>();
+        
+        for (int i = 0; i < 4; i++) {
+            LocalDate start = today.plusDays(i * 7);
+            LocalDate end = start.plusDays(6);
+            
+            double receber = titulosReceber.stream()
+                .filter(t -> t.getStatus() == TituloReceber.Status.PENDENTE)
+                .filter(t -> !t.getDataVencimento().isBefore(start) && !t.getDataVencimento().isAfter(end))
+                .map(t -> t.getValor().doubleValue())
+                .reduce(0.0, Double::sum);
+                
+            double inadimplente = titulosReceber.stream()
+                .filter(t -> t.getStatus() == TituloReceber.Status.PENDENTE)
+                .filter(t -> t.getDataVencimento().isBefore(today))
+                .map(t -> t.getValor().doubleValue())
+                .reduce(0.0, Double::sum);
+            
+            // Only sum inadimplente for the first week to show on chart, or calculate it differently.
+            // Actually, inadimplente is accumulated, so we just show it on week 1 for the chart
+            upcomingReceivables.add(Map.of(
+                "name", "Semana " + (i + 1),
+                "receber", receber,
+                "inadimplente", i == 0 ? inadimplente : 0.0
+            ));
+        }
         response.put("upcomingReceivables", upcomingReceivables);
+
+        // 5. OPs Atrasadas
+        List<OrdemProducao> topOpsAtrasadas = ordemProducaoRepository.findTop5ByStatusNotOrderByCriadoEmAsc(OrdemProducaoStatus.CONCLUIDA);
+        List<Map<String, Object>> opsAtrasadas = topOpsAtrasadas.stream().map(op -> Map.of(
+            "id", op.getId(),
+            "numero", op.getNumero(),
+            "produto", op.getProdutoBase().getNome(),
+            "criadoEm", op.getCriadoEm(),
+            "status", op.getStatus().name()
+        )).collect(Collectors.toList());
+        response.put("opsAtrasadas", opsAtrasadas);
+
+        // 6. Estoque Crítico
+        List<Material> topMateriaisCriticos = materialRepository.findTop5ByStatusOrderByQuantidadeAtualAsc("ATIVO");
+        List<Map<String, Object>> estoqueCritico = topMateriaisCriticos.stream().map(m -> Map.of(
+            "id", m.getId(),
+            "codigo", m.getCodigo(),
+            "nome", m.getNome(),
+            "quantidadeAtual", m.getQuantidadeAtual() != null ? m.getQuantidadeAtual() : BigDecimal.ZERO,
+            "unidade", m.getUnidadeMedida() != null ? m.getUnidadeMedida().getSigla() : ""
+        )).collect(Collectors.toList());
+        response.put("estoqueCritico", estoqueCritico);
 
         return response;
     }

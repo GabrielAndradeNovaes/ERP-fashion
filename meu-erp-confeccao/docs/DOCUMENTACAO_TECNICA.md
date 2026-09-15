@@ -211,13 +211,15 @@ Todos os endpoints requerem autenticação JWT (`Authorization: Bearer <token>`)
 | Bipagem | `/api/production/apontamentos` | Recebe a leitura do código do cupom ou tempo manual para pontuar o funcionário. |
 | RH | `/api/funcionarios` | Cadastro de funcionários e jornadas detalhadas. |
 | Produtividade| `/api/production/produtividade` | Geração do relatório de produtividade (Tempo Teórico vs Tempo Real vs Rendimento). |
-| Financeiro Admin | `/api/financeiro/receber` | Cadastro e listagem de Títulos a Receber, geração manual de pagamentos PIX. |
+| Financeiro SaaS Admin | `/api/admin/faturas` | Gestão de assinaturas SaaS. |
+| Financeiro (Tenant)| `/api/financeiro/titulos` | Módulo Financeiro das Confecções (A Receber/Pagar). |
+| Dashboards       | `/api/dashboard/resumo`, `/api/admin/dashboard` | Dashboards analíticos com métricas de OPs e KPIs Financeiros (MRR, Churn). |
 | Checkout Público | `/api/public/checkout` | Consulta de detalhes de pagamento (QR Code Pix) e mock webhooks simulados via polling. |
 
 ---
 
 ## 4. Próximos Passos (Roadmap Técnico)
 
-1. **Dashboard Inicial:** Criar uma visão executiva do status de OPs, pendências de corte e costura.
-2. **Gestão de Facções:** Expandir o sistema para despachar OPs fisicamente para empresas terceirizadas (Facções) e controlar o retorno.
-3. **Gestão Financeira/Custos:** Calcular o custo final da OP cruzando com custos fixos e variáveis, comparando com o previsto na ficha técnica.
+1. **Gestão de Facções:** Expandir o sistema para despachar OPs fisicamente para empresas terceirizadas (Facções) e controlar o retorno.
+2. **Gestão Financeira/Custos:** Calcular o custo final da OP cruzando com custos fixos e variáveis, comparando com o previsto na ficha técnica.
+3. **Módulo de Faturamento e NFe:** Gerar notas fiscais com base nas OPs e vendas.

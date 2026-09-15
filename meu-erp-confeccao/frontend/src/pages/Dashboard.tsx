@@ -15,6 +15,8 @@ interface DashboardData {
   opStatusDistribution: any[];
   productivityHistory: any[];
   upcomingReceivables: any[];
+  opsAtrasadas: any[];
+  estoqueCritico: any[];
 }
 
 const StatCard = ({ title, value, icon, color, gradient }: any) => (
@@ -126,7 +128,7 @@ const Dashboard = () => {
     );
   }
 
-  const { metrics, opStatusDistribution, productivityHistory, upcomingReceivables } = data;
+  const { metrics, opStatusDistribution, productivityHistory, upcomingReceivables, opsAtrasadas, estoqueCritico } = data;
 
   const formatCurrency = (val: number) => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
@@ -260,6 +262,55 @@ const Dashboard = () => {
                 </BarChart>
               </ResponsiveContainer>
             </Box>
+          </GlassPanel>
+        </Grid>
+      </Grid>
+
+      {/* New Section: OPs Atrasadas & Estoque Crítico */}
+      <Grid container spacing={3} sx={{ mt: 1 }}>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <GlassPanel title="OPs em Atraso (Mais Antigas)">
+            {opsAtrasadas && opsAtrasadas.length > 0 ? (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
+                {opsAtrasadas.map((op: any) => (
+                  <Box key={op.id} sx={{ p: 2, borderRadius: 2, background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Box>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#ef4444' }}>OP #{op.numero}</Typography>
+                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>{op.produto}</Typography>
+                    </Box>
+                    <Box sx={{ textAlign: 'right' }}>
+                      <Typography variant="caption" sx={{ display: 'block', color: 'text.secondary' }}>Criado em</Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>{new Date(op.criadoEm).toLocaleDateString('pt-BR')}</Typography>
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
+            ) : (
+              <Typography variant="body2" sx={{ color: 'text.secondary', mt: 2, fontStyle: 'italic' }}>Nenhuma OP pendente antiga.</Typography>
+            )}
+          </GlassPanel>
+        </Grid>
+
+        <Grid size={{ xs: 12, md: 6 }}>
+          <GlassPanel title="Materiais Acabando (Top 5)">
+            {estoqueCritico && estoqueCritico.length > 0 ? (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
+                {estoqueCritico.map((mat: any) => (
+                  <Box key={mat.id} sx={{ p: 2, borderRadius: 2, background: 'rgba(245, 158, 11, 0.05)', border: '1px solid rgba(245, 158, 11, 0.2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Box>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#d97706' }}>{mat.codigo}</Typography>
+                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>{mat.nome}</Typography>
+                    </Box>
+                    <Box sx={{ textAlign: 'right' }}>
+                      <Typography variant="caption" sx={{ display: 'block', color: 'text.secondary' }}>Qtd Atual</Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 800, color: '#d97706' }}>{mat.quantidadeAtual} {mat.unidade}</Typography>
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
+            ) : (
+              <Typography variant="body2" sx={{ color: 'text.secondary', mt: 2, fontStyle: 'italic' }}>Estoque saudável.</Typography>
+            )}
           </GlassPanel>
         </Grid>
       </Grid>

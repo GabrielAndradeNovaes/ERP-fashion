@@ -2,6 +2,7 @@ package com.erp.core.tenant.controller;
 
 import com.erp.core.billing.domain.FaturaSaaS;
 import com.erp.core.billing.repository.FaturaSaaSRepository;
+import com.erp.core.tenant.AcessoLogRepository;
 import com.erp.core.tenant.Tenant;
 import com.erp.core.tenant.TenantRepository;
 import org.springframework.http.ResponseEntity;
@@ -22,10 +23,12 @@ public class AdminDashboardController {
 
     private final TenantRepository tenantRepository;
     private final FaturaSaaSRepository faturaSaaSRepository;
+    private final AcessoLogRepository acessoLogRepository;
 
-    public AdminDashboardController(TenantRepository tenantRepository, FaturaSaaSRepository faturaSaaSRepository) {
+    public AdminDashboardController(TenantRepository tenantRepository, FaturaSaaSRepository faturaSaaSRepository, AcessoLogRepository acessoLogRepository) {
         this.tenantRepository = tenantRepository;
         this.faturaSaaSRepository = faturaSaaSRepository;
+        this.acessoLogRepository = acessoLogRepository;
     }
 
     @GetMapping("/metrics")
@@ -55,6 +58,27 @@ public class AdminDashboardController {
             estimatedMRR = activeTenants * 499.90;
         }
 
+        double lastMonthMRR = allFaturas.stream()
+            .filter(f -> YearMonth.from(f.getDataVencimento()).equals(currentMonth.minusMonths(1)))
+            .filter(f -> "PAID".equalsIgnoreCase(f.getStatus()))
+            .map(FaturaSaaS::getValor)
+            .map(BigDecimal::doubleValue)
+            .reduce(0.0, Double::sum);
+
+        double mrrGrowth = 0.0;
+        if (lastMonthMRR > 0) {
+            mrrGrowth = ((estimatedMRR - lastMonthMRR) / lastMonthMRR) * 100.0;
+        } else if (estimatedMRR > 0) {
+            mrrGrowth = 100.0;
+        }
+
+        double churnRate = 0.0;
+        if (totalTenants > 0) {
+            churnRate = ((double) inactiveTenants / totalTenants) * 100.0;
+        }
+
+        long activeUsers24h = acessoLogRepository.countByDataAcessoAfter(java.time.LocalDateTime.now().minusDays(1));
+
         Map<String, Object> response = new HashMap<>();
         
         // Basic metrics
@@ -64,6 +88,9 @@ public class AdminDashboardController {
         basicMetrics.put("inactiveTenants", inactiveTenants);
         basicMetrics.put("pendingTenants", pendingTenants);
         basicMetrics.put("estimatedMRR", estimatedMRR);
+        basicMetrics.put("mrrGrowth", mrrGrowth);
+        basicMetrics.put("churnRate", churnRate);
+        basicMetrics.put("activeUsers24h", activeUsers24h);
         response.put("metrics", basicMetrics);
 
         // Calculate 6 months history

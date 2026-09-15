@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Grid, Paper, CircularProgress, Divider, Chip, Avatar } from '@mui/material';
-import { Building2, CheckCircle, AlertTriangle, DollarSign, Activity, Server, Database, Clock, ChevronRight } from 'lucide-react';
+import { Building2, CheckCircle, AlertTriangle, DollarSign, Activity, Server, Database, Clock, ChevronRight, TrendingUp } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import api from '../../api/axios';
 
@@ -11,6 +11,9 @@ interface DashboardData {
     inactiveTenants: number;
     pendingTenants: number;
     estimatedMRR: number;
+    mrrGrowth?: number;
+    churnRate?: number;
+    activeUsers24h?: number;
   };
   mrrHistory: any[];
   tenantSignups: any[];
@@ -185,6 +188,33 @@ const AdminDashboard = () => {
             value={metrics?.totalTenants || 0} 
             icon={<Building2 size={28} />} 
             color="139, 92, 246" // Violet
+          />
+        </Grid>
+      </Grid>
+      
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid item xs={12} sm={6} md={4}>
+          <StatCard 
+            title="Crescimento (MoM)" 
+            value={`${metrics?.mrrGrowth?.toFixed(2) || '0.00'}%`} 
+            icon={<TrendingUp size={28} />} 
+            color="16, 185, 129"
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={4}>
+          <StatCard 
+            title="Taxa de Cancelamento (Churn)" 
+            value={`${metrics?.churnRate?.toFixed(2) || '0.00'}%`} 
+            icon={<AlertTriangle size={28} />} 
+            color={metrics?.churnRate > 5 ? '239, 68, 68' : '245, 158, 11'}
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={4}>
+          <StatCard 
+            title="Usuários Ativos (24h)" 
+            value={metrics?.activeUsers24h || 0} 
+            icon={<Activity size={28} />} 
+            color="59, 130, 246"
           />
         </Grid>
       </Grid>

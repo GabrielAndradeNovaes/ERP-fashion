@@ -10,4 +10,5 @@ import java.util.UUID;
 @Repository
 public interface MaterialRepository extends JpaRepository<Material, UUID> {
     Optional<Material> findByCodigo(String codigo);
+    java.util.List<Material> findTop5ByStatusOrderByQuantidadeAtualAsc(String status);
 }

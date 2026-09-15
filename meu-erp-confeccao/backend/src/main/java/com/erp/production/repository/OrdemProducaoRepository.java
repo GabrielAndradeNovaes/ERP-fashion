@@ -10,4 +10,5 @@ import java.util.UUID;
 public interface OrdemProducaoRepository extends JpaRepository<OrdemProducao, UUID> {
     boolean existsByNumero(String numero);
     long countByStatus(com.erp.production.domain.OrdemProducaoStatus status);
+    java.util.List<OrdemProducao> findTop5ByStatusNotOrderByCriadoEmAsc(com.erp.production.domain.OrdemProducaoStatus status);
 }
