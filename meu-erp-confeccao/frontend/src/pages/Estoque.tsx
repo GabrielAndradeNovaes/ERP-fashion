@@ -22,7 +22,8 @@ import {
   CircularProgress,
   Tabs,
   Tab,
-  Grid
+  Grid,
+  Autocomplete
 } from '@mui/material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
@@ -34,7 +35,8 @@ interface Material {
   codigo: string;
   nome: string;
   descricao: string;
-  unidadeMedida: string;
+  unidadeMedidaId: string;
+  unidadeMedidaNome: string;
   custoUnitario: number;
   quantidadeAtual: number;
 }
@@ -63,6 +65,7 @@ const Estoque = () => {
   // Data
   const [materiais, setMateriais] = useState<Material[]>([]);
   const [produtos, setProdutos] = useState<ProdutoBase[]>([]);
+  const [unidadesMedida, setUnidadesMedida] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -74,7 +77,7 @@ const Estoque = () => {
   const [codigo, setCodigo] = useState('');
   const [nome, setNome] = useState('');
   const [descricao, setDescricao] = useState('');
-  const [unidadeMedida, setUnidadeMedida] = useState('KG');
+  const [unidadeMedidaId, setUnidadeMedidaId] = useState<string | null>(null);
   const [custoUnitario, setCustoUnitario] = useState<string>('');
   
   const [tipoMaterial, setTipoMaterial] = useState('');
@@ -98,12 +101,14 @@ const Estoque = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [matRes, prodRes] = await Promise.all([
+      const [matRes, prodRes, unRes] = await Promise.all([
         api.get('/inventory/materiais'),
-        api.get('/catalog/produtos')
+        api.get('/catalog/produtos'),
+        api.get('/core/unidades-medida')
       ]);
       setMateriais(matRes.data);
       setProdutos(prodRes.data);
+      setUnidadesMedida(unRes.data.filter((u:any) => u.ativo));
       setError(null);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Erro ao buscar dados.');
@@ -126,7 +131,7 @@ const Estoque = () => {
         codigo,
         nome,
         descricao,
-        unidadeMedida,
+        unidadeMedidaId,
         custoUnitario: parseFloat(custoUnitario) || 0,
         tipoMaterial,
         composicao,
@@ -143,6 +148,7 @@ const Estoque = () => {
       setCodigo('');
       setNome('');
       setDescricao('');
+      setUnidadeMedidaId(null);
       setCustoUnitario('');
       setTipoMaterial('');
       setComposicao('');
@@ -211,7 +217,7 @@ const Estoque = () => {
       cell: (info) => <Typography sx={{ fontWeight: 500 }}>{info.getValue() as string}</Typography>
     },
     {
-      accessorKey: 'unidadeMedida',
+      accessorKey: 'unidadeMedidaNome',
       header: 'Unidade',
       cell: (info) => <Typography color="text.secondary">{info.getValue() as string}</Typography>
     },
@@ -360,20 +366,13 @@ const Estoque = () => {
             />
             <Grid container spacing={2}>
               <Grid size={6}>
-                <FormControl fullWidth>
-                  <InputLabel id="medida-label">Medida</InputLabel>
-                  <Select
-                    labelId="medida-label"
-                    value={unidadeMedida}
-                    label="Medida"
-                    onChange={e => setUnidadeMedida(e.target.value)}
-                  >
-                    <MenuItem value="KG">Quilo (kg)</MenuItem>
-                    <MenuItem value="METRO">Metro (m)</MenuItem>
-                    <MenuItem value="UNIDADE">Unidade (un)</MenuItem>
-                    <MenuItem value="GRAMA">Grama (g)</MenuItem>
-                  </Select>
-                </FormControl>
+                <Autocomplete
+                  options={unidadesMedida}
+                  getOptionLabel={(option) => option.nome}
+                  value={unidadesMedida.find(u => u.id === unidadeMedidaId) || null}
+                  onChange={(e, newValue) => setUnidadeMedidaId(newValue ? newValue.id : null)}
+                  renderInput={(params) => <TextField {...params} label="Medida" fullWidth required />}
+                />
               </Grid>
               <Grid size={6}>
                 <TextField

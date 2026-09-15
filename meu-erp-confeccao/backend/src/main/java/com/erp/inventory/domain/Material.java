@@ -33,8 +33,9 @@ public class Material {
     @Column(columnDefinition = "TEXT")
     private String descricao;
 
-    @Column(name = "unidade_medida", nullable = false, length = 20)
-    private String unidadeMedida; // Ex: KG, METRO, UNIDADE
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "unidade_medida_id")
+    private com.erp.core.domain.UnidadeMedida unidadeMedida;
 
     @Column(name = "custo_unitario", precision = 10, scale = 2)
     private BigDecimal custoUnitario;
@@ -114,11 +115,11 @@ public class Material {
         this.descricao = descricao;
     }
 
-    public String getUnidadeMedida() {
+    public com.erp.core.domain.UnidadeMedida getUnidadeMedida() {
         return unidadeMedida;
     }
 
-    public void setUnidadeMedida(String unidadeMedida) {
+    public void setUnidadeMedida(com.erp.core.domain.UnidadeMedida unidadeMedida) {
         this.unidadeMedida = unidadeMedida;
     }
 

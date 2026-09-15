@@ -9,6 +9,12 @@ import com.erp.catalog.repository.ProdutoBaseRepository;
 import com.erp.catalog.service.ProdutoService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.erp.core.domain.Categoria;
+import com.erp.core.repository.CategoriaRepository;
+import com.erp.catalog.domain.Cor;
+import com.erp.catalog.domain.Tamanho;
+import com.erp.catalog.repository.CorRepository;
+import com.erp.catalog.repository.TamanhoRepository;
 
 import java.util.List;
 import java.util.UUID;
@@ -18,9 +24,19 @@ import java.util.stream.Collectors;
 public class ProdutoServiceImpl implements ProdutoService {
 
     private final ProdutoBaseRepository produtoBaseRepository;
+    private final CategoriaRepository categoriaRepository;
+    private final CorRepository corRepository;
+    private final TamanhoRepository tamanhoRepository;
 
-    public ProdutoServiceImpl(ProdutoBaseRepository produtoBaseRepository) {
+    public ProdutoServiceImpl(
+            ProdutoBaseRepository produtoBaseRepository,
+            CategoriaRepository categoriaRepository,
+            CorRepository corRepository,
+            TamanhoRepository tamanhoRepository) {
         this.produtoBaseRepository = produtoBaseRepository;
+        this.categoriaRepository = categoriaRepository;
+        this.corRepository = corRepository;
+        this.tamanhoRepository = tamanhoRepository;
     }
 
     @Override
@@ -33,21 +49,24 @@ public class ProdutoServiceImpl implements ProdutoService {
         produtoBase.setPrecoVenda(request.precoVenda());
         produtoBase.setPrecoCusto(request.precoCusto());
         produtoBase.setMarca(request.marca());
-        produtoBase.setCategoria(request.categoria());
-        produtoBase.setColecao(request.colecao());
-        produtoBase.setGenero(request.genero());
-        produtoBase.setNcm(request.ncm());
-        produtoBase.setCest(request.cest());
-        produtoBase.setOrigem(request.origem());
-        produtoBase.setPesoBruto(request.pesoBruto());
         produtoBase.setPesoLiquido(request.pesoLiquido());
         produtoBase.setStatus(request.status());
+        
+        if (request.categoriaId() != null) {
+            produtoBase.setCategoria(categoriaRepository.findById(request.categoriaId()).orElse(null));
+        }
 
         if (request.skus() != null) {
             request.skus().forEach(skuDto -> {
                 ProdutoSku sku = new ProdutoSku();
-                sku.setCor(skuDto.cor());
-                sku.setTamanho(skuDto.tamanho());
+                
+                if (skuDto.corId() != null) {
+                    sku.setCor(corRepository.findById(skuDto.corId()).orElse(null));
+                }
+                if (skuDto.tamanhoId() != null) {
+                    sku.setTamanho(tamanhoRepository.findById(skuDto.tamanhoId()).orElse(null));
+                }
+                
                 sku.setCodigoBarras((skuDto.codigoBarras() != null && skuDto.codigoBarras().isBlank()) ? null : skuDto.codigoBarras());
                 sku.setPrecoVenda(skuDto.precoVenda());
                 
@@ -86,22 +105,25 @@ public class ProdutoServiceImpl implements ProdutoService {
         produto.setPrecoVenda(request.precoVenda());
         produto.setPrecoCusto(request.precoCusto());
         produto.setMarca(request.marca());
-        produto.setCategoria(request.categoria());
-        produto.setColecao(request.colecao());
-        produto.setGenero(request.genero());
-        produto.setNcm(request.ncm());
-        produto.setCest(request.cest());
-        produto.setOrigem(request.origem());
-        produto.setPesoBruto(request.pesoBruto());
         produto.setPesoLiquido(request.pesoLiquido());
         produto.setStatus(request.status());
+
+        if (request.categoriaId() != null) {
+            produto.setCategoria(categoriaRepository.findById(request.categoriaId()).orElse(null));
+        } else {
+            produto.setCategoria(null);
+        }
 
         // Processa as Grades (SKUs)
         if (request.skus() != null) {
             for (com.erp.catalog.dto.ProdutoSkuRequest skuDto : request.skus()) {
                 // Verifica se a combinação de Cor + Tamanho já existe no produto
                 java.util.Optional<ProdutoSku> skuExistenteOpt = produto.getSkus().stream()
-                        .filter(s -> s.getCor().equalsIgnoreCase(skuDto.cor()) && s.getTamanho().equalsIgnoreCase(skuDto.tamanho()))
+                        .filter(s -> {
+                            boolean corMatches = (s.getCor() != null && s.getCor().getId().equals(skuDto.corId())) || (s.getCor() == null && skuDto.corId() == null);
+                            boolean tamanhoMatches = (s.getTamanho() != null && s.getTamanho().getId().equals(skuDto.tamanhoId())) || (s.getTamanho() == null && skuDto.tamanhoId() == null);
+                            return corMatches && tamanhoMatches;
+                        })
                         .findFirst();
                 
                 if (skuExistenteOpt.isPresent()) {
@@ -112,8 +134,12 @@ public class ProdutoServiceImpl implements ProdutoService {
                 } else {
                     // Adiciona novo SKU
                     ProdutoSku novoSku = new ProdutoSku();
-                    novoSku.setCor(skuDto.cor());
-                    novoSku.setTamanho(skuDto.tamanho());
+                    if (skuDto.corId() != null) {
+                        novoSku.setCor(corRepository.findById(skuDto.corId()).orElse(null));
+                    }
+                    if (skuDto.tamanhoId() != null) {
+                        novoSku.setTamanho(tamanhoRepository.findById(skuDto.tamanhoId()).orElse(null));
+                    }
                     novoSku.setCodigoBarras((skuDto.codigoBarras() != null && skuDto.codigoBarras().isBlank()) ? null : skuDto.codigoBarras());
                     novoSku.setPrecoVenda(skuDto.precoVenda());
                     produto.addSku(novoSku);
@@ -136,8 +162,10 @@ public class ProdutoServiceImpl implements ProdutoService {
         List<ProdutoSkuResponse> skuResponses = produtoBase.getSkus().stream()
                 .map(sku -> new ProdutoSkuResponse(
                         sku.getId(),
-                        sku.getCor(),
-                        sku.getTamanho(),
+                        sku.getCor() != null ? sku.getCor().getId() : null,
+                        sku.getCor() != null ? sku.getCor().getNome() : null,
+                        sku.getTamanho() != null ? sku.getTamanho().getId() : null,
+                        sku.getTamanho() != null ? sku.getTamanho().getNome() : null,
                         sku.getCodigoBarras(),
                         sku.getPrecoVenda(),
                         sku.getQuantidadeAtual()
@@ -154,7 +182,7 @@ public class ProdutoServiceImpl implements ProdutoService {
                     produtoBase.getFichaTecnica().getObservacoes(),
                     produtoBase.getFichaTecnica().getTempoPadraoTotalCentesimal(),
                     java.math.BigDecimal.ZERO, // getCustoTotalMateriais() not defined
-                    produtoBase.getFichaTecnica().getMateriais().stream().map(m -> new com.erp.production.dto.FichaTecnicaMaterialResponse(m.getId(), m.getMaterial().getId(), m.getMaterial().getNome(), m.getMaterial().getUnidadeMedida(), m.getQuantidade())).collect(Collectors.toList()),
+                    produtoBase.getFichaTecnica().getMateriais().stream().map(m -> new com.erp.production.dto.FichaTecnicaMaterialResponse(m.getId(), m.getMaterial().getId(), m.getMaterial().getNome(), m.getMaterial().getUnidadeMedida() != null ? m.getMaterial().getUnidadeMedida().getNome() : null, m.getQuantidade())).collect(Collectors.toList()),
                     produtoBase.getFichaTecnica().getOperacoes().stream().map(op -> new com.erp.production.dto.FichaTecnicaOperacaoResponse(op.getId(), op.getNome(), op.getMaquina(), op.getOrdemExecucao(), op.getQuantidadeFolhas(), op.getQuantidadeParadas(), op.getRpmMaquina(), op.getPontosPorCm(), op.getComprimentoCosturaCm(), op.getTipoTrajeto(), op.getDificuldadeTecido(), op.getSamMinutos(), op.getTempoCalculadoCentesimal())).collect(Collectors.toList())
             );
         }
@@ -167,7 +195,8 @@ public class ProdutoServiceImpl implements ProdutoService {
                 produtoBase.getPrecoVenda(),
                 produtoBase.getPrecoCusto(),
                 produtoBase.getMarca(),
-                produtoBase.getCategoria(),
+                produtoBase.getCategoria() != null ? produtoBase.getCategoria().getId() : null,
+                produtoBase.getCategoria() != null ? produtoBase.getCategoria().getNome() : null,
                 produtoBase.getColecao(),
                 produtoBase.getGenero(),
                 produtoBase.getNcm(),

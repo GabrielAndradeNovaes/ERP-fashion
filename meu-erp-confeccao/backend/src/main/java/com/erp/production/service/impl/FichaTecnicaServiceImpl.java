@@ -270,7 +270,7 @@ public class FichaTecnicaServiceImpl implements FichaTecnicaService {
                         mat.getId(),
                         mat.getMaterial().getId(),
                         mat.getMaterial().getNome(),
-                        mat.getMaterial().getUnidadeMedida(),
+                        mat.getMaterial().getUnidadeMedida() != null ? mat.getMaterial().getUnidadeMedida().getNome() : null,
                         mat.getQuantidade()
                 ));
             }

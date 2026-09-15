@@ -379,8 +379,8 @@ public class OrdemProducaoServiceImpl implements OrdemProducaoService {
                     item.getId(),
                     item.getProdutoSku().getId(),
                     item.getProdutoSku().getCodigoBarras(),
-                    item.getProdutoSku().getCor(),
-                    item.getProdutoSku().getTamanho(),
+                    item.getProdutoSku().getCor() != null ? item.getProdutoSku().getCor().getNome() : null,
+                    item.getProdutoSku().getTamanho() != null ? item.getProdutoSku().getTamanho().getNome() : null,
                     item.getQuantidade()
             )).collect(Collectors.toList());
         }

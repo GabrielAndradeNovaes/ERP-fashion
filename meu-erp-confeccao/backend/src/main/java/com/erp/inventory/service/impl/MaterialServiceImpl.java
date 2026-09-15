@@ -5,6 +5,7 @@ import com.erp.inventory.dto.MaterialRequest;
 import com.erp.inventory.dto.MaterialResponse;
 import com.erp.inventory.repository.MaterialRepository;
 import com.erp.inventory.service.MaterialService;
+import com.erp.core.repository.UnidadeMedidaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,9 +17,11 @@ import java.util.stream.Collectors;
 public class MaterialServiceImpl implements MaterialService {
 
     private final MaterialRepository materialRepository;
+    private final UnidadeMedidaRepository unidadeMedidaRepository;
 
-    public MaterialServiceImpl(MaterialRepository materialRepository) {
+    public MaterialServiceImpl(MaterialRepository materialRepository, UnidadeMedidaRepository unidadeMedidaRepository) {
         this.materialRepository = materialRepository;
+        this.unidadeMedidaRepository = unidadeMedidaRepository;
     }
 
     @Override
@@ -32,7 +35,9 @@ public class MaterialServiceImpl implements MaterialService {
         material.setCodigo(request.codigo());
         material.setNome(request.nome());
         material.setDescricao(request.descricao());
-        material.setUnidadeMedida(request.unidadeMedida());
+        if (request.unidadeMedidaId() != null) {
+            material.setUnidadeMedida(unidadeMedidaRepository.findById(request.unidadeMedidaId()).orElse(null));
+        }
         material.setCustoUnitario(request.custoUnitario() != null ? request.custoUnitario() : java.math.BigDecimal.ZERO);
         material.setTipoMaterial(request.tipoMaterial());
         material.setComposicao(request.composicao());
@@ -71,7 +76,8 @@ public class MaterialServiceImpl implements MaterialService {
                 material.getCodigo(),
                 material.getNome(),
                 material.getDescricao(),
-                material.getUnidadeMedida(),
+                material.getUnidadeMedida() != null ? material.getUnidadeMedida().getId() : null,
+                material.getUnidadeMedida() != null ? material.getUnidadeMedida().getNome() : null,
                 material.getCustoUnitario(),
                 material.getQuantidadeAtual(),
                 material.getTipoMaterial(),

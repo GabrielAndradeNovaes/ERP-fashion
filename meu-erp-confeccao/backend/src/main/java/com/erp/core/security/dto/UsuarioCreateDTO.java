@@ -17,7 +17,7 @@ public class UsuarioCreateDTO {
     private String telefone;
     private String cargo;
     private LocalDate dataNascimento;
-    private String departamento;
+    private java.util.UUID departamentoId;
     private String fotoUrl;
 
     public String getNome() { return nome; }
@@ -53,8 +53,8 @@ public class UsuarioCreateDTO {
     public LocalDate getDataNascimento() { return dataNascimento; }
     public void setDataNascimento(LocalDate dataNascimento) { this.dataNascimento = dataNascimento; }
 
-    public String getDepartamento() { return departamento; }
-    public void setDepartamento(String departamento) { this.departamento = departamento; }
+    public java.util.UUID getDepartamentoId() { return departamentoId; }
+    public void setDepartamentoId(java.util.UUID departamentoId) { this.departamentoId = departamentoId; }
 
     public String getFotoUrl() { return fotoUrl; }
     public void setFotoUrl(String fotoUrl) { this.fotoUrl = fotoUrl; }

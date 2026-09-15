@@ -1,5 +1,7 @@
 package com.erp.catalog.domain;
 
+import com.erp.core.domain.Categoria;
+
 import com.erp.core.domain.Empresa;
 import org.hibernate.annotations.Filter;
 import jakarta.persistence.*;
@@ -46,8 +48,7 @@ public class ProdutoBase {
     @Column(length = 100)
     private String marca;
 
-    @Column(length = 100)
-    private String categoria;
+
 
     @Column(length = 100)
     private String colecao;
@@ -145,8 +146,12 @@ public class ProdutoBase {
     public String getMarca() { return marca; }
     public void setMarca(String marca) { this.marca = marca; }
 
-    public String getCategoria() { return categoria; }
-    public void setCategoria(String categoria) { this.categoria = categoria; }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "categoria_id")
+    private Categoria categoria;
+
+    public Categoria getCategoria() { return categoria; }
+    public void setCategoria(Categoria categoria) { this.categoria = categoria; }
 
     public String getColecao() { return colecao; }
     public void setColecao(String colecao) { this.colecao = colecao; }

@@ -9,7 +9,7 @@ public record ProdutoBaseRequest(
         java.math.BigDecimal precoVenda,
         java.math.BigDecimal precoCusto,
         String marca,
-        String categoria,
+        java.util.UUID categoriaId,
         String colecao,
         String genero,
         String ncm,

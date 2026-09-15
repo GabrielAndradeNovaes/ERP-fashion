@@ -9,6 +9,7 @@ import com.erp.core.tenant.TenantContext;
 import com.erp.core.security.dto.UsuarioDTO;
 import com.erp.core.security.dto.UsuarioCreateDTO;
 import com.erp.core.security.dto.EmpresaSimpleDTO;
+import com.erp.core.repository.DepartamentoRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,15 +29,18 @@ public class UsuarioController {
     private final UsuarioRepository usuarioRepository;
     private final UsuarioEmpresaRepository usuarioEmpresaRepository;
     private final EmpresaRepository empresaRepository;
+    private final DepartamentoRepository departamentoRepository;
     private final PasswordEncoder passwordEncoder;
 
     public UsuarioController(UsuarioRepository usuarioRepository, 
                              UsuarioEmpresaRepository usuarioEmpresaRepository,
                              EmpresaRepository empresaRepository,
+                             DepartamentoRepository departamentoRepository,
                              PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
         this.usuarioEmpresaRepository = usuarioEmpresaRepository;
         this.empresaRepository = empresaRepository;
+        this.departamentoRepository = departamentoRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -70,7 +74,9 @@ public class UsuarioController {
         u.setTelefone(dto.getTelefone());
         u.setCargo(dto.getCargo());
         u.setDataNascimento(dto.getDataNascimento());
-        u.setDepartamento(dto.getDepartamento());
+        if (dto.getDepartamentoId() != null) {
+            u.setDepartamento(departamentoRepository.findById(dto.getDepartamentoId()).orElse(null));
+        }
         u.setFotoUrl(dto.getFotoUrl());
         
         Usuario salvo = usuarioRepository.save(u);
@@ -104,7 +110,11 @@ public class UsuarioController {
         u.setTelefone(dto.getTelefone());
         u.setCargo(dto.getCargo());
         u.setDataNascimento(dto.getDataNascimento());
-        u.setDepartamento(dto.getDepartamento());
+        if (dto.getDepartamentoId() != null) {
+            u.setDepartamento(departamentoRepository.findById(dto.getDepartamentoId()).orElse(null));
+        } else {
+            u.setDepartamento(null);
+        }
         u.setFotoUrl(dto.getFotoUrl());
 
         if (dto.getSenha() != null && !dto.getSenha().isEmpty()) {
@@ -157,7 +167,8 @@ public class UsuarioController {
         dto.setTelefone(u.getTelefone());
         dto.setCargo(u.getCargo());
         dto.setDataNascimento(u.getDataNascimento());
-        dto.setDepartamento(u.getDepartamento());
+        dto.setDepartamentoId(u.getDepartamento() != null ? u.getDepartamento().getId() : null);
+        dto.setDepartamentoNome(u.getDepartamento() != null ? u.getDepartamento().getNome() : null);
         dto.setFotoUrl(u.getFotoUrl());
         
         List<UUID> empIds = usuarioEmpresaRepository.findByUsuarioId(u.getId())

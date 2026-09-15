@@ -91,7 +91,7 @@ const Produtos = () => {
   const [precoVenda, setPrecoVenda] = useState<string>('');
   
   const [marca, setMarca] = useState('');
-  const [categoria, setCategoria] = useState('');
+  const [categoriaId, setCategoriaId] = useState<string | null>(null);
   const [colecao, setColecao] = useState('');
   const [genero, setGenero] = useState('');
   const [ncm, setNcm] = useState('');
@@ -125,20 +125,23 @@ const Produtos = () => {
   const [dbCores, setDbCores] = useState<any[]>([]);
   const [dbTamanhos, setDbTamanhos] = useState<any[]>([]);
   const [temporarySkus, setTemporarySkus] = useState<any[]>([]);
+  const [dbCategorias, setDbCategorias] = useState<any[]>([]);
 
   const fetchInitialData = async () => {
     try {
       setLoading(true);
-      const [prodRes, matRes, coresRes, tamRes] = await Promise.all([
+      const [prodRes, matRes, coresRes, tamRes, catRes] = await Promise.all([
         api.get('/catalog/produtos'),
         api.get('/inventory/materiais'),
         api.get('/catalog/cores'),
-        api.get('/catalog/tamanhos')
+        api.get('/catalog/tamanhos'),
+        api.get('/core/categorias')
       ]);
       setProdutos(prodRes.data);
       setEstoque(matRes.data);
       setDbCores(coresRes.data.filter((c:any) => c.ativo));
       setDbTamanhos(tamRes.data.filter((t:any) => t.ativo));
+      setDbCategorias(catRes.data.filter((c:any) => c.ativo));
       setError(null);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Erro ao buscar dados.');
@@ -164,7 +167,7 @@ const Produtos = () => {
         precoVenda: parseFloat(precoVenda) || 0,
         precoCusto: 0,
         marca,
-        categoria,
+        categoriaId,
         colecao,
         genero,
         ncm,
@@ -181,7 +184,7 @@ const Produtos = () => {
       setDescricao('');
       setPrecoVenda('');
       setMarca('');
-      setCategoria('');
+      setCategoriaId(null);
       setColecao('');
       setGenero('');
       setNcm('');
@@ -211,7 +214,7 @@ const Produtos = () => {
         precoVenda: parseFloat(precoVenda) || null,
         precoCusto: selectedProduto.precoCusto,
         marca,
-        categoria,
+        categoriaId,
         colecao,
         genero,
         ncm,
@@ -241,7 +244,7 @@ const Produtos = () => {
     setDescricao(produto.descricao || '');
     setPrecoVenda(produto.precoVenda ? produto.precoVenda.toString() : '');
     setMarca((produto as any).marca || '');
-    setCategoria((produto as any).categoria || '');
+    setCategoriaId((produto as any).categoriaId || null);
     setColecao((produto as any).colecao || '');
     setGenero((produto as any).genero || '');
     setNcm((produto as any).ncm || '');
@@ -395,7 +398,9 @@ const Produtos = () => {
             const exists = temporarySkus.find(ts => ts.cor === cor.nome && ts.tamanho === tamanho.nome);
             if (!exists) {
                 newSkus.push({ 
+                  corId: cor.id,
                   cor: cor.nome, 
+                  tamanhoId: tamanho.id,
                   tamanho: tamanho.nome, 
                   codigoBarras: '', 
                   precoVenda: selectedProduto.precoVenda 
@@ -631,7 +636,13 @@ const Produtos = () => {
                 <TextField label="Marca" fullWidth value={marca} onChange={e => setMarca(e.target.value)} />
               </Grid>
               <Grid size={{ xs: 12, sm: 4 }}>
-                <TextField label="Categoria" fullWidth value={categoria} onChange={e => setCategoria(e.target.value)} />
+                <Autocomplete
+                  options={dbCategorias}
+                  getOptionLabel={(option) => option.nome}
+                  value={dbCategorias.find(c => c.id === categoriaId) || null}
+                  onChange={(e, newValue) => setCategoriaId(newValue ? newValue.id : null)}
+                  renderInput={(params) => <TextField {...params} label="Categoria" fullWidth />}
+                />
               </Grid>
               <Grid size={{ xs: 12, sm: 4 }}>
                 <TextField label="Coleção" fullWidth value={colecao} onChange={e => setColecao(e.target.value)} />
@@ -723,7 +734,13 @@ const Produtos = () => {
                       <TextField label="Marca" fullWidth value={marca} onChange={e => setMarca(e.target.value)} />
                     </Grid>
                     <Grid size={{ xs: 12, sm: 4 }}>
-                      <TextField label="Categoria" fullWidth value={categoria} onChange={e => setCategoria(e.target.value)} />
+                      <Autocomplete
+                        options={dbCategorias}
+                        getOptionLabel={(option) => option.nome}
+                        value={dbCategorias.find(c => c.id === categoriaId) || null}
+                        onChange={(e, newValue) => setCategoriaId(newValue ? newValue.id : null)}
+                        renderInput={(params) => <TextField {...params} label="Categoria" fullWidth />}
+                      />
                     </Grid>
                     <Grid size={{ xs: 12, sm: 4 }}>
                       <TextField label="Coleção" fullWidth value={colecao} onChange={e => setColecao(e.target.value)} />

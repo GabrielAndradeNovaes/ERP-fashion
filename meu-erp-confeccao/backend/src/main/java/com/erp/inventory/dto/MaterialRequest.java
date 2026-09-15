@@ -4,7 +4,7 @@ public record MaterialRequest(
         String codigo,
         String nome,
         String descricao,
-        String unidadeMedida,
+        java.util.UUID unidadeMedidaId,
         java.math.BigDecimal custoUnitario,
         String tipoMaterial,
         String composicao,

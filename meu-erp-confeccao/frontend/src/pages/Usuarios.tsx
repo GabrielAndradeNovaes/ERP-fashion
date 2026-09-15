@@ -19,7 +19,8 @@ import {
   RadioGroup,
   Radio,
   FormLabel,
-  Switch
+  Switch,
+  Autocomplete
 } from '@mui/material';
 import { Building2, ShieldCheck } from 'lucide-react';
 
@@ -39,17 +40,22 @@ const AVAILABLE_PERMISSIONS = [
 
 const Usuarios = () => {
   const [empresas, setEmpresas] = useState<any[]>([]);
+  const [departamentos, setDepartamentos] = useState<any[]>([]);
 
   useEffect(() => {
-    const fetchEmpresas = async () => {
+    const fetchData = async () => {
       try {
-        const res = await api.get('/empresas');
-        setEmpresas(res.data);
+        const [empRes, depRes] = await Promise.all([
+          api.get('/empresas'),
+          api.get('/core/departamentos')
+        ]);
+        setEmpresas(empRes.data);
+        setDepartamentos(depRes.data.filter((d:any) => d.ativo));
       } catch (err) {
-        console.error("Erro ao carregar empresas", err);
+        console.error("Erro ao carregar dados", err);
       }
     };
-    fetchEmpresas();
+    fetchData();
   }, []);
 
   const columns = [
@@ -91,7 +97,7 @@ const Usuarios = () => {
     telefone: '',
     cargo: '',
     dataNascimento: '',
-    departamento: '',
+    departamentoId: null,
     fotoUrl: ''
   };
 
@@ -193,13 +199,12 @@ const Usuarios = () => {
             fullWidth
             sx={{ mb: 2 }}
           />
-          <TextField
-            label="Departamento"
-            name="departamento"
-            value={entity.departamento || ''}
-            onChange={handleChange}
-            fullWidth
-            sx={{ mb: 2 }}
+          <Autocomplete
+            options={departamentos}
+            getOptionLabel={(option) => option.nome}
+            value={departamentos.find(d => d.id === entity.departamentoId) || null}
+            onChange={(e, newValue) => setEntity({ ...entity, departamentoId: newValue ? newValue.id : null })}
+            renderInput={(params) => <TextField {...params} label="Departamento" fullWidth sx={{ mb: 2 }} />}
           />
           <TextField
             label="Data de Nascimento"

@@ -30,11 +30,13 @@ public class ProdutoSku {
     @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"skus", "hibernateLazyInitializer", "handler"})
     private ProdutoBase produtoBase;
 
-    @Column(nullable = false, length = 50)
-    private String cor;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cor_id")
+    private Cor cor;
 
-    @Column(nullable = false, length = 20)
-    private String tamanho;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tamanho_id")
+    private Tamanho tamanho;
 
     @Column(name = "codigo_barras", unique = true, length = 100)
     private String codigoBarras;
@@ -71,19 +73,19 @@ public class ProdutoSku {
         this.produtoBase = produtoBase;
     }
 
-    public String getCor() {
+    public Cor getCor() {
         return cor;
     }
 
-    public void setCor(String cor) {
+    public void setCor(Cor cor) {
         this.cor = cor;
     }
 
-    public String getTamanho() {
+    public Tamanho getTamanho() {
         return tamanho;
     }
 
-    public void setTamanho(String tamanho) {
+    public void setTamanho(Tamanho tamanho) {
         this.tamanho = tamanho;
     }
 

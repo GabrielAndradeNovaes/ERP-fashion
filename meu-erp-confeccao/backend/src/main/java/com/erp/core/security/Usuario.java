@@ -60,8 +60,9 @@ public class Usuario {
     @Column(name = "data_nascimento")
     private LocalDate dataNascimento;
 
-    @Column(length = 100)
-    private String departamento;
+    @jakarta.persistence.ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
+    @jakarta.persistence.JoinColumn(name = "departamento_id")
+    private com.erp.core.domain.Departamento departamento;
 
     @Column(name = "foto_url", length = 255)
     private String fotoUrl;
@@ -117,8 +118,8 @@ public class Usuario {
     public LocalDate getDataNascimento() { return dataNascimento; }
     public void setDataNascimento(LocalDate dataNascimento) { this.dataNascimento = dataNascimento; }
 
-    public String getDepartamento() { return departamento; }
-    public void setDepartamento(String departamento) { this.departamento = departamento; }
+    public com.erp.core.domain.Departamento getDepartamento() { return departamento; }
+    public void setDepartamento(com.erp.core.domain.Departamento departamento) { this.departamento = departamento; }
 
     public String getFotoUrl() { return fotoUrl; }
     public void setFotoUrl(String fotoUrl) { this.fotoUrl = fotoUrl; }

@@ -5,8 +5,10 @@ import java.util.UUID;
 
 public record ProdutoSkuResponse(
         UUID id,
-        String cor,
-        String tamanho,
+        java.util.UUID corId,
+        String corNome,
+        java.util.UUID tamanhoId,
+        String tamanhoNome,
         String codigoBarras,
         BigDecimal precoVenda,
         Integer quantidadeAtual
