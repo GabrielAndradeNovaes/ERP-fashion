@@ -43,11 +43,12 @@ public class DashboardServiceTest {
         m.setCustoUnitario(new BigDecimal("2.5"));
         when(materialRepository.findAll()).thenReturn(Collections.singletonList(m));
 
-        DashboardResumoDTO result = service.getResumo();
+        java.util.Map<String, Object> result = service.getResumo();
+        DashboardResumoDTO metrics = (DashboardResumoDTO) result.get("metrics");
 
-        assertEquals(10L, result.getTotalProdutos());
-        assertEquals(5L, result.getOpsEmAndamento());
-        assertEquals(5L, result.getOpsConcluidas());
-        assertEquals(25.0, result.getValorTotalEstoque());
+        assertEquals(10L, metrics.getTotalProdutos());
+        assertEquals(5L, metrics.getOpsEmAndamento());
+        assertEquals(5L, metrics.getOpsConcluidas());
+        assertEquals(25.0, metrics.getValorTotalEstoque());
     }
 }

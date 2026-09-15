@@ -25,11 +25,13 @@ public class DashboardControllerTest {
     @Test
     void testGetResumo() {
         DashboardResumoDTO dto = new DashboardResumoDTO(1, 2, 3, 4);
-        when(dashboardService.getResumo()).thenReturn(dto);
+        java.util.Map<String, Object> responseMap = new java.util.HashMap<>();
+        responseMap.put("metrics", dto);
+        when(dashboardService.getResumo()).thenReturn(responseMap);
 
-        ResponseEntity<DashboardResumoDTO> result = controller.getResumo();
+        ResponseEntity<java.util.Map<String, Object>> result = controller.getResumo();
 
         assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals(dto, result.getBody());
+        assertEquals(responseMap, result.getBody());
     }
 }
