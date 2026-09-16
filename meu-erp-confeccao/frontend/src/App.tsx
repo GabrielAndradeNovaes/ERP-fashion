@@ -448,11 +448,15 @@ const AppRouter = () => {
   );
 };
 
+import { ToastProvider } from './contexts/ToastContext';
+
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppRouter />
+        <ToastProvider>
+          <AppRouter />
+        </ToastProvider>
       </AuthProvider>
     </BrowserRouter>
   );

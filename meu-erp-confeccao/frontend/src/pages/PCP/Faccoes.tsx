@@ -3,6 +3,7 @@ import { Truck, CheckCircle2, Factory } from 'lucide-react';
 import api from '../../api/axios';
 import { useAuth } from '../../contexts/AuthContext';
 import {
+import { useToast } from '../../contexts/ToastContext';
   Box,
   Typography,
   Button,
@@ -25,6 +26,7 @@ interface OrdemProducao {
 }
 
 const Faccoes = () => {
+  const { showToast } = useToast();
   const [ordens, setOrdens] = useState<OrdemProducao[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
@@ -54,10 +56,10 @@ const Faccoes = () => {
     try {
       setProcessingId(id);
       await api.put(`/production/ordens/${id}/status`, { status: 'CONCLUIDA' });
-      alert('Retorno recebido com sucesso! Estoque de produtos atualizado.');
+      showToast('Retorno recebido com sucesso! Estoque de produtos atualizado.', 'success');
       fetchFaccoes();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Erro ao receber retorno');
+      showToast(err.response?.data?.message || 'Erro ao receber retorno', 'error');
     } finally {
       setProcessingId(null);
     }

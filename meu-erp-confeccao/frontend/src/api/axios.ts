@@ -67,6 +67,10 @@ api.interceptors.response.use(
       localStorage.removeItem('@FashionERP:token');
       localStorage.removeItem('@FashionERP:user');
       window.location.href = '/login';
+    } else {
+      // Dispatch error for global ToastProvider
+      const message = error.response?.data?.message || 'Ocorreu um erro inesperado no servidor.';
+      window.dispatchEvent(new CustomEvent('apiError', { detail: message }));
     }
     return Promise.reject(error);
   }

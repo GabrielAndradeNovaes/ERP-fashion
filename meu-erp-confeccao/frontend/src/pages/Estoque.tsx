@@ -29,6 +29,7 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import AddIcon from '@mui/icons-material/Add';
 import { PackageSearch } from 'lucide-react';
+import { useToast } from '../contexts/ToastContext';
 
 interface Material {
   id: string;
@@ -58,6 +59,7 @@ interface ProdutoBase {
 }
 
 const Estoque = () => {
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState(0); // 0 = Materiais, 1 = Produtos
   const { hasPermission } = useAuth();
   const canEdit = hasPermission('ESTOQUE_EDIT');
@@ -162,7 +164,7 @@ const Estoque = () => {
       setIsMaterialModalOpen(false);
       fetchData();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Erro ao cadastrar material.');
+      showToast(err.response?.data?.message || 'Erro ao cadastrar material.', 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -194,7 +196,7 @@ const Estoque = () => {
       setIsMovimentacaoModalOpen(false);
       fetchData();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Erro ao registrar movimentação.');
+      showToast(err.response?.data?.message || 'Erro ao registrar movimentação.', 'error');
     } finally {
       setIsSubmitting(false);
     }

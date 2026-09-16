@@ -34,6 +34,7 @@ import {
   IconButton
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import { useToast } from '../contexts/ToastContext';
 
 interface ProdutoBase {
   id: string;
@@ -70,6 +71,7 @@ const MAQUINAS = [
 ];
 
 const Produtos = () => {
+  const { showToast } = useToast();
 
   const [produtos, setProdutos] = useState<ProdutoBase[]>([]);
   const [estoque, setEstoque] = useState<Material[]>([]);
@@ -202,7 +204,7 @@ const Produtos = () => {
       setIsAddModalOpen(false);
       fetchInitialData();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Erro ao cadastrar produto.');
+      showToast(err.response?.data?.message || 'Erro ao cadastrar produto.', 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -233,9 +235,9 @@ const Produtos = () => {
       });
       setSelectedProduto(res.data);
       fetchInitialData();
-      alert("Produto atualizado com sucesso!");
+      showToast("Produto atualizado com sucesso!", 'success');
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Erro ao atualizar produto.');
+      showToast(err.response?.data?.message || 'Erro ao atualizar produto.', 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -321,7 +323,7 @@ const Produtos = () => {
         (op: any) => op.ordemExecucao === ordemInt && op.id !== editingOperacaoId
       );
       if (exists) {
-        alert("Já existe uma operação com esta ordem (ordem " + ordemInt + "). Por favor, escolha outra ordem para evitar duplicação no cupom.");
+        showToast("Já existe uma operação com esta ordem (ordem " + ordemInt + ", 'warning'). Por favor, escolha outra ordem para evitar duplicação no cupom.");
         setIsSubmitting(false);
         return;
       }
@@ -354,7 +356,7 @@ const Produtos = () => {
       setEditingOperacaoId(null);
       await refreshSelectedProduto();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Erro ao salvar operação.');
+      showToast(err.response?.data?.message || 'Erro ao salvar operação.', 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -382,7 +384,7 @@ const Produtos = () => {
       await api.delete(`/production/fichas-tecnicas/${selectedProduto.fichaTecnica.id}/operacoes/${operacaoId}`);
       await refreshSelectedProduto();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Erro ao remover operação.');
+      showToast(err.response?.data?.message || 'Erro ao remover operação.', 'error');
     }
   };
 
@@ -403,7 +405,7 @@ const Produtos = () => {
   const handleGenerateSkus = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedProduto || skuCores.length === 0 || skuTamanhos.length === 0) {
-        alert("Selecione ao menos uma cor e um tamanho.");
+        showToast("Selecione ao menos uma cor e um tamanho.", 'warning');
         return;
     }
 
@@ -451,9 +453,9 @@ const Produtos = () => {
         skus: temporarySkus
       });
       await refreshSelectedProduto();
-      alert('Grade salva com sucesso!');
+      showToast('Grade salva com sucesso!', 'success');
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Erro ao salvar grade.');
+      showToast(err.response?.data?.message || 'Erro ao salvar grade.', 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -480,7 +482,7 @@ const Produtos = () => {
       setQuantidadeMaterial('');
       await refreshSelectedProduto();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Erro ao adicionar material.');
+      showToast(err.response?.data?.message || 'Erro ao adicionar material.', 'error');
     } finally {
       setIsSubmitting(false);
     }

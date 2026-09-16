@@ -7,6 +7,7 @@ import {
 import api from '../../api/axios';
 import { useAuth } from '../../contexts/AuthContext';
 import { Edit2, Trash2, Plus } from 'lucide-react';
+import { useToast } from '../../contexts/ToastContext';
 
 interface Jornada {
   id?: string;
@@ -54,6 +55,7 @@ const Funcionarios: React.FC = () => {
   const canEdit = hasPermission('PCP_EDIT');
 
   const carregarDados = () => {
+  const { showToast } = useToast();
     api.get('/funcionarios').then(res => setFuncionarios(res.data)).catch(console.error);
     api.get('/grupos-funcionarios').then(res => setGrupos(res.data)).catch(console.error);
   };
@@ -64,7 +66,7 @@ const Funcionarios: React.FC = () => {
 
   const handleSalvar = () => {
     if (!editingFuncionario.nome || !editingFuncionario.matricula) {
-      alert("Nome e Matrícula são obrigatórios!");
+      showToast("Nome e Matrícula são obrigatórios!", 'warning');
       return;
     }
     
@@ -96,7 +98,7 @@ const Funcionarios: React.FC = () => {
   const handleCopiarJornada = (id: string) => {
     if (window.confirm("Isso irá sobrescrever a jornada de TODOS os funcionários deste mesmo grupo. Confirma?")) {
       api.post(`/funcionarios/${id}/copiar-jornada`)
-        .then(() => { alert("Jornadas copiadas com sucesso!"); carregarDados(); })
+        .then(() => { showToast("Jornadas copiadas com sucesso!", 'success'); carregarDados(); })
         .catch(console.error);
     }
   };

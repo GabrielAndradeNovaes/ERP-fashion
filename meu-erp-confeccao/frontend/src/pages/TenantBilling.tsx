@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Box, Typography, Paper, Chip, Button, IconButton, CircularProgress } from '@mui/material';
 import { ExternalLink, CreditCard, RefreshCw } from 'lucide-react';
 import api from "../api/axios";
+import { useToast } from '../contexts/ToastContext';
 
 interface FaturaSaaS {
   id: string;
@@ -14,6 +15,7 @@ interface FaturaSaaS {
 }
 
 const TenantBilling = () => {
+  const { showToast } = useToast();
   const [faturas, setFaturas] = useState<FaturaSaaS[]>([]);
   const [loading, setLoading] = useState(true);
   const [gerando, setGerando] = useState<string | null>(null);
@@ -42,7 +44,7 @@ const TenantBilling = () => {
       fetchFaturas();
     } catch (error) {
       console.error('Erro ao gerar pagamento:', error);
-      alert('Erro ao gerar pagamento');
+      showToast('Erro ao gerar pagamento', 'error');
     } finally {
       setGerando(null);
     }

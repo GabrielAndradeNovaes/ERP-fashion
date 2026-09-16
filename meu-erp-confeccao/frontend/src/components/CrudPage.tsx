@@ -25,6 +25,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useToast } from '../contexts/ToastContext';
 
 interface CrudPageProps {
   title: string;
@@ -51,6 +52,7 @@ const CrudPage: React.FC<CrudPageProps> = ({ title, description, endpoint, colum
   const canEdit = hasPermission(editPermission);
 
   const fetchData = async () => {
+  const { showToast } = useToast();
     try {
       setLoading(true);
       const res = await api.get(endpoint);
@@ -79,7 +81,7 @@ const CrudPage: React.FC<CrudPageProps> = ({ title, description, endpoint, colum
       setIsModalOpen(false);
       fetchData();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Erro ao salvar.');
+      showToast(err.response?.data?.message || 'Erro ao salvar.', 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -96,7 +98,7 @@ const CrudPage: React.FC<CrudPageProps> = ({ title, description, endpoint, colum
       await api.delete(`${endpoint}/${id}`);
       fetchData();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Erro ao excluir.');
+      showToast(err.response?.data?.message || 'Erro ao excluir.', 'error');
     }
   };
 

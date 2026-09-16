@@ -3,6 +3,7 @@ import { Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, Ta
 import api from '../../api/axios';
 import { useAuth } from '../../contexts/AuthContext';
 import { Play } from 'lucide-react';
+import { useToast } from '../../contexts/ToastContext';
 
 interface ResumoProdutividade {
   funcionarioId: string;
@@ -24,6 +25,7 @@ const Produtividade: React.FC = () => {
   const canEdit = hasPermission('PCP_EDIT');
 
   const carregarResumo = async () => {
+  const { showToast } = useToast();
     try {
       const res = await api.get('/production/produtividade', {
         params: {
@@ -41,7 +43,7 @@ const Produtividade: React.FC = () => {
       setOcorrencias(newOcorrencias);
     } catch (err) {
       console.error(err);
-      alert('Erro ao carregar produtividade');
+      showToast('Erro ao carregar produtividade', 'error');
     }
   };
 
@@ -78,7 +80,7 @@ const Produtividade: React.FC = () => {
     }).filter(p => p.valorPagar > 0);
 
     if (pagamentos.length === 0) {
-      alert('Nenhum pagamento gerado. Nenhuma funcionária atingiu a meta ou todos os valores são zero.');
+      showToast('Nenhum pagamento gerado. Nenhuma funcionária atingiu a meta ou todos os valores são zero.', 'error');
       return;
     }
 
@@ -89,11 +91,11 @@ const Produtividade: React.FC = () => {
           end: dataFim + 'T23:59:59'
         }
       });
-      alert('Pagamentos gerados com sucesso!');
+      showToast('Pagamentos gerados com sucesso!', 'success');
       carregarResumo();
     } catch (err) {
       console.error(err);
-      alert('Erro ao gerar pagamentos');
+      showToast('Erro ao gerar pagamentos', 'error');
     }
   };
 

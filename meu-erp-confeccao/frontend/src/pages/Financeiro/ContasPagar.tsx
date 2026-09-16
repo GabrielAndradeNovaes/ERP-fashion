@@ -3,6 +3,7 @@ import { Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, Ta
 import api from '../../api/axios';
 import { useAuth } from '../../contexts/AuthContext';
 import { CheckCircle, Clock } from 'lucide-react';
+import { useToast } from '../../contexts/ToastContext';
 
 interface TituloPagar {
   id: string;
@@ -26,6 +27,7 @@ const ContasPagar: React.FC = () => {
   const canEdit = hasPermission('USUARIOS_ADMIN'); // TODO: Create specific finance permission
 
   const carregarTitulos = async () => {
+  const { showToast } = useToast();
     try {
       const res = await api.get('/financeiro/titulos');
       setTitulos(res.data);
@@ -55,7 +57,7 @@ const ContasPagar: React.FC = () => {
       carregarTitulos();
     } catch (err) {
       console.error(err);
-      alert('Erro ao baixar título');
+      showToast('Erro ao baixar título', 'error');
     }
   };
 
@@ -73,7 +75,7 @@ const ContasPagar: React.FC = () => {
       carregarTitulos();
     } catch (err) {
       console.error(err);
-      alert('Erro ao criar conta');
+      showToast('Erro ao criar conta', 'error');
     }
   };
 

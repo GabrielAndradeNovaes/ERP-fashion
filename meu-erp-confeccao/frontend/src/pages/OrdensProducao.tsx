@@ -35,6 +35,7 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { useToast } from '../contexts/ToastContext';
 
 interface ProdutoSku {
   id: string;
@@ -93,6 +94,7 @@ const STATUS_COLORS: Record<string, { label: string, color: string, bgColor: str
 };
 
 const OrdensProducao = () => {
+  const { showToast } = useToast();
   const [ordens, setOrdens] = useState<OrdemProducao[]>([]);
   const [produtos, setProdutos] = useState<ProdutoBase[]>([]);
   const [loading, setLoading] = useState(true);
@@ -193,7 +195,7 @@ const OrdensProducao = () => {
 
     const totalQuantidade = Object.values(skuQuantities).reduce((a, b) => a + (Number(b) || 0), 0);
     if (totalQuantidade <= 0) {
-      alert('Informe a quantidade de pelo menos um tamanho/cor.');
+      showToast('Informe a quantidade de pelo menos um tamanho/cor.', 'warning');
       return;
     }
 
@@ -217,7 +219,7 @@ const OrdensProducao = () => {
       setIsModalOpen(false);
       fetchInitialData();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Erro ao salvar OP');
+      showToast(err.response?.data?.message || 'Erro ao salvar OP', 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -228,7 +230,7 @@ const OrdensProducao = () => {
       await api.put(`/production/ordens/${opId}/status`, { status: novoStatus });
       fetchInitialData();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Erro ao alterar status');
+      showToast(err.response?.data?.message || 'Erro ao alterar status', 'error');
     }
     handleCloseMenu();
   };
@@ -238,10 +240,10 @@ const OrdensProducao = () => {
     
     try {
       await api.post(`/production/ordens/${opId}/estornar`);
-      alert('Ordem estornada com sucesso.');
+      showToast('Ordem estornada com sucesso.', 'success');
       fetchInitialData();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Erro ao estornar OP');
+      showToast(err.response?.data?.message || 'Erro ao estornar OP', 'error');
     }
     handleCloseMenu();
   };
@@ -251,11 +253,11 @@ const OrdensProducao = () => {
     try {
       setIsGenerating(true);
       await api.post(`/production/ordens/${selectedOrdem.id}/gerar-pacotes?tamanhoPacote=${tamanhoPacote}`);
-      alert('Pacotes e cupons gerados com sucesso!');
+      showToast('Pacotes e cupons gerados com sucesso!', 'success');
       setIsGerarPacotesModalOpen(false);
       setSelectedOrdem(null);
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Erro ao gerar pacotes');
+      showToast(err.response?.data?.message || 'Erro ao gerar pacotes', 'error');
     } finally {
       setIsGenerating(false);
     }

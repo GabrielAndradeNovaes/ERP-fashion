@@ -16,6 +16,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { DataTable } from '../components/DataTable';
 import PageHeader from '../components/PageHeader';
 import PremiumCard from '../components/PremiumCard';
+import { useToast } from '../contexts/ToastContext';
 
 interface CrudTabProps {
   endpoint: string;
@@ -40,6 +41,7 @@ const CrudTab: React.FC<CrudTabProps> = ({ endpoint, columns, emptyEntity, rende
   const canEdit = !editPermission || hasPermission(editPermission);
 
   const fetchData = async () => {
+  const { showToast } = useToast();
     try {
       setLoading(true);
       const res = await api.get(endpoint);
@@ -68,7 +70,7 @@ const CrudTab: React.FC<CrudTabProps> = ({ endpoint, columns, emptyEntity, rende
       setIsModalOpen(false);
       fetchData();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Erro ao salvar.');
+      showToast(err.response?.data?.message || 'Erro ao salvar.', 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -85,7 +87,7 @@ const CrudTab: React.FC<CrudTabProps> = ({ endpoint, columns, emptyEntity, rende
       await api.delete(`${endpoint}/${id}`);
       fetchData();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Erro ao excluir.');
+      showToast(err.response?.data?.message || 'Erro ao excluir.', 'error');
     }
   };
 
