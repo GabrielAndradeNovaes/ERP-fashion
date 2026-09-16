@@ -156,6 +156,16 @@ const Produtos = () => {
     fetchInitialData();
   }, []);
 
+  const handleOpenAddModal = async () => {
+    try {
+      const res = await api.get('/catalog/produtos/next-codigo');
+      setCodigo(res.data);
+    } catch (err) {
+      setCodigo('');
+    }
+    setIsAddModalOpen(true);
+  };
+
   useEffect(() => {
     if (selectedProduto?.fichaTecnica?.operacoes && !editingOperacaoId) {
       setOpOrdem((selectedProduto.fichaTecnica.operacoes.length + 1).toString());
@@ -557,7 +567,7 @@ const Produtos = () => {
             <Button
               variant="contained"
               startIcon={<AddIcon />}
-              onClick={() => setIsAddModalOpen(true)}
+              onClick={handleOpenAddModal}
               sx={{
                 background: 'var(--accent-gradient)',
                 borderRadius: 'var(--radius-md)',

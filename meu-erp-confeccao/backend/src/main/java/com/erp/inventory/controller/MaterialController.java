@@ -10,14 +10,23 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+import com.erp.core.service.SequenceGeneratorService;
+
 @RestController
 @RequestMapping("/api/inventory/materiais")
 public class MaterialController {
 
     private final MaterialService materialService;
+    private final SequenceGeneratorService sequenceGeneratorService;
 
-    public MaterialController(MaterialService materialService) {
+    public MaterialController(MaterialService materialService, SequenceGeneratorService sequenceGeneratorService) {
         this.materialService = materialService;
+        this.sequenceGeneratorService = sequenceGeneratorService;
+    }
+
+    @GetMapping("/next-codigo")
+    public ResponseEntity<String> getNextCodigo() {
+        return ResponseEntity.ok(sequenceGeneratorService.getNextSequence("materiais", "codigo"));
     }
 
     @PostMapping

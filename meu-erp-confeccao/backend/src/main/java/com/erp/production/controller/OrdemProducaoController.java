@@ -9,15 +9,24 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+import com.erp.core.service.SequenceGeneratorService;
+
 @RestController
 @RequestMapping("/api/production/ordens")
 @CrossOrigin(origins = "*") // Para desenvolvimento local
 public class OrdemProducaoController {
 
     private final OrdemProducaoService ordemProducaoService;
+    private final SequenceGeneratorService sequenceGeneratorService;
 
-    public OrdemProducaoController(OrdemProducaoService ordemProducaoService) {
+    public OrdemProducaoController(OrdemProducaoService ordemProducaoService, SequenceGeneratorService sequenceGeneratorService) {
         this.ordemProducaoService = ordemProducaoService;
+        this.sequenceGeneratorService = sequenceGeneratorService;
+    }
+
+    @GetMapping("/next-numero")
+    public ResponseEntity<String> getNextNumero() {
+        return ResponseEntity.ok(sequenceGeneratorService.getNextSequence("ordens_producao", "numero"));
     }
 
     @PostMapping

@@ -123,6 +123,16 @@ const Estoque = () => {
     fetchData();
   }, []);
 
+  const handleOpenMaterialModal = async () => {
+    try {
+      const res = await api.get('/inventory/materiais/next-codigo');
+      setCodigo(res.data);
+    } catch (err) {
+      setCodigo('');
+    }
+    setIsMaterialModalOpen(true);
+  };
+
   const handleAddMaterial = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!codigo || !nome) return;
@@ -299,7 +309,7 @@ const Estoque = () => {
               <Button 
                 variant="contained" 
                 startIcon={<AddIcon />}
-                onClick={() => setIsMaterialModalOpen(true)}
+                onClick={handleOpenMaterialModal}
                 disableElevation
               >
                 Novo Material

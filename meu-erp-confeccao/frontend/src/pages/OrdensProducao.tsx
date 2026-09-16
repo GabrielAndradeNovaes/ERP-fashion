@@ -164,12 +164,17 @@ const OrdensProducao = () => {
     }
   };
 
-  const handleOpenNewModal = () => {
+  const handleOpenNewModal = async () => {
     setSelectedOrdem(null);
-    setNumero('');
     setProdutoBaseId('');
     setQuantidade('0');
     setSkuQuantities({});
+    try {
+      const res = await api.get('/production/ordens/next-numero');
+      setNumero(res.data);
+    } catch (e) {
+      setNumero('');
+    }
     setIsModalOpen(true);
   };
 

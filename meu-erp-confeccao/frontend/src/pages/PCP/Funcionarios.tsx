@@ -35,6 +35,7 @@ interface Funcionario {
 }
 
 const Funcionarios: React.FC = () => {
+  const { showToast } = useToast();
   const [funcionarios, setFuncionarios] = useState<Funcionario[]>([]);
   const [grupos, setGrupos] = useState<GrupoFuncionario[]>([]);
   const [open, setOpen] = useState(false);
@@ -55,9 +56,20 @@ const Funcionarios: React.FC = () => {
   const canEdit = hasPermission('PCP_EDIT');
 
   const carregarDados = () => {
-  const { showToast } = useToast();
     api.get('/funcionarios').then(res => setFuncionarios(res.data)).catch(console.error);
     api.get('/grupos-funcionarios').then(res => setGrupos(res.data)).catch(console.error);
+  };
+
+  const handleOpenNewFuncionario = async () => {
+    let matricula = '';
+    try {
+      const res = await api.get('/funcionarios/next-matricula');
+      matricula = res.data;
+    } catch (err) {
+      console.error(err);
+    }
+    setEditingFuncionario({ ativo: true, matricula, cargaHorariaDiariaPadrao: 8.8, cargaHorariaMensalPadrao: 220, metaMinima: 75, premio100: 1000, jornadas: [] });
+    setOpen(true);
   };
 
   useEffect(() => {
@@ -137,10 +149,7 @@ const Funcionarios: React.FC = () => {
           <Button 
             variant="contained" 
             startIcon={<Plus size={20} />}
-            onClick={() => {
-              setEditingFuncionario({ ativo: true, cargaHorariaDiariaPadrao: 8.8, cargaHorariaMensalPadrao: 220, metaMinima: 75, premio100: 1000, jornadas: [] });
-              setOpen(true);
-            }}
+            onClick={handleOpenNewFuncionario}
             sx={{ background: 'var(--accent-gradient)' }}
           >
             Novo Funcionário

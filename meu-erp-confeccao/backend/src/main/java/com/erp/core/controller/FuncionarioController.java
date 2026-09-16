@@ -14,11 +14,18 @@ public class FuncionarioController {
     private final FuncionarioRepository funcionarioRepository;
     private final com.erp.core.repository.GrupoFuncionarioRepository grupoFuncionarioRepository;
     private final jakarta.persistence.EntityManager entityManager;
+    private final com.erp.core.service.SequenceGeneratorService sequenceGeneratorService;
 
-    public FuncionarioController(FuncionarioRepository funcionarioRepository, com.erp.core.repository.GrupoFuncionarioRepository grupoFuncionarioRepository, jakarta.persistence.EntityManager entityManager) {
+    public FuncionarioController(FuncionarioRepository funcionarioRepository, com.erp.core.repository.GrupoFuncionarioRepository grupoFuncionarioRepository, jakarta.persistence.EntityManager entityManager, com.erp.core.service.SequenceGeneratorService sequenceGeneratorService) {
         this.funcionarioRepository = funcionarioRepository;
         this.grupoFuncionarioRepository = grupoFuncionarioRepository;
         this.entityManager = entityManager;
+        this.sequenceGeneratorService = sequenceGeneratorService;
+    }
+
+    @GetMapping("/next-matricula")
+    public ResponseEntity<String> getNextMatricula() {
+        return ResponseEntity.ok(sequenceGeneratorService.getNextSequence("funcionarios", "matricula"));
     }
 
     private com.erp.core.domain.GrupoFuncionario resolveGrupo(com.erp.core.domain.GrupoFuncionario grupo) {
