@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode, useCallback, useEffect } from 'react';
-import { Snackbar, Alert, AlertColor } from '@mui/material';
+import { Snackbar, Alert } from '@mui/material';
+
+export type AlertColor = 'success' | 'info' | 'warning' | 'error';
 
 interface ToastContextData {
   showToast: (message: string, severity?: AlertColor) => void;
