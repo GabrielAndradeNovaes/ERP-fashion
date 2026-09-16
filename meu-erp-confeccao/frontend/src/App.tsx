@@ -14,13 +14,14 @@ import Fornecedores from './pages/Fornecedores';
 import CadastrosBase from './pages/CadastrosBase';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
-import { Users, Truck, Tags, Ruler, ScanLine, UserCog, BarChart, FileText, Tag, Settings as SettingsIcon } from 'lucide-react';
+import { Users, Truck, Tags, Ruler, ScanLine, UserCog, BarChart, FileText, Tag, Settings as SettingsIcon, Terminal } from 'lucide-react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useThemeContext } from './contexts/ThemeContext';
 import Usuarios from './pages/Usuarios';
 import PaymentPending from './pages/PaymentPending';
 import TenantsList from './pages/Backoffice/TenantsList';
 import AdminDashboard from './pages/Admin/AdminDashboard';
+import SystemLogs from './pages/Admin/SystemLogs';
 import LandingPage from './pages/LandingPage';
 import ContasPagar from './pages/Financeiro/ContasPagar';
 import ContasReceber from './pages/Financeiro/ContasReceber';
@@ -170,6 +171,24 @@ const Sidebar = () => {
             >
               <Building2 size={20} />
               Gestão de Tenants
+            </Link>
+            <Link 
+              to="/admin/logs"
+              style={{
+                display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.75rem 1rem',
+                borderRadius: 'var(--radius-md)',
+                color: location.pathname === '/admin/logs' ? 'white' : 'var(--text-secondary)',
+                background: location.pathname === '/admin/logs' ? 'var(--accent-gradient)' : 'transparent',
+                fontWeight: location.pathname === '/admin/logs' ? 600 : 500,
+                transition: 'all var(--transition-fast)',
+                boxShadow: location.pathname === '/admin/logs' ? '0 4px 14px 0 rgba(99, 102, 241, 0.39)' : 'none',
+                textDecoration: 'none'
+              }}
+              onMouseEnter={(e) => { if (location.pathname !== '/admin/logs') e.currentTarget.style.backgroundColor = 'rgba(128,128,128,0.1)' }}
+              onMouseLeave={(e) => { if (location.pathname !== '/admin/logs') e.currentTarget.style.backgroundColor = 'transparent' }}
+            >
+              <Terminal size={20} />
+              Logs do Sistema
             </Link>
           </Box>
         )}
@@ -379,6 +398,7 @@ const AdminApp = () => {
         <Routes>
           <Route path="/" element={<PrivateRoute requireSuperAdmin><AdminDashboard /></PrivateRoute>} />
           <Route path="/tenants" element={<PrivateRoute requireSuperAdmin><TenantsList /></PrivateRoute>} />
+          <Route path="/logs" element={<PrivateRoute requireSuperAdmin><SystemLogs /></PrivateRoute>} />
           <Route path="/billing" element={<PrivateRoute requireSuperAdmin><AdminBilling /></PrivateRoute>} />
           <Route path="/settings" element={<PrivateRoute requireSuperAdmin><Settings /></PrivateRoute>} />
           <Route path="*" element={<Navigate to="/" />} />
