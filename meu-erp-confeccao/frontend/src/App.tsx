@@ -280,20 +280,6 @@ const MainApp = () => {
 
           <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
           
-          <Route path="/admin/tenants" element={
-            isMasterDomain ? (
-              <PrivateRoute requireSuperAdmin><TenantsList /></PrivateRoute>
-            ) : (
-              <Navigate to="/" />
-            )
-          } />
-          <Route path="/admin/logs" element={
-            isMasterDomain ? (
-              <PrivateRoute requireSuperAdmin><SystemLogs /></PrivateRoute>
-            ) : (
-              <Navigate to="/" />
-            )
-          } />
           <Route path="/assinatura" element={<PrivateRoute><TenantBilling /></PrivateRoute>} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
@@ -310,6 +296,7 @@ const AdminSidebar = () => {
   const location = useLocation();
   const { user, logout } = useAuth();
   const { mode, toggleTheme } = useThemeContext();
+  const adminPrefix = window.location.hostname.split('.')[0] === 'admin' ? '' : '/admin';
   
   return (
     <div className="sidebar premium-card" style={{ 
@@ -326,13 +313,13 @@ const AdminSidebar = () => {
       
       <nav style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1, overflowY: 'auto', paddingBottom: '1rem', marginTop: '1rem' }}>
         <Link 
-          to="/"
+          to={`${adminPrefix}/`}
           style={{
             display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.75rem 1rem',
             borderRadius: 'var(--radius-md)',
-            color: location.pathname === '/' ? 'white' : 'var(--text-secondary)',
-            background: location.pathname === '/' ? 'var(--accent-gradient)' : 'transparent',
-            fontWeight: location.pathname === '/' ? 600 : 500,
+            color: location.pathname === `${adminPrefix}/` ? 'white' : 'var(--text-secondary)',
+            background: location.pathname === `${adminPrefix}/` ? 'var(--accent-gradient)' : 'transparent',
+            fontWeight: location.pathname === `${adminPrefix}/` ? 600 : 500,
             textDecoration: 'none'
           }}
         >
@@ -340,13 +327,13 @@ const AdminSidebar = () => {
           Painel Master
         </Link>
         <Link 
-          to="/tenants"
+          to={`${adminPrefix}/tenants`}
           style={{
             display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.75rem 1rem',
             borderRadius: 'var(--radius-md)',
-            color: location.pathname === '/tenants' ? 'white' : 'var(--text-secondary)',
-            background: location.pathname === '/tenants' ? 'var(--accent-gradient)' : 'transparent',
-            fontWeight: location.pathname === '/tenants' ? 600 : 500,
+            color: location.pathname === `${adminPrefix}/tenants` ? 'white' : 'var(--text-secondary)',
+            background: location.pathname === `${adminPrefix}/tenants` ? 'var(--accent-gradient)' : 'transparent',
+            fontWeight: location.pathname === `${adminPrefix}/tenants` ? 600 : 500,
             textDecoration: 'none'
           }}
         >
@@ -354,13 +341,27 @@ const AdminSidebar = () => {
           Gestão de Tenants
         </Link>
         <Link 
-          to="/billing"
+          to={`${adminPrefix}/logs`}
           style={{
             display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.75rem 1rem',
             borderRadius: 'var(--radius-md)',
-            color: location.pathname === '/billing' ? 'white' : 'var(--text-secondary)',
-            background: location.pathname === '/billing' ? 'var(--accent-gradient)' : 'transparent',
-            fontWeight: location.pathname === '/billing' ? 600 : 500,
+            color: location.pathname === `${adminPrefix}/logs` ? 'white' : 'var(--text-secondary)',
+            background: location.pathname === `${adminPrefix}/logs` ? 'var(--accent-gradient)' : 'transparent',
+            fontWeight: location.pathname === `${adminPrefix}/logs` ? 600 : 500,
+            textDecoration: 'none'
+          }}
+        >
+          <Terminal size={20} />
+          Logs do Sistema
+        </Link>
+        <Link 
+          to={`${adminPrefix}/billing`}
+          style={{
+            display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.75rem 1rem',
+            borderRadius: 'var(--radius-md)',
+            color: location.pathname === `${adminPrefix}/billing` ? 'white' : 'var(--text-secondary)',
+            background: location.pathname === `${adminPrefix}/billing` ? 'var(--accent-gradient)' : 'transparent',
+            fontWeight: location.pathname === `${adminPrefix}/billing` ? 600 : 500,
             textDecoration: 'none'
           }}
         >
@@ -368,13 +369,13 @@ const AdminSidebar = () => {
           Faturamento Global
         </Link>
         <Link 
-          to="/settings"
+          to={`${adminPrefix}/settings`}
           style={{
             display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.75rem 1rem',
             borderRadius: 'var(--radius-md)',
-            color: location.pathname === '/settings' ? 'white' : 'var(--text-secondary)',
-            background: location.pathname === '/settings' ? 'var(--accent-gradient)' : 'transparent',
-            fontWeight: location.pathname === '/settings' ? 600 : 500,
+            color: location.pathname === `${adminPrefix}/settings` ? 'white' : 'var(--text-secondary)',
+            background: location.pathname === `${adminPrefix}/settings` ? 'var(--accent-gradient)' : 'transparent',
+            fontWeight: location.pathname === `${adminPrefix}/settings` ? 600 : 500,
             textDecoration: 'none'
           }}
         >
@@ -441,6 +442,7 @@ const AppRouter = () => {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/pagamento/:id" element={<Checkout />} />
+      <Route path="/admin/*" element={isMasterDomain ? <AdminApp /> : <Navigate to="/" />} />
       <Route path="/*" element={<MainApp />} />
     </Routes>
   );
