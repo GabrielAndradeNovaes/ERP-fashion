@@ -14,6 +14,3 @@ ALTER TABLE produtos_skus ADD COLUMN tamanho_id UUID REFERENCES tamanhos(id);
 ALTER TABLE materiais RENAME COLUMN unidade_medida TO unidade_medida_legacy;
 ALTER TABLE materiais ADD COLUMN unidade_medida_id UUID REFERENCES unidades_medida(id);
 
--- 4. Usuarios (departamento)
-ALTER TABLE usuarios RENAME COLUMN departamento TO departamento_legacy;
-ALTER TABLE usuarios ADD COLUMN departamento_id UUID REFERENCES departamentos(id);

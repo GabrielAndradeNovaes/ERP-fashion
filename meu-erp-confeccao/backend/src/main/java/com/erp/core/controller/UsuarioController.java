@@ -74,8 +74,8 @@ public class UsuarioController {
         u.setTelefone(dto.getTelefone());
         u.setCargo(dto.getCargo());
         u.setDataNascimento(dto.getDataNascimento());
-        if (dto.getDepartamentoId() != null) {
-            u.setDepartamento(departamentoRepository.findById(dto.getDepartamentoId()).orElse(null));
+        if (dto.getDepartamento() != null) {
+            u.setDepartamento(dto.getDepartamento());
         }
         u.setFotoUrl(dto.getFotoUrl());
         
@@ -110,8 +110,8 @@ public class UsuarioController {
         u.setTelefone(dto.getTelefone());
         u.setCargo(dto.getCargo());
         u.setDataNascimento(dto.getDataNascimento());
-        if (dto.getDepartamentoId() != null) {
-            u.setDepartamento(departamentoRepository.findById(dto.getDepartamentoId()).orElse(null));
+        if (dto.getDepartamento() != null) {
+            u.setDepartamento(dto.getDepartamento());
         } else {
             u.setDepartamento(null);
         }
@@ -167,8 +167,7 @@ public class UsuarioController {
         dto.setTelefone(u.getTelefone());
         dto.setCargo(u.getCargo());
         dto.setDataNascimento(u.getDataNascimento());
-        dto.setDepartamentoId(u.getDepartamento() != null ? u.getDepartamento().getId() : null);
-        dto.setDepartamentoNome(u.getDepartamento() != null ? u.getDepartamento().getNome() : null);
+        dto.setDepartamento(u.getDepartamento());
         dto.setFotoUrl(u.getFotoUrl());
         
         List<UUID> empIds = usuarioEmpresaRepository.findByUsuarioId(u.getId())

@@ -45,6 +45,7 @@ public class FlywayConfiguration {
                     .schemas(tenant)
                     .locations("classpath:db/migration/tenant")
                     .baselineOnMigrate(true)
+                    .outOfOrder(true)
                     .load();
             flywayTenant.migrate();
         }
