@@ -154,6 +154,12 @@ const Produtos = () => {
     fetchInitialData();
   }, []);
 
+  useEffect(() => {
+    if (selectedProduto?.fichaTecnica?.operacoes && !editingOperacaoId) {
+      setOpOrdem((selectedProduto.fichaTecnica.operacoes.length + 1).toString());
+    }
+  }, [selectedProduto?.fichaTecnica?.operacoes, editingOperacaoId]);
+
   const handleAddProduto = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!codigo || !nome) return;
