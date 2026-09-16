@@ -3,7 +3,6 @@ import { Truck, CheckCircle2, Factory } from 'lucide-react';
 import api from '../../api/axios';
 import { useAuth } from '../../contexts/AuthContext';
 import {
-import { useToast } from '../../contexts/ToastContext';
   Box,
   Typography,
   Button,
@@ -14,6 +13,7 @@ import { useToast } from '../../contexts/ToastContext';
   Grid,
   Chip
 } from '@mui/material';
+import { useToast } from '../../contexts/ToastContext';
 
 interface OrdemProducao {
   id: string;
