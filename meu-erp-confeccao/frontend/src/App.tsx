@@ -287,6 +287,13 @@ const MainApp = () => {
               <Navigate to="/" />
             )
           } />
+          <Route path="/admin/logs" element={
+            isMasterDomain ? (
+              <PrivateRoute requireSuperAdmin><SystemLogs /></PrivateRoute>
+            ) : (
+              <Navigate to="/" />
+            )
+          } />
           <Route path="/assinatura" element={<PrivateRoute><TenantBilling /></PrivateRoute>} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
