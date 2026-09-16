@@ -7,7 +7,7 @@ import {
 } from '@mui/material';
 import { RefreshCcw, Terminal } from 'lucide-react';
 import api from '../../api/axios';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface LogEntry {
   '@timestamp': string;
