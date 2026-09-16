@@ -41,17 +41,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // Se não tem header Bearer, continua a cadeia (será bloqueado pelo Spring Security se a rota for protegida)
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            
-            // Fallback temporário para desenvolvimento/Testes: Lendo header X-TenantID
-            String headerTenant = request.getHeader("X-TenantID");
-            if (headerTenant != null && !headerTenant.trim().isEmpty()) {
-                TenantContext.setCurrentTenant(headerTenant);
-            } else {
-                TenantContext.setCurrentTenant(TenantContext.MASTER_TENANT);
-            }
-            
+            // O TenantInterceptor lidará com o cabeçalho X-TenantID ou subdomínio se necessário.
+            // Aqui deixamos como null para o TenantInterceptor processar.
             filterChain.doFilter(request, response);
-            TenantContext.clear();
             return;
         }
 
@@ -82,13 +74,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         );
                     }
 
-                    // Se for SUPERADMIN, permite sobrescrever pelo cabeçalho X-TenantID
-                    if (userDetails.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_SUPERADMIN"))) {
-                        String headerTenant = request.getHeader("X-TenantID");
-                        if (headerTenant != null && !headerTenant.trim().isEmpty()) {
-                            TenantContext.setCurrentTenant(headerTenant);
-                        }
-                    }
+                    // Se for SUPERADMIN, o TenantInterceptor vai lidar com o cabeçalho X-TenantID ou o subdomínio.
+                    // Nós não sobrescrevemos o TenantContext aqui com o cabeçalho porque o cabeçalho pode ser um slug
+                    // e o TenantContext deve armazenar o schema_name.
                 }
             }
         } catch (Exception e) {

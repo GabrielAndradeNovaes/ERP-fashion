@@ -31,31 +31,52 @@ public class TenantInterceptor implements HandlerInterceptor {
         String host = request.getServerName(); // e.g. "empresa1.localhost" or "admin.localhost"
         String resolvedTenantId = null;
 
+        // Salvar contexto atual (definido pelo JwtAuthFilter) antes de alterar
+        String jwtTenant = TenantContext.getCurrentTenant();
+
+        // 1. Tentar resolver por subdomínio
         if (host != null && host.endsWith("." + rootDomain)) {
             String subdomain = host.substring(0, host.indexOf("." + rootDomain));
             if (!platformSubdomains.contains(subdomain.toLowerCase())) {
+                // Para buscar por slug com segurança, garantimos que o contexto esteja como master 
+                // caso contrário o TenantRoutingDataSource pode tentar usar um schema inválido.
+                TenantContext.setCurrentTenant(TenantContext.MASTER_TENANT);
                 Optional<Tenant> tenantOpt = tenantRepository.findBySlug(subdomain.toLowerCase());
                 if (tenantOpt.isPresent()) {
                     resolvedTenantId = tenantOpt.get().getSchemaName();
-                } else {
-                    // Subdomain not found in tenants, maybe throw 404? 
-                    // For now, let it fall back or go to master.
                 }
+                // Restauramos o contexto JWT temporariamente
+                TenantContext.setCurrentTenant(jwtTenant);
             }
         }
 
-        // Fallback para header caso nao tenha resolvido via subdominio
+        // 2. Fallback para header
         if (resolvedTenantId == null) {
             String headerTenantId = request.getHeader(TENANT_HEADER);
             if (headerTenantId != null && !headerTenantId.trim().isEmpty()) {
-                resolvedTenantId = headerTenantId;
+                TenantContext.setCurrentTenant(TenantContext.MASTER_TENANT);
+                Optional<Tenant> tenantOpt = tenantRepository.findBySlug(headerTenantId.toLowerCase());
+                if (tenantOpt.isPresent()) {
+                    resolvedTenantId = tenantOpt.get().getSchemaName();
+                } else {
+                    // Pode já ser um schema_name válido
+                    resolvedTenantId = headerTenantId;
+                }
+                TenantContext.setCurrentTenant(jwtTenant);
             }
         }
 
+        // 3. Aplicar o tenant resolvido, se houver
         if (resolvedTenantId != null) {
             TenantContext.setCurrentTenant(resolvedTenantId);
         } else {
-            TenantContext.setCurrentTenant(TenantContext.MASTER_TENANT);
+            // Se não resolveu via URL nem Header, mantém o que o JwtAuthenticationFilter configurou!
+            // Se não tiver nada no contexto (ex: rota pública), define como master.
+            if (jwtTenant == null) {
+                TenantContext.setCurrentTenant(TenantContext.MASTER_TENANT);
+            } else {
+                TenantContext.setCurrentTenant(jwtTenant);
+            }
         }
 
         return true;
