@@ -108,24 +108,28 @@ public class DashboardService {
 
         // 5. OPs Atrasadas
         List<OrdemProducao> topOpsAtrasadas = ordemProducaoRepository.findTop5ByStatusNotOrderByCriadoEmAsc(OrdemProducaoStatus.CONCLUIDA);
-        List<Map<String, Object>> opsAtrasadas = topOpsAtrasadas.stream().map(op -> Map.of(
-            "id", op.getId(),
-            "numero", op.getNumero(),
-            "produto", op.getProdutoBase().getNome(),
-            "criadoEm", op.getCriadoEm(),
-            "status", op.getStatus().name()
-        )).collect(Collectors.toList());
+        List<Map<String, Object>> opsAtrasadas = topOpsAtrasadas.stream().map(op -> {
+            Map<String, Object> map = new java.util.HashMap<>();
+            map.put("id", op.getId());
+            map.put("numero", op.getNumero());
+            map.put("produto", op.getProdutoBase().getNome());
+            map.put("criadoEm", op.getCriadoEm());
+            map.put("status", op.getStatus().name());
+            return map;
+        }).collect(Collectors.toList());
         response.put("opsAtrasadas", opsAtrasadas);
 
         // 6. Estoque Crítico
         List<Material> topMateriaisCriticos = materialRepository.findTop5ByStatusOrderByQuantidadeAtualAsc("ATIVO");
-        List<Map<String, Object>> estoqueCritico = topMateriaisCriticos.stream().map(m -> Map.of(
-            "id", m.getId(),
-            "codigo", m.getCodigo(),
-            "nome", m.getNome(),
-            "quantidadeAtual", m.getQuantidadeAtual() != null ? m.getQuantidadeAtual() : BigDecimal.ZERO,
-            "unidade", m.getUnidadeMedida() != null ? m.getUnidadeMedida().getSigla() : ""
-        )).collect(Collectors.toList());
+        List<Map<String, Object>> estoqueCritico = topMateriaisCriticos.stream().map(m -> {
+            Map<String, Object> map = new java.util.HashMap<>();
+            map.put("id", m.getId());
+            map.put("codigo", m.getCodigo());
+            map.put("nome", m.getNome());
+            map.put("quantidadeAtual", m.getQuantidadeAtual() != null ? m.getQuantidadeAtual() : BigDecimal.ZERO);
+            map.put("unidade", m.getUnidadeMedida() != null ? m.getUnidadeMedida().getSigla() : "");
+            return map;
+        }).collect(Collectors.toList());
         response.put("estoqueCritico", estoqueCritico);
 
         return response;

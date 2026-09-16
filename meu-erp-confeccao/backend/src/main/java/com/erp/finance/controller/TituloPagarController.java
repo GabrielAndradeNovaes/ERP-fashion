@@ -28,4 +28,9 @@ public class TituloPagarController {
         financeiroService.baixarTitulo(id);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping
+    public ResponseEntity<TituloPagar> criarTituloManual(@RequestBody com.erp.finance.dto.TituloRequest request) {
+        return ResponseEntity.ok(financeiroService.criarTituloPagarManual(request));
+    }
 }

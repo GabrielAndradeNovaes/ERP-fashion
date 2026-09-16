@@ -4,54 +4,54 @@ import api from '../../api/axios';
 import { useAuth } from '../../contexts/AuthContext';
 import { CheckCircle, Clock } from 'lucide-react';
 
-interface TituloPagar {
+interface TituloReceber {
   id: string;
   descricao: string;
   valor: number;
   dataEmissao: string;
   dataVencimento: string;
   dataPagamento: string | null;
-  status: 'PENDENTE' | 'PAGO' | 'CANCELADO';
-  funcionario?: {
+  status: 'PENDENTE' | 'RECEBIDO' | 'CANCELADO';
+  cliente?: {
     nome: string;
   };
 }
 
-const ContasPagar: React.FC = () => {
-  const [titulos, setTitulos] = useState<TituloPagar[]>([]);
-  const [funcionarios, setFuncionarios] = useState<any[]>([]);
+const ContasReceber: React.FC = () => {
+  const [titulos, setTitulos] = useState<TituloReceber[]>([]);
+  const [clientes, setClientes] = useState<any[]>([]);
   const [openModal, setOpenModal] = useState(false);
-  const [formData, setFormData] = useState({ descricao: '', valor: '', dataEmissao: '', dataVencimento: '', funcionarioId: '' });
+  const [formData, setFormData] = useState({ descricao: '', valor: '', dataEmissao: '', dataVencimento: '', clienteId: '' });
   const { hasPermission } = useAuth();
   const canEdit = hasPermission('USUARIOS_ADMIN'); // TODO: Create specific finance permission
 
   const carregarTitulos = async () => {
     try {
-      const res = await api.get('/financeiro/titulos');
+      const res = await api.get('/financeiro/receber');
       setTitulos(res.data);
     } catch (err) {
       console.error(err);
     }
   };
 
-  const carregarFuncionarios = async () => {
+  const carregarClientes = async () => {
     try {
-      const res = await api.get('/core/funcionarios');
-      setFuncionarios(res.data);
+      const res = await api.get('/core/clientes');
+      setClientes(res.data);
     } catch (err) {
-      console.error("Erro ao carregar funcionários", err);
+      console.error("Erro ao carregar clientes", err);
     }
   };
 
   useEffect(() => {
     carregarTitulos();
-    carregarFuncionarios();
+    carregarClientes();
   }, []);
 
   const handleBaixar = async (id: string) => {
-    if (!window.confirm("Confirmar o pagamento deste título?")) return;
+    if (!window.confirm("Confirmar o recebimento deste título?")) return;
     try {
-      await api.post(`/financeiro/titulos/${id}/baixar`);
+      await api.post(`/financeiro/receber/${id}/baixar`);
       carregarTitulos();
     } catch (err) {
       console.error(err);
@@ -61,15 +61,15 @@ const ContasPagar: React.FC = () => {
 
   const handleCreate = async () => {
     try {
-      await api.post('/financeiro/titulos', {
+      await api.post('/financeiro/receber', {
         ...formData,
         valor: parseFloat(formData.valor),
-        funcionarioId: formData.funcionarioId ? formData.funcionarioId : null,
+        clienteId: formData.clienteId ? formData.clienteId : null,
         dataEmissao: formData.dataEmissao ? formData.dataEmissao : undefined,
         dataVencimento: formData.dataVencimento ? formData.dataVencimento : undefined,
       });
       setOpenModal(false);
-      setFormData({ descricao: '', valor: '', dataEmissao: '', dataVencimento: '', funcionarioId: '' });
+      setFormData({ descricao: '', valor: '', dataEmissao: '', dataVencimento: '', clienteId: '' });
       carregarTitulos();
     } catch (err) {
       console.error(err);
@@ -89,7 +89,7 @@ const ContasPagar: React.FC = () => {
   return (
     <Box sx={{ p: 4, height: '100%' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 'bold' }}>Contas a Pagar</Typography>
+        <Typography variant="h4" sx={{ fontWeight: 'bold' }}>Títulos a Receber</Typography>
         {canEdit && (
           <Button variant="contained" color="primary" onClick={() => setOpenModal(true)}>
             Nova Conta
@@ -102,10 +102,10 @@ const ContasPagar: React.FC = () => {
           <TableHead>
             <TableRow>
               <TableCell>Descrição</TableCell>
-              <TableCell>Favorecido</TableCell>
+              <TableCell>Pagador (Cliente)</TableCell>
               <TableCell>Emissão</TableCell>
               <TableCell>Vencimento</TableCell>
-              <TableCell>Pagamento</TableCell>
+              <TableCell>Recebimento</TableCell>
               <TableCell>Valor</TableCell>
               <TableCell>Status</TableCell>
               <TableCell align="right">Ações</TableCell>
@@ -119,14 +119,14 @@ const ContasPagar: React.FC = () => {
             ) : titulos.map(t => (
               <TableRow key={t.id} hover>
                 <TableCell>{t.descricao}</TableCell>
-                <TableCell>{t.funcionario?.nome || '-'}</TableCell>
+                <TableCell>{t.cliente?.nome || '-'}</TableCell>
                 <TableCell>{formatDate(t.dataEmissao)}</TableCell>
                 <TableCell>{formatDate(t.dataVencimento)}</TableCell>
                 <TableCell>{formatDate(t.dataPagamento)}</TableCell>
-                <TableCell sx={{ fontWeight: 600, color: 'var(--danger)' }}>{formatCurrency(t.valor)}</TableCell>
+                <TableCell sx={{ fontWeight: 600, color: 'var(--success)' }}>{formatCurrency(t.valor)}</TableCell>
                 <TableCell>
-                  {t.status === 'PAGO' ? (
-                    <Chip label="Pago" size="small" color="success" icon={<CheckCircle size={16}/>} />
+                  {t.status === 'RECEBIDO' ? (
+                    <Chip label="Recebido" size="small" color="success" icon={<CheckCircle size={16}/>} />
                   ) : (
                     <Chip label="Pendente" size="small" color="warning" icon={<Clock size={16}/>} />
                   )}
@@ -139,7 +139,7 @@ const ContasPagar: React.FC = () => {
                       size="small"
                       onClick={() => handleBaixar(t.id)}
                     >
-                      Dar Baixa
+                      Receber
                     </Button>
                   )}
                 </TableCell>
@@ -150,7 +150,7 @@ const ContasPagar: React.FC = () => {
       </TableContainer>
 
       <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Nova Conta a Pagar</DialogTitle>
+        <DialogTitle>Nova Conta a Receber</DialogTitle>
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
           <TextField
             label="Descrição"
@@ -160,15 +160,15 @@ const ContasPagar: React.FC = () => {
           />
           
           <FormControl fullWidth>
-            <InputLabel>Favorecido (Funcionário)</InputLabel>
+            <InputLabel>Cliente</InputLabel>
             <Select
-              value={formData.funcionarioId}
-              label="Favorecido (Funcionário)"
-              onChange={(e) => setFormData({ ...formData, funcionarioId: e.target.value })}
+              value={formData.clienteId}
+              label="Cliente"
+              onChange={(e) => setFormData({ ...formData, clienteId: e.target.value })}
             >
               <MenuItem value=""><em>Nenhum / Externo</em></MenuItem>
-              {funcionarios.map(f => (
-                <MenuItem key={f.id} value={f.id}>{f.nome}</MenuItem>
+              {clientes.map(c => (
+                <MenuItem key={c.id} value={c.id}>{c.nome}</MenuItem>
               ))}
             </Select>
           </FormControl>
@@ -206,4 +206,4 @@ const ContasPagar: React.FC = () => {
   );
 };
 
-export default ContasPagar;
+export default ContasReceber;
