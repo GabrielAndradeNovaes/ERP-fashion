@@ -290,7 +290,7 @@ const TenantsList = () => {
             <TableHead sx={{ bgcolor: 'var(--bg-card)' }}>
               <TableRow>
                 <TableCell sx={{ fontWeight: 600 }}>Nome Fantasia</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Schema ID</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>Slug / Schema ID</TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>CNPJ / Razão Social</TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>Criado Em</TableCell>
                 <TableCell sx={{ fontWeight: 600, width: 300 }}>Status (Ação)</TableCell>
@@ -301,7 +301,8 @@ const TenantsList = () => {
                 <TableRow key={tenant.schemaName} hover>
                   <TableCell sx={{ fontWeight: 500 }}>{tenant.nomeEmpresa}</TableCell>
                   <TableCell>
-                    <Chip label={tenant.schemaName} size="small" variant="outlined" />
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>{tenant.slug}</Typography>
+                    <Chip label={tenant.schemaName} size="small" variant="outlined" sx={{ mt: 0.5, fontSize: '0.7rem' }} />
                   </TableCell>
                   <TableCell>
                     <Typography variant="body2">{tenant.cnpj || 'Não informado'}</Typography>
