@@ -114,6 +114,10 @@ public class FichaTecnicaServiceImpl implements FichaTecnicaService {
         Integer qFolhas = request.quantidadeFolhas() != null ? request.quantidadeFolhas() : 0;
         Integer qParadas = request.quantidadeParadas() != null ? request.quantidadeParadas() : 0;
 
+        if (fichaTecnica.getOperacoes().stream().anyMatch(op -> op.getOrdemExecucao().equals(request.ordemExecucao()))) {
+            throw new IllegalArgumentException("Já existe uma operação com esta ordem de execução (ordem " + request.ordemExecucao() + ") na Ficha Técnica.");
+        }
+
         FichaTecnicaOperacao operacao = new FichaTecnicaOperacao();
         operacao.setNome(request.nome());
         operacao.setMaquina(request.maquina());
@@ -154,6 +158,10 @@ public class FichaTecnicaServiceImpl implements FichaTecnicaService {
 
         if (!operacao.getFichaTecnica().getId().equals(fichaTecnicaId)) {
             throw new IllegalArgumentException("A operação não pertence a esta Ficha Técnica.");
+        }
+
+        if (fichaTecnica.getOperacoes().stream().anyMatch(op -> op.getOrdemExecucao().equals(request.ordemExecucao()) && !op.getId().equals(operacaoId))) {
+            throw new IllegalArgumentException("Já existe outra operação com esta ordem de execução (ordem " + request.ordemExecucao() + ") na Ficha Técnica.");
         }
 
         Integer qFolhas = request.quantidadeFolhas() != null ? request.quantidadeFolhas() : 0;

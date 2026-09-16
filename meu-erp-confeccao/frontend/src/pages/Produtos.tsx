@@ -316,13 +316,23 @@ const Produtos = () => {
     try {
       setIsSubmitting(true);
 
+      const ordemInt = parseInt(opOrdem) || 1;
+      const exists = selectedProduto.fichaTecnica.operacoes?.some(
+        (op: any) => op.ordemExecucao === ordemInt && op.id !== editingOperacaoId
+      );
+      if (exists) {
+        alert("Já existe uma operação com esta ordem (ordem " + ordemInt + "). Por favor, escolha outra ordem para evitar duplicação no cupom.");
+        setIsSubmitting(false);
+        return;
+      }
+
       const maquinaSelecionada = MAQUINAS.find(m => m.id === opMaquina);
       const isFixo = maquinaSelecionada?.tipo === 'FIXO' || opTipoTrajeto === 'CICLO_FIXO';
       
       const payload = {
         nome: opNome,
         maquina: maquinaSelecionada ? maquinaSelecionada.nome : opMaquina,
-        ordemExecucao: parseInt(opOrdem) || 1,
+        ordemExecucao: ordemInt,
         quantidadeFolhas: parseInt(opFolhas) || 0,
         quantidadeParadas: parseInt(opParadas) || 0,
         rpmMaquina: parseInt(opRpmMaquina) || 4000,
