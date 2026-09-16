@@ -240,7 +240,9 @@ const Sidebar = () => {
       <Box sx={{ mt: 'auto', pt: 2, borderTop: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 0.5rem 0' }}>
         <Box>
           <Typography variant="subtitle2" sx={{ fontWeight: 700, color: 'var(--text-primary)' }}>{user?.nome}</Typography>
-          <Typography variant="caption" sx={{ color: 'var(--accent-primary)', fontWeight: 600 }}>{user?.role} - {user?.tenantId}</Typography>
+          <Typography variant="caption" sx={{ color: 'var(--accent-primary)', fontWeight: 600 }}>
+            {user?.role} - {impersonatedTenantId ? impersonatedTenantId : user?.tenantId}
+          </Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: 1 }}>
           <button 
