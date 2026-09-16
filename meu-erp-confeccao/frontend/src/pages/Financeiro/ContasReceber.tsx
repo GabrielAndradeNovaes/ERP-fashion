@@ -25,9 +25,9 @@ const ContasReceber: React.FC = () => {
   const [formData, setFormData] = useState({ descricao: '', valor: '', dataEmissao: '', dataVencimento: '', clienteId: '' });
   const { hasPermission } = useAuth();
   const canEdit = hasPermission('USUARIOS_ADMIN'); // TODO: Create specific finance permission
+  const { showToast } = useToast();
 
   const carregarTitulos = async () => {
-  const { showToast } = useToast();
     try {
       const res = await api.get('/financeiro/receber');
       setTitulos(res.data);

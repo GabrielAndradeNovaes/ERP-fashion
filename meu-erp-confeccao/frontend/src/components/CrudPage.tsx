@@ -49,10 +49,11 @@ const CrudPage: React.FC<CrudPageProps> = ({ title, description, endpoint, colum
   const [search, setSearch] = useState('');
   const { user, hasPermission } = useAuth();
   
+  const { showToast } = useToast();
+  
   const canEdit = hasPermission(editPermission);
 
   const fetchData = async () => {
-  const { showToast } = useToast();
     try {
       setLoading(true);
       const res = await api.get(endpoint);

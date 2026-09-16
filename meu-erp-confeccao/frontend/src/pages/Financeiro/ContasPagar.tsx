@@ -25,9 +25,9 @@ const ContasPagar: React.FC = () => {
   const [formData, setFormData] = useState({ descricao: '', valor: '', dataEmissao: '', dataVencimento: '', funcionarioId: '' });
   const { hasPermission } = useAuth();
   const canEdit = hasPermission('USUARIOS_ADMIN'); // TODO: Create specific finance permission
+  const { showToast } = useToast();
 
   const carregarTitulos = async () => {
-  const { showToast } = useToast();
     try {
       const res = await api.get('/financeiro/titulos');
       setTitulos(res.data);
@@ -38,7 +38,7 @@ const ContasPagar: React.FC = () => {
 
   const carregarFuncionarios = async () => {
     try {
-      const res = await api.get('/core/funcionarios');
+      const res = await api.get('/funcionarios');
       setFuncionarios(res.data);
     } catch (err) {
       console.error("Erro ao carregar funcionários", err);

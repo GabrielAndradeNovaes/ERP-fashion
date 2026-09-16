@@ -38,10 +38,11 @@ const CrudTab: React.FC<CrudTabProps> = ({ endpoint, columns, emptyEntity, rende
   const [search, setSearch] = useState('');
   const { user, hasPermission } = useAuth();
   
+  const { showToast } = useToast();
+  
   const canEdit = !editPermission || hasPermission(editPermission);
 
   const fetchData = async () => {
-  const { showToast } = useToast();
     try {
       setLoading(true);
       const res = await api.get(endpoint);
@@ -339,7 +340,7 @@ const tabsConfig = [
     items: [
       {
         label: 'Grupos de Funcionário',
-        endpoint: '/core/grupos-funcionario',
+        endpoint: '/grupos-funcionarios',
         columns: [
           { key: 'nome', label: 'Nome' },
           { key: 'ativo', label: 'Ativo', format: (v: any) => v ? 'Sim' : 'Não' }

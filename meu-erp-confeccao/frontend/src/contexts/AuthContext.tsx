@@ -42,6 +42,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (impersonateParam) {
       localStorage.setItem('@FashionERP:impersonatedTenant', impersonateParam);
       window.history.replaceState({}, document.title, window.location.pathname);
+    } else {
+      // Tentar inferir o tenant pelo subdomínio (ex: petrobras-edise.localhost)
+      const hostname = window.location.hostname;
+      const parts = hostname.split('.');
+      if (parts.length >= 2) {
+        const subdomain = parts[0].toLowerCase();
+        if (!['admin', 'www', 'api', 'app', 'localhost'].includes(subdomain)) {
+          // Se for um subdomínio válido e diferente das rotas de plataforma
+          localStorage.setItem('@FashionERP:impersonatedTenant', subdomain);
+        }
+      }
     }
 
     const storedToken = localStorage.getItem('@FashionERP:token');

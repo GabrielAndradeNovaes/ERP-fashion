@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import com.erp.core.tenant.Tenant;
+import com.erp.core.tenant.TenantRepository;
 
 @RestController
 @RequestMapping("/api/billing")
@@ -20,18 +22,20 @@ public class FaturaSaaSController {
 
     private final FaturaSaaSRepository faturaSaaSRepository;
     private final FaturamentoSaaSService faturamentoSaaSService;
+    private final TenantRepository tenantRepository;
 
-    public FaturaSaaSController(FaturaSaaSRepository faturaSaaSRepository, FaturamentoSaaSService faturamentoSaaSService) {
+    public FaturaSaaSController(FaturaSaaSRepository faturaSaaSRepository, FaturamentoSaaSService faturamentoSaaSService, TenantRepository tenantRepository) {
         this.faturaSaaSRepository = faturaSaaSRepository;
         this.faturamentoSaaSService = faturamentoSaaSService;
+        this.tenantRepository = tenantRepository;
     }
 
     @GetMapping("/faturas")
     public ResponseEntity<List<FaturaSaaSDTO>> listarFaturas() {
         // Se for SuperAdmin sem tenant selecionado, poderia listar todas.
         // Aqui listamos as faturas do tenant logado.
-        String tenantIdStr = TenantContext.getCurrentTenant();
-        if (tenantIdStr == null || tenantIdStr.equals(TenantContext.MASTER_TENANT)) {
+        String tenantSchema = TenantContext.getCurrentTenant();
+        if (tenantSchema == null || tenantSchema.equals(TenantContext.MASTER_TENANT)) {
             // SuperAdmin view - mock por enquanto: retorna todas
             List<FaturaSaaSDTO> todas = faturaSaaSRepository.findAll().stream()
                     .map(this::toDTO)
@@ -39,8 +43,12 @@ public class FaturaSaaSController {
             return ResponseEntity.ok(todas);
         }
 
-        UUID tenantId = UUID.fromString(tenantIdStr);
-        List<FaturaSaaSDTO> faturas = faturaSaaSRepository.findByTenantId(tenantId).stream()
+        Tenant tenant = tenantRepository.findBySchemaName(tenantSchema);
+        if (tenant == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        List<FaturaSaaSDTO> faturas = faturaSaaSRepository.findByTenantId(tenant.getId()).stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(faturas);
