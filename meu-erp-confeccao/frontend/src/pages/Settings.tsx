@@ -90,10 +90,10 @@ const Settings = () => {
               
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Typography variant="body2" sx={{ color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Building size={16} /> ID do Tenant
+                  <Building size={16} /> Ambiente / Tenant
                 </Typography>
                 <Typography variant="body2" sx={{ fontWeight: 600, color: 'var(--text-primary)' }}>
-                  {impersonatedTenantId || user?.tenantId}
+                  {impersonatedTenantId ? `${impersonatedTenantId} (via ${user?.tenantId})` : user?.tenantId}
                 </Typography>
               </Box>
             </Box>
