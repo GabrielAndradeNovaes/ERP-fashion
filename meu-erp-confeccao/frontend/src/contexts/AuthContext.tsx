@@ -74,7 +74,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('@FashionERP:user', JSON.stringify(newUser));
     setToken(newToken);
     setUser(newUser);
-    setImpersonatedTenant(null); // Reseta a personificação ao logar
+    
+    // Se estiver em um subdomínio de tenant e for SUPERADMIN, mantém a personificação
+    const hostname = window.location.hostname;
+    const parts = hostname.split('.');
+    if (newUser.role === 'SUPERADMIN' && parts.length >= 2) {
+      const subdomain = parts[0].toLowerCase();
+      if (!['admin', 'www', 'api', 'app', 'localhost'].includes(subdomain)) {
+        setImpersonatedTenant(subdomain);
+        return;
+      }
+    }
+    
+    setImpersonatedTenant(null); // Reseta a personificação caso contrário
   };
 
   const logout = () => {
