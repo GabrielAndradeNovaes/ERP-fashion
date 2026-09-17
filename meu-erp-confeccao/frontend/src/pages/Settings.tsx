@@ -9,24 +9,40 @@ const Settings = () => {
   const { user, impersonatedTenantId } = useAuth();
   const { mode, setMode } = useThemeContext() as any; 
   const [activeModules, setActiveModules] = useState<string[]>([]);
+  const [actualTenantId, setActualTenantId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchModules = async () => {
       try {
         if (user?.role === 'SUPERADMIN' && impersonatedTenantId && impersonatedTenantId !== 'master') {
+          // Busca os módulos
           const response = await api.get(`/admin/tenants/${impersonatedTenantId}/modules`);
           if (Array.isArray(response.data) && response.data.length > 0) {
             const mods = response.data.filter((m: any) => m.active).map((m: any) => m.moduleName);
             setActiveModules(mods.length > 0 ? mods : ['CORE']);
           } else {
-            setActiveModules(['CORE']); // Fallback caso retorne vazio mas devia ter algo
+            setActiveModules(['CORE']);
           }
+
+          // Busca o ID real (schema_name)
+          try {
+             const tenantsResp = await api.get('/admin/tenants');
+             if (Array.isArray(tenantsResp.data)) {
+                 const current = tenantsResp.data.find((t: any) => t.slug === impersonatedTenantId);
+                 if (current) setActualTenantId(current.schemaName);
+             }
+          } catch (e) {
+             console.error('Erro ao buscar schema_name', e);
+          }
+
         } else {
           setActiveModules(user?.modulosAtivos || ['CORE']);
+          setActualTenantId(user?.tenantId || null);
         }
       } catch (error) {
         console.error('Erro ao buscar modulos', error);
         setActiveModules(user?.modulosAtivos || ['CORE']);
+        setActualTenantId(user?.tenantId || null);
       }
     };
     fetchModules();
@@ -92,9 +108,16 @@ const Settings = () => {
                 <Typography variant="body2" sx={{ color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 1 }}>
                   <Building size={16} /> Ambiente / Tenant
                 </Typography>
-                <Typography variant="body2" sx={{ fontWeight: 600, color: 'var(--text-primary)' }}>
-                  {impersonatedTenantId ? `${impersonatedTenantId} (via ${user?.tenantId})` : user?.tenantId}
-                </Typography>
+                <Box sx={{ textAlign: 'right' }}>
+                   <Typography variant="body2" sx={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                     {impersonatedTenantId ? impersonatedTenantId : user?.tenantId}
+                   </Typography>
+                   {impersonatedTenantId && actualTenantId && (
+                     <Typography variant="caption" sx={{ color: 'var(--text-muted)' }}>
+                       {actualTenantId}
+                     </Typography>
+                   )}
+                </Box>
               </Box>
             </Box>
           </Paper>
