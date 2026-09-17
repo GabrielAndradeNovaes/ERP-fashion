@@ -67,12 +67,24 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    @org.springframework.beans.factory.annotation.Value("${erp.cors.allowed-origins:*}")
+    private java.util.List<String> allowedOrigins;
+
     @Bean
     public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
         org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
-        configuration.addAllowedOriginPattern("*");
+        
+        if (allowedOrigins.contains("*")) {
+            configuration.addAllowedOriginPattern("*");
+        } else {
+            for (String origin : allowedOrigins) {
+                configuration.addAllowedOriginPattern(origin);
+            }
+        }
+        
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
+        // configuration.setAllowCredentials(true); // Pode ser habilitado futuramente
         
         org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
