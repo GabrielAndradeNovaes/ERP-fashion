@@ -421,6 +421,7 @@ const AdminApp = () => {
 const AppRouter = () => {
   const hostname = window.location.hostname;
   const subdomain = hostname.split('.')[0];
+  const { user } = useAuth();
 
   if (subdomain === 'www') {
     return (
@@ -438,6 +439,12 @@ const AppRouter = () => {
         <Route path="/*" element={<AdminApp />} />
       </Routes>
     );
+  }
+
+  // Redireciona SUPERADMIN acessando localhost diretamente para o painel Admin
+  if (hostname === 'localhost' && user?.role === 'SUPERADMIN' && window.location.pathname === '/') {
+    window.location.href = '/admin/';
+    return null;
   }
 
   return (
