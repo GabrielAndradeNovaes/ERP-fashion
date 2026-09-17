@@ -19,6 +19,7 @@ import PremiumCard from '../components/PremiumCard';
 import { useToast } from '../contexts/ToastContext';
 
 interface CrudTabProps {
+  label: string;
   endpoint: string;
   columns: { key: string; label: string; format?: (val: any) => React.ReactNode }[];
   emptyEntity: any;
@@ -382,7 +383,7 @@ const tabsConfig = [
   }
 ];
 
-const flattenTabs = tabsConfig.flatMap(group => group.items);
+const flattenTabs = tabsConfig.flatMap(group => group.items as any) as CrudTabProps[];
 
 const CadastrosBase = () => {
   const [activeTab, setActiveTab] = useState(0);

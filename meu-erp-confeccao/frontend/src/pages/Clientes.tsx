@@ -19,7 +19,7 @@ const Clientes = () => {
       emptyEntity={{ nome: '', documento: '', email: '', telefone: '', empresa: null, tipoPessoa: 'PF', razaoSocial: '', inscricaoEstadual: '', limiteCredito: 0, tabelaPrecoPadrao: '', status: 'ATIVO', endereco: '' }}
       renderForm={(entity, setEntity) => (
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={4}>
+          <Grid size={{ xs: 12, sm: 4 }}>
             <TextField
               select
               label="Tipo Pessoa"
@@ -31,7 +31,7 @@ const Clientes = () => {
               <MenuItem value="PJ">Jurídica</MenuItem>
             </TextField>
           </Grid>
-          <Grid item xs={12} sm={8}>
+          <Grid size={{ xs: 12, sm: 8 }}>
             <TextField
               label="Nome"
               variant="outlined"
@@ -41,7 +41,7 @@ const Clientes = () => {
               onChange={e => setEntity({ ...entity, nome: e.target.value })}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               label="Razão Social (PJ)"
               variant="outlined"
@@ -50,7 +50,7 @@ const Clientes = () => {
               onChange={e => setEntity({ ...entity, razaoSocial: e.target.value })}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               label="CPF/CNPJ"
               variant="outlined"
@@ -59,7 +59,7 @@ const Clientes = () => {
               onChange={e => setEntity({ ...entity, documento: e.target.value })}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               label="Inscrição Estadual"
               variant="outlined"
@@ -68,7 +68,7 @@ const Clientes = () => {
               onChange={e => setEntity({ ...entity, inscricaoEstadual: e.target.value })}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               label="Email"
               type="email"
@@ -78,7 +78,7 @@ const Clientes = () => {
               onChange={e => setEntity({ ...entity, email: e.target.value })}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               label="Telefone"
               variant="outlined"
@@ -87,7 +87,7 @@ const Clientes = () => {
               onChange={e => setEntity({ ...entity, telefone: e.target.value })}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               label="Limite de Crédito"
               type="number"
@@ -97,7 +97,7 @@ const Clientes = () => {
               onChange={e => setEntity({ ...entity, limiteCredito: e.target.value })}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               label="Tabela de Preço Padrão"
               variant="outlined"
@@ -106,7 +106,7 @@ const Clientes = () => {
               onChange={e => setEntity({ ...entity, tabelaPrecoPadrao: e.target.value })}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               select
               label="Status"
@@ -119,7 +119,7 @@ const Clientes = () => {
               <MenuItem value="BLOQUEADO">Bloqueado</MenuItem>
             </TextField>
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <TextField
               label="Endereço (JSON ou Texto)"
               variant="outlined"

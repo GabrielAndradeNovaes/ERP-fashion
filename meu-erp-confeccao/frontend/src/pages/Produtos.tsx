@@ -818,7 +818,7 @@ const Produtos = () => {
                   </Typography>
                   {canEdit ? (
                     <form onSubmit={handleGenerateSkus}>
-                      <Grid container spacing={2} alignItems="flex-end">
+                      <Grid container spacing={2}  sx={{ alignItems: "flex-end" }}>
                         <Grid size={{ xs: 12, sm: 5 }}>
                           <Autocomplete
                             multiple

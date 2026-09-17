@@ -34,9 +34,9 @@ public class ProdutoServiceImplTest {
     @Mock
     private com.erp.core.repository.CategoriaRepository categoriaRepository;
     @Mock
-    private com.erp.core.repository.CorRepository corRepository;
+    private com.erp.catalog.repository.CorRepository corRepository;
     @Mock
-    private com.erp.core.repository.TamanhoRepository tamanhoRepository;
+    private com.erp.catalog.repository.TamanhoRepository tamanhoRepository;
 
     @InjectMocks
     private ProdutoServiceImpl produtoService;

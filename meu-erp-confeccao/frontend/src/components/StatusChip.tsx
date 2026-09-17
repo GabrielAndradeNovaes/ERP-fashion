@@ -5,9 +5,10 @@ import { CheckCircle2, AlertCircle, XCircle } from 'lucide-react';
 
 interface StatusChipProps extends Omit<ChipProps, 'color' | 'icon' | 'label'> {
   status: string;
+  customLabel?: string;
 }
 
-const StatusChip: React.FC<StatusChipProps> = ({ status, sx, ...props }) => {
+const StatusChip: React.FC<StatusChipProps> = ({ status, customLabel, sx, ...props }) => {
   const getStatusColor = (s: string): ChipProps['color'] => {
     switch (s?.toUpperCase()) {
       case 'ATIVO': 
@@ -57,7 +58,7 @@ const StatusChip: React.FC<StatusChipProps> = ({ status, sx, ...props }) => {
   return (
     <Chip 
       icon={getStatusIcon(status)} 
-      label={status || 'DESCONHECIDO'} 
+      label={customLabel || status || 'DESCONHECIDO'} 
       color={getStatusColor(status)} 
       size="small" 
       variant="outlined" 

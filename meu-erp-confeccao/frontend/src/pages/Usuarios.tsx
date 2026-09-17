@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import CrudPage from '../components/CrudPage';
 import api from '../api/axios';
 import {
   TextField,
   Checkbox,
-  ListItemText,
   Chip,
   Box,
   Typography,
@@ -12,9 +11,7 @@ import {
   Card,
   CardContent,
   FormControlLabel,
-  RadioGroup,
   Radio,
-  FormLabel,
   Switch,
   Autocomplete
 } from '@mui/material';
@@ -239,7 +236,7 @@ const Usuarios = () => {
                           value={emp.id}
                           name="filialPrincipalId"
                           size="small"
-                          inputProps={{ 'aria-label': 'Filial Principal' }}
+                          aria-label="Filial Principal"
                         />
                       )}
                     </Grid>

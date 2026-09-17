@@ -18,7 +18,7 @@ const Fornecedores = () => {
       emptyEntity={{ nome: '', cnpj: '', email: '', telefone: '', tipoPessoa: 'PJ', razaoSocial: '', inscricaoEstadual: '', categoriaFornecedor: '', prazoPagamentoPadrao: 0, contatoNome: '', status: 'ATIVO', endereco: '' }}
       renderForm={(entity, setEntity) => (
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={4}>
+          <Grid size={{ xs: 12, sm: 4 }}>
             <TextField
               select
               label="Tipo Pessoa"
@@ -30,7 +30,7 @@ const Fornecedores = () => {
               <MenuItem value="PJ">Jurídica</MenuItem>
             </TextField>
           </Grid>
-          <Grid item xs={12} sm={8}>
+          <Grid size={{ xs: 12, sm: 8 }}>
             <TextField
               label="Nome Fantasia"
               variant="outlined"
@@ -40,7 +40,7 @@ const Fornecedores = () => {
               onChange={e => setEntity({ ...entity, nome: e.target.value })}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               label="Razão Social"
               variant="outlined"
@@ -49,7 +49,7 @@ const Fornecedores = () => {
               onChange={e => setEntity({ ...entity, razaoSocial: e.target.value })}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               label="CNPJ/CPF"
               variant="outlined"
@@ -58,7 +58,7 @@ const Fornecedores = () => {
               onChange={e => setEntity({ ...entity, cnpj: e.target.value })}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               label="Inscrição Estadual"
               variant="outlined"
@@ -67,7 +67,7 @@ const Fornecedores = () => {
               onChange={e => setEntity({ ...entity, inscricaoEstadual: e.target.value })}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               label="Email"
               type="email"
@@ -77,7 +77,7 @@ const Fornecedores = () => {
               onChange={e => setEntity({ ...entity, email: e.target.value })}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               label="Telefone"
               variant="outlined"
@@ -86,7 +86,7 @@ const Fornecedores = () => {
               onChange={e => setEntity({ ...entity, telefone: e.target.value })}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               label="Contato (Nome)"
               variant="outlined"
@@ -95,7 +95,7 @@ const Fornecedores = () => {
               onChange={e => setEntity({ ...entity, contatoNome: e.target.value })}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               label="Categoria de Fornecedor"
               variant="outlined"
@@ -104,7 +104,7 @@ const Fornecedores = () => {
               onChange={e => setEntity({ ...entity, categoriaFornecedor: e.target.value })}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               label="Prazo Pagamento (Dias)"
               type="number"
@@ -114,7 +114,7 @@ const Fornecedores = () => {
               onChange={e => setEntity({ ...entity, prazoPagamentoPadrao: e.target.value })}
             />
           </Grid>
-          <Grid item xs={12} sm={12}>
+          <Grid size={{ xs: 12, sm: 12 }}>
             <TextField
               select
               label="Status"
@@ -127,7 +127,7 @@ const Fornecedores = () => {
               <MenuItem value="BLOQUEADO">Bloqueado</MenuItem>
             </TextField>
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <TextField
               label="Endereço (JSON ou Texto)"
               variant="outlined"

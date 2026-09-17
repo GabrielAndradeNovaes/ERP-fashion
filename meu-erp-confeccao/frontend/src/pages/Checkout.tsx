@@ -6,12 +6,13 @@ import { QRCodeSVG } from 'qrcode.react';
 import api from '../api/axios';
 
 interface CheckoutDetails {
-  tituloDescricao: string;
+  faturaId: string;
+  nomeEmpresa: string;
+  descricao: string;
   valor: number;
-  statusTitulo: string;
+  status: string;
   qrCodePayload: string;
-  qrCodeImageUrl: string;
-  statusTransacao: string;
+  gatewayTransacaoId: string;
 }
 
 const Checkout = () => {
@@ -108,11 +109,11 @@ const Checkout = () => {
               <CreditCard size={28} />
             </Box>
           </Box>
-          <Typography variant="h5" fontWeight="bold" gutterBottom>
+          <Typography variant="h5" sx={{ fontWeight: "bold" }} gutterBottom>
             Pagamento Seguro
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            {details.tituloDescricao}
+            {details.descricao}
           </Typography>
         </Box>
 
@@ -121,7 +122,7 @@ const Checkout = () => {
             <Box sx={{ color: 'success.main', mb: 2 }}>
               <CheckCircle size={64} style={{ margin: '0 auto' }} />
             </Box>
-            <Typography variant="h5" color="success.main" fontWeight="bold" gutterBottom>
+            <Typography variant="h5" color="success.main" sx={{ fontWeight: "bold" }} gutterBottom>
               Pagamento Aprovado!
             </Typography>
             <Typography variant="body1" color="text.secondary">
@@ -131,7 +132,7 @@ const Checkout = () => {
         ) : (
           <>
             <Box sx={{ textAlign: 'center', mb: 3 }}>
-              <Typography variant="h3" fontWeight="bold" color="primary.main">
+              <Typography variant="h3" sx={{ fontWeight: "bold" }} color="primary.main">
                 R$ {details.valor.toFixed(2)}
               </Typography>
             </Box>
@@ -186,7 +187,7 @@ const Checkout = () => {
         
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'text.secondary', gap: 1 }}>
           <ShieldCheck size={18} />
-          <Typography variant="caption" fontWeight="medium">
+          <Typography variant="caption" sx={{ fontWeight: "medium" }}>
             Ambiente Seguro e Criptografado
           </Typography>
         </Box>

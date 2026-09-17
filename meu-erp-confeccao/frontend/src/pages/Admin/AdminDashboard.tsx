@@ -158,7 +158,7 @@ const AdminDashboard = () => {
 
       {/* KPI Cards */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard 
             title="Receita Recorrente (MRR)" 
             value={new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(metrics?.estimatedMRR || 0)} 
@@ -166,7 +166,7 @@ const AdminDashboard = () => {
             gradient="linear-gradient(135deg, #10b981 0%, #059669 100%)"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard 
             title="Tenants Ativos" 
             value={metrics?.activeTenants || 0} 
@@ -174,7 +174,7 @@ const AdminDashboard = () => {
             gradient="linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard 
             title="Tenants Pendentes" 
             value={metrics?.pendingTenants || 0} 
@@ -182,7 +182,7 @@ const AdminDashboard = () => {
             color="245, 158, 11" // Amber
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard 
             title="Total de Tenants" 
             value={metrics?.totalTenants || 0} 
@@ -193,7 +193,7 @@ const AdminDashboard = () => {
       </Grid>
       
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={4}>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
           <StatCard 
             title="Crescimento (MoM)" 
             value={`${metrics?.mrrGrowth?.toFixed(2) || '0.00'}%`} 
@@ -201,7 +201,7 @@ const AdminDashboard = () => {
             color="16, 185, 129"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={4}>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
           <StatCard 
             title="Taxa de Cancelamento (Churn)" 
             value={`${metrics?.churnRate?.toFixed(2) || '0.00'}%`} 
@@ -209,7 +209,7 @@ const AdminDashboard = () => {
             color={metrics?.churnRate > 5 ? '239, 68, 68' : '245, 158, 11'}
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={4}>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
           <StatCard 
             title="Usuários Ativos (24h)" 
             value={metrics?.activeUsers24h || 0} 
@@ -221,7 +221,7 @@ const AdminDashboard = () => {
 
       {/* Charts Section */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} lg={8}>
+        <Grid size={{ xs: 12, lg: 8 }}>
           <GlassPanel title="Crescimento de Receita (MRR)">
             <Box sx={{ height: 350, width: '100%', mt: 2 }}>
               <ResponsiveContainer width="100%" height="100%">
@@ -244,7 +244,7 @@ const AdminDashboard = () => {
             </Box>
           </GlassPanel>
         </Grid>
-        <Grid item xs={12} lg={4}>
+        <Grid size={{ xs: 12, lg: 4 }}>
           <GlassPanel title="Aquisição de Tenants">
             <Box sx={{ height: 350, width: '100%', mt: 2 }}>
               <ResponsiveContainer width="100%" height="100%">
@@ -268,7 +268,7 @@ const AdminDashboard = () => {
 
       {/* System Health & Activity Feed */}
       <Grid container spacing={3}>
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <GlassPanel title="Saúde do Sistema">
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 2 }}>
               
@@ -313,7 +313,7 @@ const AdminDashboard = () => {
           </GlassPanel>
         </Grid>
         
-        <Grid item xs={12} md={8}>
+        <Grid size={{ xs: 12, md: 8 }}>
           <GlassPanel title="Audit Log (Atividades Recentes)">
             <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 0 }}>
               {(recentActivities || []).map((act, index) => (

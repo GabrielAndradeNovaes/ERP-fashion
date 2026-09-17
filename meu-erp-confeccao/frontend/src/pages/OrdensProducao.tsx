@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Play, CheckCircle2, AlertCircle, Package, Edit, RotateCcw, ChevronRight, Eye } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Play, CheckCircle2, Package, Edit, RotateCcw, ChevronRight, Eye } from 'lucide-react';
 import api from '../api/axios';
 import Modal from '../components/Modal';
 import PageHeader from '../components/PageHeader';
@@ -30,8 +30,7 @@ import {
   Grid,
   Drawer,
   Tabs,
-  Tab,
-  Divider
+  Tab
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -113,7 +112,7 @@ const OrdensProducao = () => {
   const [selectedOrdem, setSelectedOrdem] = useState<OrdemProducao | null>(null);
   const [numero, setNumero] = useState('');
   const [produtoBaseId, setProdutoBaseId] = useState('');
-  const [quantidade, setQuantidade] = useState('100');
+  const [, setQuantidade] = useState('100');
   const [skuQuantities, setSkuQuantities] = useState<Record<string, number>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -582,13 +581,11 @@ const OrdensProducao = () => {
           </div>
         )}
       </Modal>
-      {/* Drawer de Detalhes da OP */}
-      {/* @ts-ignore - MUI Drawer Types in this version are complaining but it works */}
       <Drawer
         anchor="right"
         open={isDetailsOpen}
         onClose={() => setIsDetailsOpen(false)}
-        PaperProps={{ sx: { width: { xs: '100%', md: '600px' }, bgcolor: 'var(--bg-default)', borderLeft: '1px solid var(--border-color)' } } as any}
+        {...({ PaperProps: { sx: { width: { xs: '100%', md: '600px' }, bgcolor: 'var(--bg-default)', borderLeft: '1px solid var(--border-color)' } } } as any)}
       >
         {selectedOrdem && (
           <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>

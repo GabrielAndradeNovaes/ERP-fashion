@@ -92,7 +92,7 @@ const Faccoes = () => {
       ) : (
         <Grid container spacing={3}>
           {ordens.map(op => (
-            <Grid item xs={12} sm={6} md={4} key={op.id}>
+            <Grid key={op.id} size={{ xs: 12, sm: 6, md: 4 }}>
               <Card sx={{ 
                 bgcolor: 'var(--bg-card)', 
                 border: '1px solid var(--border-color)',

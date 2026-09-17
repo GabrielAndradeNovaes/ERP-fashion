@@ -29,7 +29,7 @@ import Checkout from './pages/Checkout';
 import TenantBilling from './pages/TenantBilling';
 import Settings from './pages/Settings';
 
-const isMasterDomain = window.location.hostname === 'localhost' || window.location.hostname.startsWith('admin.') || window.location.hostname.startsWith('www.');
+// Removed isMasterDomain
 
 // Rotas Protegidas
 const PrivateRoute = ({ children, requireSuperAdmin = false, requiredPermission }: { children: React.ReactNode, requireSuperAdmin?: boolean, requiredPermission?: string }) => {

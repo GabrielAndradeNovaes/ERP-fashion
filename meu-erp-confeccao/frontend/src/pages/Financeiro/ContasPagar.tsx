@@ -185,7 +185,7 @@ const ContasPagar: React.FC = () => {
           <TextField
             label="Data Emissão"
             type="date"
-            InputLabelProps={{ shrink: true }}
+            slotProps={{ inputLabel: { shrink: true } }}
             value={formData.dataEmissao}
             onChange={(e) => setFormData({ ...formData, dataEmissao: e.target.value })}
             fullWidth
@@ -193,7 +193,7 @@ const ContasPagar: React.FC = () => {
           <TextField
             label="Data Vencimento"
             type="date"
-            InputLabelProps={{ shrink: true }}
+            slotProps={{ inputLabel: { shrink: true } }}
             value={formData.dataVencimento}
             onChange={(e) => setFormData({ ...formData, dataVencimento: e.target.value })}
             fullWidth

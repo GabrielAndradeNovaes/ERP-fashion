@@ -76,7 +76,7 @@ const TenantsList = () => {
   const [savingModules, setSavingModules] = useState(false);
 
   const initialTenantState = {
-    nomeEmpresa: '', adminNome: '', adminEmail: '', adminSenha: '',
+    nomeEmpresa: '', slug: '', adminNome: '', adminEmail: '', adminSenha: '',
     cnpj: '', razaoSocial: '', nomeFantasia: '', porte: '', naturezaJuridica: '', statusRfb: '', dataAbertura: '',
     emailPrincipal: '', telefone: '', cep: '', logradouro: '', numero: '', complemento: '', bairro: '', cidade: '', estado: '',
     cnaePrincipalCodigo: '', cnaePrincipalDescricao: '', simplesNacional: false, receitaFederalRawData: ''
@@ -309,7 +309,7 @@ const TenantsList = () => {
                   <TableCell>{tenant.criadoEm ? new Date(tenant.criadoEm).toLocaleDateString() : ''}</TableCell>
                   <TableCell>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                      <StatusChip status={isProcessing(tenant.status) ? 'CRIANDO_INFRA' : tenant.status} label={isProcessing(tenant.status) ? 'Criando Ambiente...' : tenant.status} />
+                      <StatusChip status={isProcessing(tenant.status) ? 'CRIANDO_INFRA' : tenant.status} customLabel={isProcessing(tenant.status) ? 'Criando Ambiente...' : tenant.status} />
                       {!isProcessing(tenant.status) && tenant.status !== 'FALHA' && (
                         <FormControl size="small" sx={{ minWidth: 140 }}>
                           <Select
@@ -398,7 +398,7 @@ const TenantsList = () => {
               </Box>
             )}
             <Grid container spacing={2}>
-              <Grid xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField 
                   label="CNPJ" 
                   fullWidth 
@@ -420,38 +420,38 @@ const TenantsList = () => {
                   helperText="Digite o CNPJ e saia do campo para buscar dados"
                 />
               </Grid>
-              <Grid xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField label="Nome Fantasia / Empresa" required fullWidth value={newTenant.nomeEmpresa} onChange={(e) => setNewTenant({...newTenant, nomeEmpresa: e.target.value})} />
               </Grid>
-              <Grid xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <TextField label="Razão Social" fullWidth value={newTenant.razaoSocial} onChange={(e) => setNewTenant({...newTenant, razaoSocial: e.target.value})} />
               </Grid>
-              <Grid xs={12} sm={4}>
+              <Grid size={{ xs: 12, sm: 4 }}>
                 <TextField label="Porte" fullWidth value={newTenant.porte} onChange={(e) => setNewTenant({...newTenant, porte: e.target.value})} />
               </Grid>
-              <Grid xs={12} sm={4}>
+              <Grid size={{ xs: 12, sm: 4 }}>
                 <TextField label="Natureza Jurídica" fullWidth value={newTenant.naturezaJuridica} onChange={(e) => setNewTenant({...newTenant, naturezaJuridica: e.target.value})} />
               </Grid>
-              <Grid xs={12} sm={4}>
+              <Grid size={{ xs: 12, sm: 4 }}>
                 <TextField label="Status RFB" fullWidth value={newTenant.statusRfb} onChange={(e) => setNewTenant({...newTenant, statusRfb: e.target.value})} />
               </Grid>
-              <Grid xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField label="E-mail Principal" type="email" fullWidth value={newTenant.emailPrincipal} onChange={(e) => setNewTenant({...newTenant, emailPrincipal: e.target.value})} />
               </Grid>
-              <Grid xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField label="Telefone" fullWidth value={newTenant.telefone} onChange={(e) => setNewTenant({...newTenant, telefone: e.target.value})} />
               </Grid>
 
-              <Grid xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Typography variant="subtitle2" sx={{ mt: 2, fontWeight: 'bold' }}>Dados do Usuário Administrador (Seed)</Typography>
               </Grid>
-              <Grid xs={12} sm={4}>
+              <Grid size={{ xs: 12, sm: 4 }}>
                 <TextField label="Nome do Admin" required={!editingSchema} disabled={!!editingSchema} fullWidth value={newTenant.adminNome} onChange={(e) => setNewTenant({...newTenant, adminNome: e.target.value})} />
               </Grid>
-              <Grid xs={12} sm={4}>
+              <Grid size={{ xs: 12, sm: 4 }}>
                 <TextField label="E-mail do Admin" type="email" required={!editingSchema} disabled={!!editingSchema} fullWidth value={newTenant.adminEmail} onChange={(e) => setNewTenant({...newTenant, adminEmail: e.target.value})} />
               </Grid>
-              <Grid xs={12} sm={4}>
+              <Grid size={{ xs: 12, sm: 4 }}>
                 <TextField label="Senha Temporária" type="password" required={!editingSchema} disabled={!!editingSchema} fullWidth value={newTenant.adminSenha} onChange={(e) => setNewTenant({...newTenant, adminSenha: e.target.value})} />
               </Grid>
             </Grid>
@@ -459,25 +459,25 @@ const TenantsList = () => {
 
           <TabPanel value={tabValue} index={1}>
              <Grid container spacing={2}>
-              <Grid xs={12} sm={4}>
+              <Grid size={{ xs: 12, sm: 4 }}>
                 <TextField label="CEP" fullWidth value={newTenant.cep} onChange={(e) => setNewTenant({...newTenant, cep: e.target.value})} />
               </Grid>
-              <Grid xs={12} sm={8}>
+              <Grid size={{ xs: 12, sm: 8 }}>
                 <TextField label="Logradouro" fullWidth value={newTenant.logradouro} onChange={(e) => setNewTenant({...newTenant, logradouro: e.target.value})} />
               </Grid>
-              <Grid xs={12} sm={4}>
+              <Grid size={{ xs: 12, sm: 4 }}>
                 <TextField label="Número" fullWidth value={newTenant.numero} onChange={(e) => setNewTenant({...newTenant, numero: e.target.value})} />
               </Grid>
-              <Grid xs={12} sm={8}>
+              <Grid size={{ xs: 12, sm: 8 }}>
                 <TextField label="Complemento" fullWidth value={newTenant.complemento} onChange={(e) => setNewTenant({...newTenant, complemento: e.target.value})} />
               </Grid>
-              <Grid xs={12} sm={5}>
+              <Grid size={{ xs: 12, sm: 5 }}>
                 <TextField label="Bairro" fullWidth value={newTenant.bairro} onChange={(e) => setNewTenant({...newTenant, bairro: e.target.value})} />
               </Grid>
-              <Grid xs={12} sm={5}>
+              <Grid size={{ xs: 12, sm: 5 }}>
                 <TextField label="Cidade" fullWidth value={newTenant.cidade} onChange={(e) => setNewTenant({...newTenant, cidade: e.target.value})} />
               </Grid>
-              <Grid xs={12} sm={2}>
+              <Grid size={{ xs: 12, sm: 2 }}>
                 <TextField label="UF" fullWidth value={newTenant.estado} onChange={(e) => setNewTenant({...newTenant, estado: e.target.value})} />
               </Grid>
              </Grid>
@@ -485,13 +485,13 @@ const TenantsList = () => {
 
           <TabPanel value={tabValue} index={2}>
              <Grid container spacing={2}>
-              <Grid xs={12} sm={4}>
+              <Grid size={{ xs: 12, sm: 4 }}>
                 <TextField label="CNAE Principal" fullWidth value={newTenant.cnaePrincipalCodigo} onChange={(e) => setNewTenant({...newTenant, cnaePrincipalCodigo: e.target.value})} />
               </Grid>
-              <Grid xs={12} sm={8}>
+              <Grid size={{ xs: 12, sm: 8 }}>
                 <TextField label="Descrição CNAE" fullWidth value={newTenant.cnaePrincipalDescricao} onChange={(e) => setNewTenant({...newTenant, cnaePrincipalDescricao: e.target.value})} />
               </Grid>
-              <Grid xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <FormControl fullWidth>
                   <Select
                     value={newTenant.simplesNacional ? 'sim' : 'nao'}
@@ -529,7 +529,7 @@ const TenantsList = () => {
           </Typography>
           <Grid container spacing={3}>
             {tenantModules.map(mod => (
-              <Grid item xs={12} sm={6} key={mod.moduleName}>
+              <Grid key={mod.moduleName} size={{ xs: 12, sm: 6 }}>
                 <Card variant="outlined" sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderRadius: 2 }}>
                   <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
                     {mod.moduleName}

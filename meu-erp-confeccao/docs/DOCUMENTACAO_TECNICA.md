@@ -199,6 +199,11 @@ Registro das transações individuais de um título a receber.
 
 Todos os endpoints requerem autenticação JWT (`Authorization: Bearer <token>`), cujo token inclui a identificação da empresa internamente.
 
+### 3.1. Restrições de Autenticação (Multi-Tenant)
+- **Bloqueio de Personificação Inversa:** Usuários com a role `SUPERADMIN` (da plataforma SaaS) estão **bloqueados** de realizar o login diretamente nas URLs dos tenants (ex: `cliente.localhost`). 
+- **Fluxo de Acesso Master:** O `SUPERADMIN` deve obrigatoriamente realizar o login pela URL do painel administrativo (ex: `admin.localhost`). Após autenticado no painel administrativo, o administrador master pode solicitar a "Personificação" em um tenant utilizando a flag `?impersonate=schema_name`, garantindo a trilha de auditoria e evitando login em contextos não intencionais.
+- Usuários normais dos tenants são impedidos de fazer login na URL administrativa.
+
 | Módulo | Endpoint Base | Descrição |
 |--------|---------------|-----------|
 | Autenticação | `/api/auth/login` | Rota pública para obtenção do JWT e Login. |

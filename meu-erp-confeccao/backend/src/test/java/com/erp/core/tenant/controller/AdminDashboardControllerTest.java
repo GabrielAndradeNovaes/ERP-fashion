@@ -21,7 +21,7 @@ public class AdminDashboardControllerTest {
     @Mock
     private com.erp.core.billing.repository.FaturaSaaSRepository faturaSaaSRepository;
     @Mock
-    private com.erp.core.billing.repository.SaasMetricRepository saasMetricRepository;
+    private com.erp.core.tenant.AcessoLogRepository acessoLogRepository;
 
     @InjectMocks
     private AdminDashboardController controller;
