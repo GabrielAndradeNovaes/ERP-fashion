@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, Grid, TextField, Alert } from '@mui/material';
 import api from '../../api/axios';
 import { useAuth } from '../../contexts/AuthContext';
@@ -22,10 +22,10 @@ const Produtividade: React.FC = () => {
   const [ocorrencias, setOcorrencias] = useState<Record<string, number>>({});
   
   const { hasPermission } = useAuth();
+  const { showToast } = useToast();
   const canEdit = hasPermission('PCP_EDIT');
 
   const carregarResumo = async () => {
-  const { showToast } = useToast();
     try {
       const res = await api.get('/production/produtividade', {
         params: {

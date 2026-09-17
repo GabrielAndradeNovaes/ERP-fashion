@@ -3,10 +3,6 @@ import CrudPage from '../components/CrudPage';
 import api from '../api/axios';
 import {
   TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Checkbox,
   ListItemText,
   Chip,
@@ -127,16 +123,6 @@ const Usuarios = () => {
       const newPerms = isSelected ? current.filter((id: string) => id !== permId) : [...current, permId];
       setEntity({ ...entity, permissoes: newPerms });
     };
-
-    useEffect(() => {
-      if (entity.empresas && !entity.empresaIds) {
-        setEntity({
-          ...entity,
-          empresaIds: entity.empresas.map((e: any) => e.id),
-          permissoes: entity.permissoes || []
-        });
-      }
-    }, [entity.empresas]);
 
     const modulos = Array.from(new Set(AVAILABLE_PERMISSIONS.map(p => p.modulo)));
 

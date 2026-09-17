@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Grid, Paper, CircularProgress, Divider, Chip, Avatar } from '@mui/material';
-import { Building2, CheckCircle, AlertTriangle, DollarSign, Activity, Server, Database, Clock, ChevronRight, TrendingUp } from 'lucide-react';
+import { Box, Typography, Grid, Paper, CircularProgress, Chip } from '@mui/material';
+import { Building2, CheckCircle, AlertTriangle, DollarSign, Activity, Server, Database, Clock, TrendingUp } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import api from '../../api/axios';
 

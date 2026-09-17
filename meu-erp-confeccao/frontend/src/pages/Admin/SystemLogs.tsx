@@ -39,6 +39,7 @@ export default function SystemLogs() {
           const parsed = JSON.parse(line);
           parsedLogs.push(parsed);
         } catch (e) {
+          console.error(e);
           // Linha não-JSON (pode ser log comum)
         }
       });
