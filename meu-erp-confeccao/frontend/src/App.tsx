@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
-import { LayoutDashboard, Clock, Scissors, PackageSearch, Package, ClipboardList, LogOut, Sun, Moon, Palette, Building2 } from 'lucide-react';
+import { LayoutDashboard, Scissors, PackageSearch, Package, ClipboardList, LogOut, Building2 } from 'lucide-react';
 import { Box, Typography } from '@mui/material';
 import Estoque from './pages/Estoque';
 import Produtos from './pages/Produtos';
@@ -14,9 +14,8 @@ import Fornecedores from './pages/Fornecedores';
 import CadastrosBase from './pages/CadastrosBase';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
-import { Users, Truck, Tags, Ruler, ScanLine, UserCog, BarChart, FileText, Tag, Settings as SettingsIcon, Terminal } from 'lucide-react';
+import { Users, Truck, ScanLine, UserCog, BarChart, FileText, Settings as SettingsIcon, Terminal } from 'lucide-react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { useThemeContext } from './contexts/ThemeContext';
 import Usuarios from './pages/Usuarios';
 import PaymentPending from './pages/PaymentPending';
 import TenantsList from './pages/Backoffice/TenantsList';
@@ -56,13 +55,15 @@ const PrivateRoute = ({ children, requireSuperAdmin = false, requiredPermission 
   return <>{children}</>;
 };
 
+type NavItem = { path: string; label: string; icon: JSX.Element; perm?: string };
+type NavGroup = { title: string; module?: string; items: NavItem[] };
+
 // Menu Lateral Premium
 const Sidebar = () => {
   const location = useLocation();
-  const { user, logout, impersonatedTenantId, setImpersonatedTenant, hasPermission } = useAuth();
-  const { mode, toggleTheme } = useThemeContext();
+  const { user, logout, impersonatedTenantId, hasPermission } = useAuth();
   
-  const navGroups = [
+  const navGroups: NavGroup[] = [
     {
       title: 'Geral',
       module: 'CORE',
@@ -149,49 +150,7 @@ const Sidebar = () => {
       
       <nav style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1, overflowY: 'auto', paddingBottom: '1rem' }}>
         
-        {user?.role === 'SUPERADMIN' && isMasterDomain && (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-            <Typography variant="overline" sx={{ px: 2, color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.5px' }}>
-              Backoffice (Admin)
-            </Typography>
-            <Link 
-              to="/admin/tenants"
-              style={{
-                display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.75rem 1rem',
-                borderRadius: 'var(--radius-md)',
-                color: location.pathname.startsWith('/admin') ? 'white' : 'var(--text-secondary)',
-                background: location.pathname.startsWith('/admin') ? 'var(--accent-gradient)' : 'transparent',
-                fontWeight: location.pathname.startsWith('/admin') ? 600 : 500,
-                transition: 'all var(--transition-fast)',
-                boxShadow: location.pathname.startsWith('/admin') ? '0 4px 14px 0 rgba(99, 102, 241, 0.39)' : 'none',
-                textDecoration: 'none'
-              }}
-              onMouseEnter={(e) => { if (!location.pathname.startsWith('/admin')) e.currentTarget.style.backgroundColor = 'rgba(128,128,128,0.1)' }}
-              onMouseLeave={(e) => { if (!location.pathname.startsWith('/admin')) e.currentTarget.style.backgroundColor = 'transparent' }}
-            >
-              <Building2 size={20} />
-              Gestão de Tenants
-            </Link>
-            <Link 
-              to="/admin/logs"
-              style={{
-                display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.75rem 1rem',
-                borderRadius: 'var(--radius-md)',
-                color: location.pathname === '/admin/logs' ? 'white' : 'var(--text-secondary)',
-                background: location.pathname === '/admin/logs' ? 'var(--accent-gradient)' : 'transparent',
-                fontWeight: location.pathname === '/admin/logs' ? 600 : 500,
-                transition: 'all var(--transition-fast)',
-                boxShadow: location.pathname === '/admin/logs' ? '0 4px 14px 0 rgba(99, 102, 241, 0.39)' : 'none',
-                textDecoration: 'none'
-              }}
-              onMouseEnter={(e) => { if (location.pathname !== '/admin/logs') e.currentTarget.style.backgroundColor = 'rgba(128,128,128,0.1)' }}
-              onMouseLeave={(e) => { if (location.pathname !== '/admin/logs') e.currentTarget.style.backgroundColor = 'transparent' }}
-            >
-              <Terminal size={20} />
-              Logs do Sistema
-            </Link>
-          </Box>
-        )}
+
 
         {navGroups.map((group, index) => {
           if (group.module && !hasModule(group.module)) return null;
@@ -291,13 +250,11 @@ const MainApp = () => {
 };
 
 import AdminBilling from './pages/Admin/AdminBilling';
-import AdminSettings from './pages/Admin/AdminSettings';
 import { CreditCard } from 'lucide-react';
 
 const AdminSidebar = () => {
   const location = useLocation();
   const { user, logout } = useAuth();
-  const { mode, toggleTheme } = useThemeContext();
   const adminPrefix = window.location.hostname.split('.')[0] === 'admin' ? '' : '/admin';
   
   return (
@@ -431,7 +388,7 @@ const AppRouter = () => {
     );
   }
 
-  if (subdomain === 'admin') {
+  if (subdomain === 'admin' || hostname === 'localhost') {
     return (
       <Routes>
         <Route path="/login" element={<Login />} />
@@ -441,7 +398,7 @@ const AppRouter = () => {
     );
   }
 
-  // Redireciona SUPERADMIN acessando localhost diretamente para o painel Admin
+  // Redireciona SUPERADMIN acessando localhost diretamente para o painel Admin (redundant now but keep it safe)
   if (hostname === 'localhost' && user?.role === 'SUPERADMIN' && window.location.pathname === '/') {
     window.location.href = '/admin/';
     return null;
@@ -451,7 +408,6 @@ const AppRouter = () => {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/pagamento/:id" element={<Checkout />} />
-      <Route path="/admin/*" element={isMasterDomain ? <AdminApp /> : <Navigate to="/" />} />
       <Route path="/*" element={<MainApp />} />
     </Routes>
   );

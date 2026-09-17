@@ -69,17 +69,13 @@ class JwtAuthenticationFilterTest {
     @Test
     void doFilterInternal_NoAuthHeader_WithXTenantId_SetsTenantAndContinues() throws ServletException, IOException {
         when(request.getHeader("Authorization")).thenReturn(null);
-        when(request.getHeader("X-TenantID")).thenReturn("custom-tenant");
-
-        doAnswer(invocation -> {
-            assertEquals("custom-tenant", TenantContext.getCurrentTenant());
-            return null;
-        }).when(filterChain).doFilter(request, response);
+        // O X-TenantID agora é tratado no TenantInterceptor, então o filtro JWT não o altera.
 
         filter.doFilterInternal(request, response, filterChain);
 
         verify(filterChain).doFilter(request, response);
         assertNull(SecurityContextHolder.getContext().getAuthentication());
+        assertNull(TenantContext.getCurrentTenant()); // Agora não seta nada sem token
     }
 
     @Test
@@ -116,7 +112,6 @@ class JwtAuthenticationFilterTest {
     @Test
     void doFilterInternal_ValidToken_SuperAdminOverridesTenant() throws ServletException, IOException {
         when(request.getHeader("Authorization")).thenReturn("Bearer superadmin.token.here");
-        when(request.getHeader("X-TenantID")).thenReturn("overridden_tenant");
         when(jwtService.extractUsername("superadmin.token.here")).thenReturn("admin@test.com");
         when(jwtService.extractTenantId("superadmin.token.here")).thenReturn("master");
 
@@ -130,7 +125,8 @@ class JwtAuthenticationFilterTest {
 
         doAnswer(invocation -> {
             assertNotNull(SecurityContextHolder.getContext().getAuthentication());
-            assertEquals("overridden_tenant", TenantContext.getCurrentTenant());
+            // O filtro não lida mais com a personificação (X-TenantID), ele sempre seta o que tá no token!
+            assertEquals("master", TenantContext.getCurrentTenant());
             return null;
         }).when(filterChain).doFilter(request, response);
 

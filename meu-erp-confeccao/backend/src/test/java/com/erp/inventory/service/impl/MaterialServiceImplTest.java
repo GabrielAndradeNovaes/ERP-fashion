@@ -26,6 +26,8 @@ public class MaterialServiceImplTest {
 
     @Mock
     private MaterialRepository materialRepository;
+    @Mock
+    private com.erp.core.repository.UnidadeMedidaRepository unidadeMedidaRepository;
 
     @InjectMocks
     private MaterialServiceImpl materialService;
@@ -39,7 +41,10 @@ public class MaterialServiceImplTest {
         materialMock.setId(UUID.randomUUID());
         materialMock.setCodigo("MAT-001");
         materialMock.setNome("Tecido Algodão");
-        materialMock.setUnidadeMedida("METRO");
+        com.erp.core.domain.UnidadeMedida um = new com.erp.core.domain.UnidadeMedida();
+        um.setId(UUID.randomUUID());
+        um.setSigla("METRO");
+        materialMock.setUnidadeMedida(um);
         materialMock.setCustoUnitario(new BigDecimal("15.50"));
         materialMock.setQuantidadeAtual(BigDecimal.ZERO);
 
@@ -47,7 +52,7 @@ public class MaterialServiceImplTest {
                 "MAT-001",
                 "Tecido Algodão",
                 "Tecido 100% algodão branco",
-                "METRO",
+                um.getId(),
                 new BigDecimal("15.50"),
                 null,
                 null,
@@ -66,6 +71,7 @@ public class MaterialServiceImplTest {
     void shouldCreateMaterialSuccessfully() {
         when(materialRepository.findByCodigo(anyString())).thenReturn(Optional.empty());
         when(materialRepository.save(any(Material.class))).thenReturn(materialMock);
+        lenient().when(unidadeMedidaRepository.findById(any())).thenReturn(Optional.of(new com.erp.core.domain.UnidadeMedida()));
 
         MaterialResponse response = materialService.createMaterial(requestMock);
 

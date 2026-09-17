@@ -90,6 +90,7 @@ public class FichaTecnicaServiceImplTest {
         mockOperacao.setId(UUID.randomUUID());
         mockOperacao.setFichaTecnica(mockFicha);
         mockOperacao.setNome("Costura Reta");
+        mockOperacao.setOrdemExecucao(1);
     }
 
     @Test

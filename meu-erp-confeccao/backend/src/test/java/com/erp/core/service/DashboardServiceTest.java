@@ -27,6 +27,8 @@ public class DashboardServiceTest {
     private OrdemProducaoRepository ordemProducaoRepository;
     @Mock
     private MaterialRepository materialRepository;
+    @Mock
+    private com.erp.finance.repository.TituloReceberRepository tituloReceberRepository;
 
     @InjectMocks
     private DashboardService service;

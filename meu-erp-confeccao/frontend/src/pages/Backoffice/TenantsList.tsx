@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Card, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, FormControl, Select, MenuItem, Snackbar, Alert, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, CircularProgress, Tabs, Tab, Grid, InputAdornment, IconButton, Switch, FormControlLabel } from '@mui/material';
-import { Building2, CheckCircle2, AlertCircle, XCircle, Plus, LogIn, Search, Settings2 } from 'lucide-react';
+import { Building2, Plus, LogIn, Search, Settings2 } from 'lucide-react';
 import api from '../../api/axios';
-import { useAuth } from '../../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import PageHeader from '../../components/PageHeader';
 import PremiumCard from '../../components/PremiumCard';
@@ -86,8 +84,6 @@ const TenantsList = () => {
   const [newTenant, setNewTenant] = useState(initialTenantState);
   const [editingSchema, setEditingSchema] = useState<string | null>(null);
   
-  const { setImpersonatedTenant } = useAuth();
-  const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
 
   const fetchTenants = async () => {

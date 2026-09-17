@@ -55,6 +55,7 @@ class SecurityConfigTest {
 
     @Test
     void testCorsConfigurationSource() {
+        org.springframework.test.util.ReflectionTestUtils.setField(securityConfig, "allowedOrigins", java.util.List.of("*"));
         CorsConfigurationSource source = securityConfig.corsConfigurationSource();
         assertNotNull(source);
     }

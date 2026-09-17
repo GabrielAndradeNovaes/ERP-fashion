@@ -74,8 +74,15 @@ public class OrdemProducaoServiceImplTest {
 
         mockSku = new ProdutoSku();
         mockSku.setId(UUID.randomUUID());
-        mockSku.setCor("Preto");
-        mockSku.setTamanho("M");
+        com.erp.catalog.domain.Cor cor = new com.erp.catalog.domain.Cor();
+        cor.setId(UUID.randomUUID());
+        cor.setNome("Preto");
+        mockSku.setCor(cor);
+        
+        com.erp.catalog.domain.Tamanho tam = new com.erp.catalog.domain.Tamanho();
+        tam.setId(UUID.randomUUID());
+        tam.setNome("M");
+        mockSku.setTamanho(tam);
         mockSku.setProdutoBase(mockProduto);
         mockSku.setQuantidadeAtual(10);
         

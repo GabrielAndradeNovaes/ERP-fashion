@@ -12,7 +12,6 @@ import {
   Box,
   Typography,
   Button,
-  Card,
   TextField,
   InputAdornment,
   Stack,
@@ -68,6 +67,7 @@ const CrudPage: React.FC<CrudPageProps> = ({ title, description, endpoint, colum
 
   useEffect(() => {
     fetchData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [endpoint]);
 
   const handleSave = async (e: React.FormEvent) => {
@@ -166,7 +166,7 @@ const CrudPage: React.FC<CrudPageProps> = ({ title, description, endpoint, colum
     }
 
     return cols;
-  }, [columns, canEdit, hideEmpresa]);
+  }, [columns, canEdit, hideEmpresa, handleDelete]);
 
   return (
     <Box className="animate-fade-in">
