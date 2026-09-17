@@ -68,6 +68,19 @@ public class TenantInterceptor implements HandlerInterceptor {
 
         // 3. Aplicar o tenant resolvido, se houver
         if (resolvedTenantId != null) {
+            // VERIFICAÇÃO DE SEGURANÇA (Zero-Trust)
+            org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.isAuthenticated() && !(auth instanceof org.springframework.security.authentication.AnonymousAuthenticationToken)) {
+                
+                boolean isSuperAdmin = auth.getAuthorities().stream()
+                        .anyMatch(a -> a.getAuthority().equals("ROLE_SUPERADMIN"));
+                
+                String userBaseTenant = jwtTenant; // tenant do JWT
+                
+                if (!resolvedTenantId.equals(userBaseTenant) && !isSuperAdmin) {
+                    throw new org.springframework.security.access.AccessDeniedException("Acesso negado: Usuário não possui permissão para acessar este ambiente.");
+                }
+            }
             TenantContext.setCurrentTenant(resolvedTenantId);
         } else {
             // Se não resolveu via URL nem Header, mantém o que o JwtAuthenticationFilter configurou!
