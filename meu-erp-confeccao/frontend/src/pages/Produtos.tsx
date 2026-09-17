@@ -28,7 +28,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   Grid,
   Autocomplete,
   IconButton
@@ -160,7 +159,7 @@ const Produtos = () => {
     try {
       const res = await api.get('/catalog/produtos/next-codigo');
       setCodigo(res.data);
-    } catch (err) {
+    } catch {
       setCodigo('');
     }
     setIsAddModalOpen(true);
@@ -283,7 +282,7 @@ const Produtos = () => {
           observacoes: 'Ficha Técnica Inicial'
         });
         setSelectedProduto({ ...produto, fichaTecnica: res.data });
-      } catch (err) {
+      } catch {
         console.error("Ficha já existe ou erro", err);
         const prodRes = await api.get(`/catalog/produtos/${produto.id}`);
         setSelectedProduto(prodRes.data);
@@ -301,7 +300,7 @@ const Produtos = () => {
       setSelectedProduto(res.data);
       setTemporarySkus(res.data.skus || []);
       fetchInitialData();
-    } catch (err) {
+    } catch {
       console.error(err);
     }
   }
@@ -507,7 +506,7 @@ const Produtos = () => {
     {
       accessorKey: 'empresa',
       header: 'Empresa',
-      cell: (info) => {
+      cell: (info: any) => {
         const emp = info.getValue();
         if (!emp) return '-';
         return (
@@ -523,22 +522,22 @@ const Produtos = () => {
     {
       accessorKey: 'codigo',
       header: 'Ref',
-      cell: (info) => <Chip label={info.getValue() as string} color="primary" variant="outlined" size="small" />
+      cell: (info: any) => <Chip label={info.getValue() as string} color="primary" variant="outlined" size="small" />
     },
     {
       accessorKey: 'nome',
       header: 'Produto',
-      cell: (info) => <Typography sx={{ fontWeight: 500 }}>{info.getValue() as string}</Typography>
+      cell: (info: any) => <Typography sx={{ fontWeight: 500 }}>{info.getValue() as string}</Typography>
     },
     {
       accessorKey: 'precoVenda',
       header: 'Preço Venda',
-      cell: (info) => <Typography color="primary" sx={{ fontWeight: 600 }}>{formatCurrency(info.getValue() as number)}</Typography>
+      cell: (info: any) => <Typography color="primary" sx={{ fontWeight: 600 }}>{formatCurrency(info.getValue() as number)}</Typography>
     },
     {
       accessorKey: 'precoCusto',
       header: 'Custo Produção',
-      cell: (info) => {
+      cell: (info: any) => {
         const val = info.getValue() as number;
         return <Typography color="warning.main" sx={{ fontWeight: 500 }}>{val > 0 ? formatCurrency(val) : '-'}</Typography>;
       }
@@ -546,7 +545,7 @@ const Produtos = () => {
     {
       id: 'statusFicha',
       header: 'Status Ficha',
-      cell: (info) => info.row.original.fichaTecnica 
+      cell: (info: any) => info.row.original.fichaTecnica 
         ? <Chip label="Preenchida" color="success" size="small" /> 
         : <Chip label="Pendente" color="default" size="small" />
     }

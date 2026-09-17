@@ -55,7 +55,7 @@ const PrivateRoute = ({ children, requireSuperAdmin = false, requiredPermission 
   return <>{children}</>;
 };
 
-type NavItem = { path: string; label: string; icon: JSX.Element; perm?: string };
+type NavItem = { path: string; label: string; icon: React.ReactNode; perm?: string };
 type NavGroup = { title: string; module?: string; items: NavItem[] };
 
 // Menu Lateral Premium

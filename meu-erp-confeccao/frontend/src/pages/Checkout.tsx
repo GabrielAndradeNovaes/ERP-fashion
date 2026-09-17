@@ -29,7 +29,7 @@ const Checkout = () => {
       if (response.data.status === 'PAID') {
         setLoading(false);
       }
-    } catch (err) {
+    } catch {
       setError(true);
     } finally {
       setLoading(false);
@@ -47,6 +47,7 @@ const Checkout = () => {
     }, 5000);
 
     return () => clearInterval(interval);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, details?.status]);
 
   const handleCopyPix = () => {
@@ -64,7 +65,7 @@ const Checkout = () => {
         status: 'PAID'
       });
       fetchDetails();
-    } catch (err) {
+    } catch {
       console.error(err);
     }
   };

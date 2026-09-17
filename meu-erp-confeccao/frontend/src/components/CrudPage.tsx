@@ -123,7 +123,7 @@ const CrudPage: React.FC<CrudPageProps> = ({ title, description, endpoint, colum
       cols.push({
         accessorKey: 'empresa',
         header: 'Empresa',
-        cell: (info) => {
+        cell: (info: any) => {
           const emp = info.getValue();
           if (!emp) return '-';
           return (
@@ -141,14 +141,14 @@ const CrudPage: React.FC<CrudPageProps> = ({ title, description, endpoint, colum
     cols.push(...columns.map(col => ({
       accessorKey: col.key,
       header: col.label,
-      cell: (info) => col.format ? col.format(info.getValue()) : info.getValue(),
+      cell: (info: any) => col.format ? col.format(info.getValue()) : info.getValue(),
     })));
 
     if (canEdit) {
       cols.push({
         id: 'actions',
         header: 'Ações',
-        cell: (info) => (
+        cell: (info: any) => (
           <Stack direction="row" spacing={1} sx={{ justifyContent: 'center' }}>
             <Tooltip title="Editar">
               <IconButton size="small" color="primary" onClick={() => handleEdit(info.row.original)}>
@@ -166,7 +166,8 @@ const CrudPage: React.FC<CrudPageProps> = ({ title, description, endpoint, colum
     }
 
     return cols;
-  }, [columns, canEdit, hideEmpresa, handleDelete]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [columns, canEdit, hideEmpresa]);
 
   return (
     <Box className="animate-fade-in">

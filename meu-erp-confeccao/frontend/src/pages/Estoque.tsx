@@ -11,7 +11,6 @@ import {
   Box,
   Typography,
   Button,
-  Card,
   TextField,
   FormControl,
   InputLabel,
@@ -127,7 +126,7 @@ const Estoque = () => {
     try {
       const res = await api.get('/inventory/materiais/next-codigo');
       setCodigo(res.data);
-    } catch (err) {
+    } catch {
       setCodigo('');
     }
     setIsMaterialModalOpen(true);
@@ -221,27 +220,27 @@ const Estoque = () => {
     {
       accessorKey: 'codigo',
       header: 'Código',
-      cell: (info) => <Chip label={info.getValue() as string} color="warning" variant="outlined" size="small" />
+      cell: (info: any) => <Chip label={info.getValue() as string} color="warning" variant="outlined" size="small" />
     },
     {
       accessorKey: 'nome',
       header: 'Material',
-      cell: (info) => <Typography sx={{ fontWeight: 500 }}>{info.getValue() as string}</Typography>
+      cell: (info: any) => <Typography sx={{ fontWeight: 500 }}>{info.getValue() as string}</Typography>
     },
     {
       accessorKey: 'unidadeMedidaNome',
       header: 'Unidade',
-      cell: (info) => <Typography color="text.secondary">{info.getValue() as string}</Typography>
+      cell: (info: any) => <Typography color="text.secondary">{info.getValue() as string}</Typography>
     },
     {
       accessorKey: 'quantidadeAtual',
       header: 'Qtd Atual',
-      cell: (info) => <Typography color="primary" sx={{ fontWeight: 600 }}>{info.getValue() as number || 0}</Typography>
+      cell: (info: any) => <Typography color="primary" sx={{ fontWeight: 600 }}>{info.getValue() as number || 0}</Typography>
     },
     {
       accessorKey: 'custoUnitario',
       header: 'Custo Unitário',
-      cell: (info) => <Typography color="success.main" sx={{ fontWeight: 600 }}>{formatCurrency(info.getValue() as number)}</Typography>
+      cell: (info: any) => <Typography color="success.main" sx={{ fontWeight: 600 }}>{formatCurrency(info.getValue() as number)}</Typography>
     }
   ], []);
 
@@ -257,12 +256,12 @@ const Estoque = () => {
     {
       id: 'produto',
       header: 'Produto Base',
-      cell: (info) => <Typography sx={{ fontWeight: 500 }}>{info.row.original.produtoBaseCodigo} - {info.row.original.produtoBaseNome}</Typography>
+      cell: (info: any) => <Typography sx={{ fontWeight: 500 }}>{info.row.original.produtoBaseCodigo} - {info.row.original.produtoBaseNome}</Typography>
     },
     {
       id: 'sku',
       header: 'SKU (Cor/Tamanho)',
-      cell: (info) => (
+      cell: (info: any) => (
         <Stack direction="row" spacing={1}>
           <Chip label={info.row.original.cor} color="warning" variant="outlined" size="small" />
           <Chip label={info.row.original.tamanho} size="small" />
@@ -272,12 +271,12 @@ const Estoque = () => {
     {
       accessorKey: 'codigoBarras',
       header: 'Código Barras',
-      cell: (info) => <Typography color="text.secondary">{info.getValue() || '-'}</Typography>
+      cell: (info: any) => <Typography color="text.secondary">{info.getValue() || '-'}</Typography>
     },
     {
       accessorKey: 'quantidadeAtual',
       header: 'Qtd Atual',
-      cell: (info) => <Typography color="primary" sx={{ fontWeight: 600 }}>{info.getValue() || 0}</Typography>
+      cell: (info: any) => <Typography color="primary" sx={{ fontWeight: 600 }}>{info.getValue() || 0}</Typography>
     }
   ], []);
 

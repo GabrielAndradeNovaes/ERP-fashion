@@ -39,7 +39,7 @@ api.interceptors.request.use(
         } else {
             config.headers['X-TenantID'] = 'tenant_1'; // fallback
         }
-      } catch (e) {
+      } catch {
         config.headers['X-TenantID'] = 'tenant_1';
       }
     } else {

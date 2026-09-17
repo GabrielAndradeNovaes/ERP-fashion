@@ -62,7 +62,7 @@ public class ProdutoServiceImplTest {
                 new BigDecimal("0.5"), new BigDecimal("0.4"), "ATIVO", List.of(skuReq)
         );
         when(produtoBaseRepository.save(any())).thenReturn(mockBase);
-        lenient().when(categoriaRepository.findById(any())).thenReturn(Optional.of(new com.erp.catalog.domain.Categoria()));
+        lenient().when(categoriaRepository.findById(any())).thenReturn(Optional.of(new com.erp.core.domain.Categoria()));
         lenient().when(corRepository.findById(any())).thenReturn(Optional.of(new com.erp.catalog.domain.Cor()));
         lenient().when(tamanhoRepository.findById(any())).thenReturn(Optional.of(new com.erp.catalog.domain.Tamanho()));
         ProdutoBaseResponse response = produtoService.createProduto(req);
@@ -98,7 +98,7 @@ public class ProdutoServiceImplTest {
 
         when(produtoBaseRepository.findById(mockBase.getId())).thenReturn(Optional.of(mockBase));
         when(produtoBaseRepository.save(any())).thenReturn(mockBase);
-        lenient().when(categoriaRepository.findById(any())).thenReturn(Optional.of(new com.erp.catalog.domain.Categoria()));
+        lenient().when(categoriaRepository.findById(any())).thenReturn(Optional.of(new com.erp.core.domain.Categoria()));
         lenient().when(corRepository.findById(any())).thenReturn(Optional.of(new com.erp.catalog.domain.Cor()));
         lenient().when(tamanhoRepository.findById(any())).thenReturn(Optional.of(new com.erp.catalog.domain.Tamanho()));
 

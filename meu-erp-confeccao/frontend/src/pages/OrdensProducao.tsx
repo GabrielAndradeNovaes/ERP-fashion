@@ -171,7 +171,7 @@ const OrdensProducao = () => {
     try {
       const res = await api.get('/production/ordens/next-numero');
       setNumero(res.data);
-    } catch (e) {
+    } catch {
       setNumero('');
     }
     setIsModalOpen(true);

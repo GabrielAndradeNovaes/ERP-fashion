@@ -81,7 +81,7 @@ export default function SystemLogs() {
 
   if (error) {
     return (
-      <Box p={3}>
+      <Box sx={{ p: 3 }}>
         <Typography variant="h4" color="error" gutterBottom>
           Logs do Sistema
         </Typography>
@@ -91,14 +91,14 @@ export default function SystemLogs() {
   }
 
   return (
-    <Box p={3}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+    <Box sx={{ p: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h4" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Terminal size={32} />
           Logs do Sistema
         </Typography>
         
-        <Box display="flex" gap={2} alignItems="center">
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
           <TextField
             size="small"
             label="Buscar na mensagem"
@@ -155,7 +155,7 @@ export default function SystemLogs() {
                 <TableCell sx={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>
                   {log.message}
                   {log.stack_trace && (
-                    <Box mt={1} p={1} bgcolor="#000" color="#f14c4c" borderRadius={1} sx={{ overflowX: 'auto' }}>
+                    <Box sx={{ mt: 1, p: 1, bgcolor: '#000', color: '#f14c4c', borderRadius: 1, overflowX: 'auto' }}>
                       <pre style={{ margin: 0, fontSize: '0.75rem' }}>{log.stack_trace}</pre>
                     </Box>
                   )}

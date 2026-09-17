@@ -206,7 +206,7 @@ const AdminDashboard = () => {
             title="Taxa de Cancelamento (Churn)" 
             value={`${metrics?.churnRate?.toFixed(2) || '0.00'}%`} 
             icon={<AlertTriangle size={28} />} 
-            color={metrics?.churnRate > 5 ? '239, 68, 68' : '245, 158, 11'}
+            color={(metrics?.churnRate || 0) > 5 ? '239, 68, 68' : '245, 158, 11'}
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 4 }}>

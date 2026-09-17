@@ -58,6 +58,7 @@ const CrudTab: React.FC<CrudTabProps> = ({ endpoint, columns, emptyEntity, rende
 
   useEffect(() => {
     fetchData();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [endpoint]);
 
   const handleSave = async (e: React.FormEvent) => {
@@ -155,6 +156,7 @@ const CrudTab: React.FC<CrudTabProps> = ({ endpoint, columns, emptyEntity, rende
       });
     }
     return cols;
+      // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [columns, canEdit, hideEmpresa]);
 
   return (
