@@ -140,7 +140,7 @@ const TenantsList = () => {
       const response = await api.get(`/admin/tenants/${schemaName}/modules`);
       setTenantModules(response.data);
       setModulesModalOpen(true);
-    } catch (error: any) {
+    } catch {
       setSnackbar({ open: true, message: 'Erro ao carregar módulos do cliente.', severity: 'error' });
     }
   };
@@ -152,7 +152,7 @@ const TenantsList = () => {
       await api.post(`/admin/tenants/${selectedTenantForModules}/modules`, { modules: tenantModules });
       setSnackbar({ open: true, message: 'Módulos atualizados com sucesso!', severity: 'success' });
       setModulesModalOpen(false);
-    } catch (error: any) {
+    } catch {
       setSnackbar({ open: true, message: 'Erro ao salvar módulos.', severity: 'error' });
     } finally {
       setSavingModules(false);
@@ -190,7 +190,7 @@ const TenantsList = () => {
       await api.put(`/admin/tenants/${schemaName}/status`, { status: newStatus });
       setSnackbar({ open: true, message: 'Status atualizado com sucesso!', severity: 'success' });
       fetchTenants(); // Recarrega a lista
-    } catch (error: any) {
+    } catch {
       setSnackbar({ open: true, message: 'Erro ao atualizar status.', severity: 'error' });
     }
   };

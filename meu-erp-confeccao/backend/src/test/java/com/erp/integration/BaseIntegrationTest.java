@@ -26,5 +26,7 @@ public abstract class BaseIntegrationTest {
         registry.add("spring.flyway.url", postgresContainer::getJdbcUrl);
         registry.add("spring.flyway.user", postgresContainer::getUsername);
         registry.add("spring.flyway.password", postgresContainer::getPassword);
+        registry.add("spring.flyway.enabled", () -> "true");
+        registry.add("spring.jpa.hibernate.ddl-auto", () -> "validate");
     }
 }

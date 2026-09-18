@@ -144,8 +144,8 @@ const Produtos = () => {
       setDbTamanhos(tamRes.data.filter((t:any) => t.ativo));
       setDbCategorias(catRes.data.filter((c:any) => c.ativo));
       setError(null);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Erro ao buscar dados.');
+    } catch {
+      setError('Erro ao buscar dados.');
     } finally {
       setLoading(false);
     }
@@ -159,7 +159,7 @@ const Produtos = () => {
     try {
       const res = await api.get('/catalog/produtos/next-codigo');
       setCodigo(res.data);
-    } catch (err: any) {
+    } catch {
       setCodigo('');
     }
     setIsAddModalOpen(true);
