@@ -159,7 +159,7 @@ const Produtos = () => {
     try {
       const res = await api.get('/catalog/produtos/next-codigo');
       setCodigo(res.data);
-    } catch {
+    } catch (err: any) {
       setCodigo('');
     }
     setIsAddModalOpen(true);
@@ -282,7 +282,7 @@ const Produtos = () => {
           observacoes: 'Ficha Técnica Inicial'
         });
         setSelectedProduto({ ...produto, fichaTecnica: res.data });
-      } catch {
+      } catch (err: any) {
         console.error("Ficha já existe ou erro", err);
         const prodRes = await api.get(`/catalog/produtos/${produto.id}`);
         setSelectedProduto(prodRes.data);
@@ -300,7 +300,7 @@ const Produtos = () => {
       setSelectedProduto(res.data);
       setTemporarySkus(res.data.skus || []);
       fetchInitialData();
-    } catch {
+    } catch (err: any) {
       console.error(err);
     }
   }

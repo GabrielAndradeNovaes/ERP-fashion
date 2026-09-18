@@ -28,12 +28,20 @@ public class AdminDashboardControllerTest {
 
     @Test
     void shouldGetMetrics() {
-        when(tenantRepository.count()).thenReturn(10L);
-        when(tenantRepository.countByStatus("ATIVO")).thenReturn(8L);
-        when(tenantRepository.countByStatus("INATIVO")).thenReturn(1L);
-        when(tenantRepository.countByStatus("INADIMPLENTE")).thenReturn(1L);
-        when(tenantRepository.countByStatus("PENDENTE")).thenReturn(0L);
-        when(tenantRepository.countByStatus("CRIANDO_INFRA")).thenReturn(0L);
+        java.util.List<com.erp.core.tenant.Tenant> mockTenants = new java.util.ArrayList<>();
+        for (int i = 0; i < 8; i++) {
+            com.erp.core.tenant.Tenant t = new com.erp.core.tenant.Tenant();
+            t.setStatus("ATIVO");
+            mockTenants.add(t);
+        }
+        com.erp.core.tenant.Tenant tInativo = new com.erp.core.tenant.Tenant();
+        tInativo.setStatus("INATIVO");
+        mockTenants.add(tInativo);
+        com.erp.core.tenant.Tenant tInadimplente = new com.erp.core.tenant.Tenant();
+        tInadimplente.setStatus("INADIMPLENTE");
+        mockTenants.add(tInadimplente);
+
+        when(tenantRepository.findAll()).thenReturn(mockTenants);
 
         ResponseEntity<java.util.Map<String, Object>> response = controller.getDashboardMetrics();
 

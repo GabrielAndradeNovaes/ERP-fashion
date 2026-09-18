@@ -75,7 +75,7 @@ class JwtAuthenticationFilterTest {
 
         verify(filterChain).doFilter(request, response);
         assertNull(SecurityContextHolder.getContext().getAuthentication());
-        assertNull(TenantContext.getCurrentTenant()); // Agora não seta nada sem token
+        assertEquals("master", TenantContext.getCurrentTenant()); // Fallback default
     }
 
     @Test

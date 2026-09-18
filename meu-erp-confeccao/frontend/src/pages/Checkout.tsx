@@ -29,7 +29,7 @@ const Checkout = () => {
       if (response.data.status === 'PAID') {
         setLoading(false);
       }
-    } catch {
+    } catch (err: any) {
       setError(true);
     } finally {
       setLoading(false);
@@ -65,7 +65,7 @@ const Checkout = () => {
         status: 'PAID'
       });
       fetchDetails();
-    } catch {
+    } catch (err: any) {
       console.error(err);
     }
   };
