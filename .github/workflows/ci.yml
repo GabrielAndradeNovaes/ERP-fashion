@@ -60,6 +60,23 @@ jobs:
         run: |
           mvn clean verify
 
+      - name: Print Test Logs on Failure
+        if: failure()
+        working-directory: meu-erp-confeccao/backend
+        run: |
+          for f in target/surefire-reports/*.txt; do
+            echo "::group::$f"
+            cat "$f" || true
+            echo "::endgroup::"
+          done
+
+      - name: Upload Test Reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: meu-erp-confeccao/backend/target/surefire-reports/
+
   frontend:
     name: Frontend Build & Lint
     runs-on: ubuntu-latest
