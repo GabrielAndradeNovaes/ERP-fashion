@@ -19,13 +19,6 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.springframework.boot.test.mock.mockito.MockBean;
-import com.erp.core.repository.CategoriaRepository;
-import com.erp.catalog.repository.CorRepository;
-import com.erp.catalog.repository.TamanhoRepository;
-import org.mockito.Mockito;
-import java.util.Optional;
-
 public class ProdutoIntegrationTest extends BaseIntegrationTest {
 
     @Autowired
@@ -34,16 +27,10 @@ public class ProdutoIntegrationTest extends BaseIntegrationTest {
     @Autowired
     private DataSource dataSource;
 
-    @MockBean
-    private CategoriaRepository categoriaRepository;
-
-    @MockBean
-    private CorRepository corRepository;
-
-    @MockBean
-    private TamanhoRepository tamanhoRepository;
-
     private String validToken;
+    private UUID categoriaId;
+    private UUID corId;
+    private UUID tamanhoId;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -85,6 +72,27 @@ public class ProdutoIntegrationTest extends BaseIntegrationTest {
             // O TenantProvisioningService faria isso, mas aqui podemos rodar o script basico ou forçar o flyway.
             // O Flyway já deve ter criado o public. Vamos forçar o banco a usar o public ou o hibernate fará o auto-create.
             // Para não quebrar por falta de tabelas, usaremos a opção de hibernate.ddl-auto=update no application.yml de testes.
+            
+            categoriaId = UUID.randomUUID();
+            corId = UUID.randomUUID();
+            tamanhoId = UUID.randomUUID();
+
+            try {
+                PreparedStatement stmtCat = conn.prepareStatement("INSERT INTO tenant_petrobras.categorias (id, nome, tipo) VALUES (?, 'Roupas', 'PRODUTO')");
+                stmtCat.setObject(1, categoriaId);
+                stmtCat.executeUpdate();
+
+                PreparedStatement stmtCor = conn.prepareStatement("INSERT INTO tenant_petrobras.cores (id, nome) VALUES (?, 'Azul')");
+                stmtCor.setObject(1, corId);
+                stmtCor.executeUpdate();
+
+                PreparedStatement stmtTam = conn.prepareStatement("INSERT INTO tenant_petrobras.tamanhos (id, nome, sigla) VALUES (?, 'Medio', 'M')");
+                stmtTam.setObject(1, tamanhoId);
+                stmtTam.executeUpdate();
+            } catch (Exception e) {
+                // Ignore, table might not exist if using H2 in memory without proper schema
+                System.out.println("Could not insert tenant_petrobras aux data: " + e.getMessage());
+            }
         }
 
         // Login
@@ -103,14 +111,10 @@ public class ProdutoIntegrationTest extends BaseIntegrationTest {
     void testCriarProdutoESku_IntegradoAoBanco() throws Exception {
         assertNotNull(validToken, "O login deve funcionar para prosseguir com o teste.");
 
-        Mockito.when(categoriaRepository.findById(Mockito.any())).thenReturn(Optional.of(new com.erp.core.domain.Categoria()));
-        Mockito.when(corRepository.findById(Mockito.any())).thenReturn(Optional.of(new com.erp.catalog.domain.Cor()));
-        Mockito.when(tamanhoRepository.findById(Mockito.any())).thenReturn(Optional.of(new com.erp.catalog.domain.Tamanho()));
-
-        ProdutoSkuRequest skuReq = new ProdutoSkuRequest(UUID.randomUUID(), UUID.randomUUID(), "EAN12345", new BigDecimal("59.90"));
+        ProdutoSkuRequest skuReq = new ProdutoSkuRequest(corId, tamanhoId, "EAN12345", new BigDecimal("59.90"));
         ProdutoBaseRequest req = new ProdutoBaseRequest(
                 "CAM01", "Camiseta Algodão", "Desc", new BigDecimal("50.00"), new BigDecimal("20.00"),
-                "MarcaX", UUID.randomUUID(), "Inverno", "Unissex", "12345678", "12345", "Nacional",
+                "MarcaX", categoriaId, "Inverno", "Unissex", "12345678", "12345", "Nacional",
                 new BigDecimal("0.5"), new BigDecimal("0.4"), "ATIVO", List.of(skuReq)
         );
 
