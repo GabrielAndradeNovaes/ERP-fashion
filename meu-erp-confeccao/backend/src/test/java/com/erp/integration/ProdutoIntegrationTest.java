@@ -68,31 +68,31 @@ public class ProdutoIntegrationTest extends BaseIntegrationTest {
             stmtUser.setObject(1, UUID.randomUUID());
             stmtUser.executeUpdate();
             
-            // Criar o schema tenant_petrobras para suportar as tabelas
-            // O TenantProvisioningService faria isso, mas aqui podemos rodar o script basico ou forçar o flyway.
-            // O Flyway já deve ter criado o public. Vamos forçar o banco a usar o public ou o hibernate fará o auto-create.
-            // Para não quebrar por falta de tabelas, usaremos a opção de hibernate.ddl-auto=update no application.yml de testes.
-            
+            // Executar o Flyway programaticamente para o tenant de teste para garantir que o schema exista
+            org.flywaydb.core.Flyway flywayTenant = org.flywaydb.core.Flyway.configure()
+                    .dataSource(dataSource)
+                    .schemas("tenant_petrobras")
+                    .locations("classpath:db/migration/tenant")
+                    .baselineOnMigrate(true)
+                    .outOfOrder(true)
+                    .load();
+            flywayTenant.migrate();
+
             categoriaId = UUID.randomUUID();
             corId = UUID.randomUUID();
             tamanhoId = UUID.randomUUID();
 
-            try {
-                PreparedStatement stmtCat = conn.prepareStatement("INSERT INTO public.categorias (id, nome, tipo) VALUES (?, 'Roupas', 'PRODUTO')");
-                stmtCat.setObject(1, categoriaId);
-                stmtCat.executeUpdate();
+            PreparedStatement stmtCat = conn.prepareStatement("INSERT INTO tenant_petrobras.categorias (id, nome, tipo) VALUES (?, 'Roupas', 'PRODUTO')");
+            stmtCat.setObject(1, categoriaId);
+            stmtCat.executeUpdate();
 
-                PreparedStatement stmtCor = conn.prepareStatement("INSERT INTO public.cores (id, nome) VALUES (?, 'Azul')");
-                stmtCor.setObject(1, corId);
-                stmtCor.executeUpdate();
+            PreparedStatement stmtCor = conn.prepareStatement("INSERT INTO tenant_petrobras.cores (id, nome) VALUES (?, 'Azul')");
+            stmtCor.setObject(1, corId);
+            stmtCor.executeUpdate();
 
-                PreparedStatement stmtTam = conn.prepareStatement("INSERT INTO public.tamanhos (id, nome, sigla) VALUES (?, 'Medio', 'M')");
-                stmtTam.setObject(1, tamanhoId);
-                stmtTam.executeUpdate();
-            } catch (Exception e) {
-                // Ignore, table might not exist if using H2 in memory without proper schema
-                System.out.println("Could not insert public aux data: " + e.getMessage());
-            }
+            PreparedStatement stmtTam = conn.prepareStatement("INSERT INTO tenant_petrobras.tamanhos (id, nome, sigla) VALUES (?, 'Medio', 'M')");
+            stmtTam.setObject(1, tamanhoId);
+            stmtTam.executeUpdate();
         }
 
         // Login
