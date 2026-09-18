@@ -19,6 +19,13 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.springframework.boot.test.mock.mockito.MockBean;
+import com.erp.core.repository.CategoriaRepository;
+import com.erp.catalog.repository.CorRepository;
+import com.erp.catalog.repository.TamanhoRepository;
+import org.mockito.Mockito;
+import java.util.Optional;
+
 public class ProdutoIntegrationTest extends BaseIntegrationTest {
 
     @Autowired
@@ -26,6 +33,15 @@ public class ProdutoIntegrationTest extends BaseIntegrationTest {
 
     @Autowired
     private DataSource dataSource;
+
+    @MockBean
+    private CategoriaRepository categoriaRepository;
+
+    @MockBean
+    private CorRepository corRepository;
+
+    @MockBean
+    private TamanhoRepository tamanhoRepository;
 
     private String validToken;
 
@@ -86,6 +102,10 @@ public class ProdutoIntegrationTest extends BaseIntegrationTest {
     @Test
     void testCriarProdutoESku_IntegradoAoBanco() throws Exception {
         assertNotNull(validToken, "O login deve funcionar para prosseguir com o teste.");
+
+        Mockito.when(categoriaRepository.findById(Mockito.any())).thenReturn(Optional.of(new com.erp.core.domain.Categoria()));
+        Mockito.when(corRepository.findById(Mockito.any())).thenReturn(Optional.of(new com.erp.catalog.domain.Cor()));
+        Mockito.when(tamanhoRepository.findById(Mockito.any())).thenReturn(Optional.of(new com.erp.catalog.domain.Tamanho()));
 
         ProdutoSkuRequest skuReq = new ProdutoSkuRequest(UUID.randomUUID(), UUID.randomUUID(), "EAN12345", new BigDecimal("59.90"));
         ProdutoBaseRequest req = new ProdutoBaseRequest(
