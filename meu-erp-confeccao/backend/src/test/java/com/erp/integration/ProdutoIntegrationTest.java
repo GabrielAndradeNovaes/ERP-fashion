@@ -78,20 +78,20 @@ public class ProdutoIntegrationTest extends BaseIntegrationTest {
             tamanhoId = UUID.randomUUID();
 
             try {
-                PreparedStatement stmtCat = conn.prepareStatement("INSERT INTO tenant_petrobras.categorias (id, nome, tipo) VALUES (?, 'Roupas', 'PRODUTO')");
+                PreparedStatement stmtCat = conn.prepareStatement("INSERT INTO public.categorias (id, nome, tipo) VALUES (?, 'Roupas', 'PRODUTO')");
                 stmtCat.setObject(1, categoriaId);
                 stmtCat.executeUpdate();
 
-                PreparedStatement stmtCor = conn.prepareStatement("INSERT INTO tenant_petrobras.cores (id, nome) VALUES (?, 'Azul')");
+                PreparedStatement stmtCor = conn.prepareStatement("INSERT INTO public.cores (id, nome) VALUES (?, 'Azul')");
                 stmtCor.setObject(1, corId);
                 stmtCor.executeUpdate();
 
-                PreparedStatement stmtTam = conn.prepareStatement("INSERT INTO tenant_petrobras.tamanhos (id, nome, sigla) VALUES (?, 'Medio', 'M')");
+                PreparedStatement stmtTam = conn.prepareStatement("INSERT INTO public.tamanhos (id, nome, sigla) VALUES (?, 'Medio', 'M')");
                 stmtTam.setObject(1, tamanhoId);
                 stmtTam.executeUpdate();
             } catch (Exception e) {
                 // Ignore, table might not exist if using H2 in memory without proper schema
-                System.out.println("Could not insert tenant_petrobras aux data: " + e.getMessage());
+                System.out.println("Could not insert public aux data: " + e.getMessage());
             }
         }
 
