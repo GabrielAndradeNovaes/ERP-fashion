@@ -32,6 +32,9 @@ public class ProdutoIntegrationTest extends BaseIntegrationTest {
     private UUID corId;
     private UUID tamanhoId;
 
+    @Autowired
+    private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+
     @BeforeEach
     void setUp() throws Exception {
         // Inicializa o banco com dados de login
@@ -50,23 +53,12 @@ public class ProdutoIntegrationTest extends BaseIntegrationTest {
             // Usuario admin
             PreparedStatement stmtUser = conn.prepareStatement(
                     "INSERT INTO master.usuarios (id, nome, email, senha, tenant_id, role) " +
-                            "VALUES (?, 'Admin Petrobras', 'admin_prod@petrobras.com', '$2a$10$XU.Yl1w9G5J9V3m3H8y9aO5G1z6u2G4w8x7c1x9aO5G1z6u2G4w8x7c1x9', 'tenant_petrobras', 'ADMIN')" // $2a$10$... é hash falso de senha123
-                            // Vamos apenas injetar o token real para facilitar, 
-                            // ou podemos usar a API de login se a senha no DB estiver com encode real.
-            );
-            // Ao inves de injetar senha e fazer requisição de login complexa, faremos a requisição de login.
-        }
-
-        // Gera token real via endpoint de login já testado
-        // Porém no setUp anterior colocamos hash real: passwordEncoder.encode("senha123").
-        // Vamos arrumar a inserção com BCrypt no setup
-        try (Connection conn = dataSource.getConnection()) {
-            PreparedStatement stmtUser = conn.prepareStatement(
-                    "INSERT INTO master.usuarios (id, nome, email, senha, tenant_id, role) " +
-                            "VALUES (?, 'Admin Prod', 'prod@test.com', '$2a$10$w0B1qjGv2O6V.c1oF.t5eO0fF0wJ9a.jK/7l1H9l5Z.2g4h6j8o3O', 'tenant_petrobras', 'ADMIN')" // bcrypt de senha123
+                            "VALUES (?, 'Admin Prod', 'prod@test.com', ?, 'tenant_petrobras', 'ADMIN')" 
             );
             stmtUser.setObject(1, UUID.randomUUID());
+            stmtUser.setString(2, passwordEncoder.encode("senha123"));
             stmtUser.executeUpdate();
+
             
             // Executar o Flyway programaticamente para o tenant de teste para garantir que o schema exista
             org.flywaydb.core.Flyway flywayTenant = org.flywaydb.core.Flyway.configure()
