@@ -41,8 +41,8 @@ public class ProdutoIntegrationTest extends BaseIntegrationTest {
             conn.createStatement().execute("TRUNCATE TABLE master.clientes_tenant CASCADE;");
 
             PreparedStatement stmtTenant = conn.prepareStatement(
-                    "INSERT INTO master.clientes_tenant (id, razao_social, cnpj, schema_name, slug, email_contato, telefone_contato, status) " +
-                            "VALUES (?, 'Petrobras', '11111111111111', 'tenant_petrobras', 'petrobras', 'contato@petrobras.com', '111111', 'ATIVO')"
+                    "INSERT INTO master.clientes_tenant (id, nome_empresa, razao_social, cnpj, schema_name, slug, email_principal, telefone, ativo) " +
+                            "VALUES (?, 'Petrobras', 'Petrobras', '11111111111111', 'tenant_petrobras', 'petrobras', 'contato@petrobras.com', '111111', true)"
             );
             stmtTenant.setObject(1, UUID.randomUUID());
             stmtTenant.executeUpdate();

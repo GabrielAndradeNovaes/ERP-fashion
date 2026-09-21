@@ -46,8 +46,8 @@ public class AuthIntegrationTest extends BaseIntegrationTest {
 
             // Insere Tenant 1 (Petrobras)
             PreparedStatement stmtTenant = conn.prepareStatement(
-                    "INSERT INTO master.clientes_tenant (id, razao_social, cnpj, schema_name, slug, email_contato, telefone_contato, status) " +
-                            "VALUES (?, 'Petrobras', '11111111111111', 'tenant_petrobras', 'petrobras', 'contato@petrobras.com', '111111', 'ATIVO')"
+                    "INSERT INTO master.clientes_tenant (id, nome_empresa, razao_social, cnpj, schema_name, slug, email_principal, telefone, status, ativo) " +
+                            "VALUES (?, 'Petrobras', 'Petrobras', '11111111111111', 'tenant_petrobras', 'petrobras', 'contato@petrobras.com', '111111', 'ATIVO', true)"
             );
             stmtTenant.setObject(1, UUID.randomUUID());
             stmtTenant.executeUpdate();
@@ -63,8 +63,8 @@ public class AuthIntegrationTest extends BaseIntegrationTest {
             
             // Insere Tenant 2 (Vale)
             PreparedStatement stmtTenant2 = conn.prepareStatement(
-                    "INSERT INTO master.clientes_tenant (id, razao_social, cnpj, schema_name, slug, email_contato, telefone_contato, status) " +
-                            "VALUES (?, 'Vale', '22222222222222', 'tenant_vale', 'vale', 'contato@vale.com', '222222', 'ATIVO')"
+                    "INSERT INTO master.clientes_tenant (id, nome_empresa, razao_social, cnpj, schema_name, slug, email_principal, telefone, status, ativo) " +
+                            "VALUES (?, 'Vale', 'Vale', '22222222222222', 'tenant_vale', 'vale', 'contato@vale.com', '222222', 'ATIVO', true)"
             );
             stmtTenant2.setObject(1, UUID.randomUUID());
             stmtTenant2.executeUpdate();
