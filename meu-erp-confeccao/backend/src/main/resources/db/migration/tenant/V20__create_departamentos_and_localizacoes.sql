@@ -3,7 +3,7 @@ CREATE TABLE departamentos (
     nome VARCHAR(100) NOT NULL,
     ativo BOOLEAN NOT NULL DEFAULT TRUE,
     criado_em TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    empresa_id UUID REFERENCES master.empresas(id)
+    empresa_id UUID REFERENCES empresas(id)
 );
 
 CREATE TABLE localizacoes (
@@ -12,5 +12,5 @@ CREATE TABLE localizacoes (
     tipo VARCHAR(50),
     ativo BOOLEAN NOT NULL DEFAULT TRUE,
     criado_em TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    empresa_id UUID REFERENCES master.empresas(id)
+    empresa_id UUID REFERENCES empresas(id)
 );
