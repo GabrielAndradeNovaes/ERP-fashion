@@ -6,7 +6,7 @@ log.setLevel('info');
 // Construct base URL based on the current hostname
 const protocol = window.location.protocol;
 const hostname = window.location.hostname;
-const apiPort = '8080'; // The port where the backend API is running
+const apiPort = '8088'; // The port where the backend API is running
 const baseURL = `${protocol}//${hostname}:${apiPort}/api`;
 
 const api = axios.create({

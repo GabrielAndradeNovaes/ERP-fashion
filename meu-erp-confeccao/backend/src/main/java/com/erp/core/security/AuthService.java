@@ -40,10 +40,9 @@ public class AuthService {
         UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsService.loadUserByUsername(request.getEmail());
 
         if (request.getSlug() != null && !request.getSlug().isEmpty() && !request.getSlug().equals("admin") && !request.getSlug().equals("www") && !request.getSlug().equals("localhost")) {
-            if (userDetails.getUsuario().getRole().equals("SUPERADMIN")) {
-                throw new org.springframework.security.authentication.BadCredentialsException("Acesso negado: Usuários Master devem acessar pelo painel administrativo (admin).");
+            if (!userDetails.getUsuario().getRole().equals("SUPERADMIN")) {
+                validateTenantSlug(userDetails.getTenantId(), request.getSlug());
             }
-            validateTenantSlug(userDetails.getTenantId(), request.getSlug());
         } else if ("admin".equals(request.getSlug())) {
             if (!userDetails.getUsuario().getRole().equals("SUPERADMIN")) {
                 throw new org.springframework.security.authentication.BadCredentialsException("Acesso negado: Apenas SUPERADMIN pode acessar o painel administrativo.");
