@@ -425,9 +425,22 @@ const CadastrosBase = () => {
               }}
             >
               {tabsConfig.map((group) => [
-                <Typography key={`group-${group.group}`} variant="overline" sx={{ px: 2, pt: 2, pb: 0.5, color: 'text.secondary', fontWeight: 800 }}>
-                  {group.group}
-                </Typography>,
+                <Tab 
+                  key={`group-${group.group}`} 
+                  disabled
+                  label={group.group}
+                  sx={{ 
+                    opacity: 1, 
+                    minHeight: 32, 
+                    padding: '16px 16px 4px 16px', 
+                    fontSize: '0.75rem', 
+                    fontWeight: 800, 
+                    color: 'text.secondary', 
+                    alignItems: 'flex-start',
+                    letterSpacing: '0.08333em',
+                    textTransform: 'uppercase'
+                  }} 
+                />,
                 group.items.map((item) => {
                   const globalIndex = flattenTabs.findIndex(t => t.label === item.label);
                   return <Tab key={item.label} label={item.label} value={globalIndex} sx={{ ml: 1, borderRadius: '8px 0 0 8px' }} />;

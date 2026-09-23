@@ -7,3 +7,8 @@ target/
 .idea/
 *.iml
 .vscode/
+
+jdk/
+jdk.zip
+scratch/
+runs.json
