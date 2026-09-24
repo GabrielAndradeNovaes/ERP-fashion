@@ -111,6 +111,43 @@
   --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+:root[data-theme='ocean'] {
+  /* Premium Ocean Elegance / Deep Sea Colors */
+  --bg-color: #f0f9ff;
+  --bg-card: #ffffff;
+  --text-primary: #0c4a6e;
+  --text-secondary: #0369a1;
+  --text-muted: #0284c7;
+  --border-color: rgba(14, 165, 233, 0.2);
+  
+  /* Vibrant Accents */
+  --accent-primary: #0284c7; /* Ocean Blue */
+  --accent-secondary: #06b6d4; /* Cyan */
+  --accent-hover: #0369a1;
+  --accent-gradient: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%);
+  
+  /* Status Colors */
+  --success: #059669;
+  --warning: #d97706;
+  --danger: #dc2626;
+  --info: #2563eb;
+
+  /* Glassmorphism */
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(14, 165, 233, 0.2);
+  --glass-shadow: 0 8px 32px 0 rgba(2, 132, 199, 0.1);
+
+  /* Utilities */
+  --sidebar-width: 280px;
+  --topbar-height: 70px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
