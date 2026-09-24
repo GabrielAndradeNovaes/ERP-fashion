@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Paper, Avatar, Divider, Button, Chip, Switch, FormControlLabel } from '@mui/material';
-import { Sun, Moon, Palette, Droplets, Mail, Shield, Building, Key, Bell, CheckCircle, Lock } from 'lucide-react';
+import { Sun, Moon, Palette, Droplets, Leaf, Flame, Flower2, Monitor, Mail, Shield, Building, Key, Bell, CheckCircle, Lock } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useThemeContext } from '../contexts/ThemeContext';
 import api from '../api/axios';
@@ -166,6 +166,34 @@ const Settings = () => {
                 icon={<Droplets size={32} />} 
                 onClick={() => setMode('ocean')} 
                 colors={['#f0f9ff', '#ffffff', '#0284c7']}
+              />
+              <ThemeOptionCard 
+                active={mode === 'nature'} 
+                title="Nature Green" 
+                icon={<Leaf size={32} />} 
+                onClick={() => setMode('nature')} 
+                colors={['#f2fbf5', '#ffffff', '#16a34a']}
+              />
+              <ThemeOptionCard 
+                active={mode === 'sunset'} 
+                title="Sunset Coral" 
+                icon={<Flame size={32} />} 
+                onClick={() => setMode('sunset')} 
+                colors={['#fffaf5', '#ffffff', '#ea580c']}
+              />
+              <ThemeOptionCard 
+                active={mode === 'lavender'} 
+                title="Royal Lavender" 
+                icon={<Flower2 size={32} />} 
+                onClick={() => setMode('lavender')} 
+                colors={['#f5f3ff', '#ffffff', '#8b5cf6']}
+              />
+              <ThemeOptionCard 
+                active={mode === 'monochrome'} 
+                title="Monochrome" 
+                icon={<Monitor size={32} />} 
+                onClick={() => setMode('monochrome')} 
+                colors={['#f9fafb', '#ffffff', '#111827']}
               />
             </Box>
           </Paper>

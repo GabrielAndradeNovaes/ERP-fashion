@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { ThemeProvider as MUIThemeProvider } from '@mui/material/styles';
 import { getTheme } from '../theme/theme';
 
-type ThemeMode = 'light' | 'dark' | 'warm' | 'ocean';
+type ThemeMode = 'light' | 'dark' | 'warm' | 'ocean' | 'nature' | 'sunset' | 'lavender' | 'monochrome';
 
 interface ThemeContextData {
   mode: ThemeMode;
@@ -17,8 +17,9 @@ export const useThemeContext = () => useContext(ThemeContext);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [mode, setMode] = useState<ThemeMode>(() => {
-    const saved = localStorage.getItem('@FashionERP:theme');
-    if (saved === 'light' || saved === 'dark' || saved === 'warm' || saved === 'ocean') return saved as ThemeMode;
+    const saved = localStorage.getItem('@FashionERP:theme') as ThemeMode;
+    const validModes: ThemeMode[] = ['light', 'dark', 'warm', 'ocean', 'nature', 'sunset', 'lavender', 'monochrome'];
+    if (validModes.includes(saved)) return saved;
     return 'dark'; // Default to dark premium
   });
 
@@ -29,10 +30,9 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const toggleTheme = () => {
     setMode(prev => {
-      if (prev === 'light') return 'dark';
-      if (prev === 'dark') return 'warm';
-      if (prev === 'warm') return 'ocean';
-      return 'light';
+      const validModes: ThemeMode[] = ['light', 'dark', 'warm', 'ocean', 'nature', 'sunset', 'lavender', 'monochrome'];
+      const nextIndex = (validModes.indexOf(prev) + 1) % validModes.length;
+      return validModes[nextIndex];
     });
   };
 

@@ -148,6 +148,74 @@
   --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+:root[data-theme='nature'] {
+  --bg-color: #f2fbf5;
+  --bg-card: #ffffff;
+  --text-primary: #14532d;
+  --text-secondary: #166534;
+  --text-muted: #15803d;
+  --border-color: rgba(21, 128, 61, 0.15);
+  --accent-primary: #16a34a; 
+  --accent-secondary: #84cc16; 
+  --accent-hover: #15803d;
+  --accent-gradient: linear-gradient(135deg, #16a34a 0%, #84cc16 100%);
+  --success: #059669; --warning: #d97706; --danger: #dc2626; --info: #2563eb;
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(22, 163, 74, 0.2);
+  --glass-shadow: 0 8px 32px 0 rgba(22, 163, 74, 0.1);
+}
+
+:root[data-theme='sunset'] {
+  --bg-color: #fffaf5;
+  --bg-card: #ffffff;
+  --text-primary: #7c2d12;
+  --text-secondary: #9a3412;
+  --text-muted: #c2410c;
+  --border-color: rgba(234, 88, 12, 0.15);
+  --accent-primary: #ea580c; 
+  --accent-secondary: #f43f5e; 
+  --accent-hover: #c2410c;
+  --accent-gradient: linear-gradient(135deg, #ea580c 0%, #f43f5e 100%);
+  --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --info: #3b82f6;
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(234, 88, 12, 0.2);
+  --glass-shadow: 0 8px 32px 0 rgba(234, 88, 12, 0.1);
+}
+
+:root[data-theme='lavender'] {
+  --bg-color: #f5f3ff;
+  --bg-card: #ffffff;
+  --text-primary: #4c1d95;
+  --text-secondary: #5b21b6;
+  --text-muted: #7c3aed;
+  --border-color: rgba(124, 58, 237, 0.15);
+  --accent-primary: #8b5cf6; 
+  --accent-secondary: #d946ef; 
+  --accent-hover: #7c3aed;
+  --accent-gradient: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%);
+  --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --info: #3b82f6;
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(139, 92, 246, 0.2);
+  --glass-shadow: 0 8px 32px 0 rgba(139, 92, 246, 0.1);
+}
+
+:root[data-theme='monochrome'] {
+  --bg-color: #f9fafb;
+  --bg-card: #ffffff;
+  --text-primary: #111827;
+  --text-secondary: #374151;
+  --text-muted: #4b5563;
+  --border-color: rgba(17, 24, 39, 0.15);
+  --accent-primary: #111827; 
+  --accent-secondary: #4b5563; 
+  --accent-hover: #000000;
+  --accent-gradient: linear-gradient(135deg, #111827 0%, #4b5563 100%);
+  --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --info: #3b82f6;
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(17, 24, 39, 0.2);
+  --glass-shadow: 0 8px 32px 0 rgba(17, 24, 39, 0.1);
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
