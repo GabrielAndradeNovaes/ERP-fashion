@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Paper, Avatar, Divider, Button, Chip, Switch, FormControlLabel } from '@mui/material';
-import { Sun, Moon, Palette, Droplets, Leaf, Flame, Flower2, Monitor, Mail, Shield, Building, Key, Bell, CheckCircle, Lock } from 'lucide-react';
+import { Sun, Moon, Palette, Droplets, Leaf, Flame, Flower2, Monitor, Cpu, Box, Mail, Shield, Building, Key, Bell, CheckCircle, Lock } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useThemeContext } from '../contexts/ThemeContext';
 import api from '../api/axios';
@@ -194,6 +194,20 @@ const Settings = () => {
                 icon={<Monitor size={32} />} 
                 onClick={() => setMode('monochrome')} 
                 colors={['#f9fafb', '#ffffff', '#111827']}
+              />
+              <ThemeOptionCard 
+                active={mode === 'cyberpunk'} 
+                title="Cyberpunk" 
+                icon={<Cpu size={32} />} 
+                onClick={() => setMode('cyberpunk')} 
+                colors={['#050505', '#facc15', '#f472b6']}
+              />
+              <ThemeOptionCard 
+                active={mode === 'brutalism'} 
+                title="Brutalism" 
+                icon={<Box size={32} />} 
+                onClick={() => setMode('brutalism')} 
+                colors={['#ffffff', '#000000', '#000000']}
               />
             </Box>
           </Paper>

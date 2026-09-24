@@ -1,9 +1,9 @@
 import { createTheme } from '@mui/material/styles';
 
-export const getTheme = (mode: 'light' | 'dark' | 'warm' | 'ocean' | 'nature' | 'sunset' | 'lavender' | 'monochrome') => {
+export const getTheme = (mode: 'light' | 'dark' | 'warm' | 'ocean' | 'nature' | 'sunset' | 'lavender' | 'monochrome' | 'cyberpunk' | 'brutalism') => {
   // MUI só entende light e dark nativamente
-  const muiMode = mode === 'dark' ? 'dark' : 'light';
-  const isDark = mode === 'dark';
+  const isDark = mode === 'dark' || mode === 'cyberpunk';
+  const muiMode = isDark ? 'dark' : 'light';
   
   const getPrimary = () => {
     switch (mode) {
@@ -14,6 +14,8 @@ export const getTheme = (mode: 'light' | 'dark' | 'warm' | 'ocean' | 'nature' | 
       case 'sunset': return '#ea580c';
       case 'lavender': return '#8b5cf6';
       case 'monochrome': return '#111827';
+      case 'cyberpunk': return '#facc15';
+      case 'brutalism': return '#000000';
       default: return '#4f46e5';
     }
   };
@@ -26,6 +28,8 @@ export const getTheme = (mode: 'light' | 'dark' | 'warm' | 'ocean' | 'nature' | 
       case 'sunset': return '#f43f5e';
       case 'lavender': return '#d946ef';
       case 'monochrome': return '#4b5563';
+      case 'cyberpunk': return '#f472b6';
+      case 'brutalism': return '#000000';
       default: return '#ec4899';
     }
   };
@@ -39,6 +43,8 @@ export const getTheme = (mode: 'light' | 'dark' | 'warm' | 'ocean' | 'nature' | 
       case 'sunset': return '#fffaf5';
       case 'lavender': return '#f5f3ff';
       case 'monochrome': return '#f9fafb';
+      case 'cyberpunk': return '#050505';
+      case 'brutalism': return '#ffffff';
       default: return '#f8fafc';
     }
   };
@@ -54,6 +60,8 @@ export const getTheme = (mode: 'light' | 'dark' | 'warm' | 'ocean' | 'nature' | 
       case 'sunset': return '#7c2d12';
       case 'lavender': return '#4c1d95';
       case 'monochrome': return '#111827';
+      case 'cyberpunk': return '#fcd34d';
+      case 'brutalism': return '#000000';
       default: return '#0f172a';
     }
   };
@@ -67,6 +75,8 @@ export const getTheme = (mode: 'light' | 'dark' | 'warm' | 'ocean' | 'nature' | 
       case 'sunset': return '#9a3412';
       case 'lavender': return '#5b21b6';
       case 'monochrome': return '#374151';
+      case 'cyberpunk': return '#f472b6';
+      case 'brutalism': return '#000000';
       default: return '#475569';
     }
   };
