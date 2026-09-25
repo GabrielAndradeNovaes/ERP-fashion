@@ -33,7 +33,7 @@ import {
   Tab,
   Pagination
 } from '@mui/material';
-import { Search, X } from 'lucide-react';
+import FilterBar, { FilterField } from '../components/FilterBar';
 import AddIcon from '@mui/icons-material/Add';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useToast } from '../contexts/ToastContext';
@@ -128,11 +128,7 @@ const OrdensProducao = () => {
   // Pagination and Filters
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [filterNumero, setFilterNumero] = useState('');
-  const [filterProdutoId, setFilterProdutoId] = useState('');
-  const [filterStatus, setFilterStatus] = useState('');
-  const [filterDataInicio, setFilterDataInicio] = useState('');
-  const [filterDataFim, setFilterDataFim] = useState('');
+  const [activeFilters, setActiveFilters] = useState<Record<string, any>>({});
 
   useEffect(() => {
     fetchOrdens();
@@ -155,11 +151,11 @@ const OrdensProducao = () => {
         page: (page - 1).toString(),
         size: '10',
       });
-      if (filterNumero) params.append('numero', filterNumero);
-      if (filterProdutoId) params.append('produtoId', filterProdutoId);
-      if (filterStatus) params.append('status', filterStatus);
-      if (filterDataInicio) params.append('dataInicio', filterDataInicio);
-      if (filterDataFim) params.append('dataFim', filterDataFim);
+      if (activeFilters.numero) params.append('numero', activeFilters.numero);
+      if (activeFilters.produtoId) params.append('produtoId', activeFilters.produtoId);
+      if (activeFilters.status) params.append('status', activeFilters.status);
+      if (activeFilters.dataInicio) params.append('dataInicio', activeFilters.dataInicio);
+      if (activeFilters.dataFim) params.append('dataFim', activeFilters.dataFim);
 
       const res = await api.get(`/production/ordens/search?${params.toString()}`);
       setOrdens(res.data.content);
@@ -171,20 +167,14 @@ const OrdensProducao = () => {
     }
   };
 
-  const handleSearch = () => {
+  const handleSearch = (filters: Record<string, any>) => {
+    setActiveFilters(filters);
     setPage(1);
-    fetchOrdens();
   };
 
   const handleClearFilters = () => {
-    setFilterNumero('');
-    setFilterProdutoId('');
-    setFilterStatus('');
-    setFilterDataInicio('');
-    setFilterDataFim('');
+    setActiveFilters({});
     setPage(1);
-    // As setState é assíncrono, se chamarmos fetchOrdens aqui, pode usar valores velhos.
-    // O melhor é fazer timeout ou resetar via useEffect, ou passar parametros:
     fetchOrdensSemFiltros();
   };
 
@@ -374,83 +364,18 @@ const OrdensProducao = () => {
         }
       />
 
-      <PremiumCard sx={{ mb: 3 }}>
-        <Box sx={{ p: 3 }}>
-          <Typography variant="subtitle2" sx={{ mb: 2, color: 'var(--text-secondary)' }}>Filtros de Pesquisa</Typography>
-          <Grid container spacing={2} alignItems="center">
-            <Grid size={{ xs: 12, md: 2 }}>
-              <TextField
-                label="Número da OP"
-                variant="outlined"
-                fullWidth
-                size="small"
-                value={filterNumero}
-                onChange={(e) => setFilterNumero(e.target.value)}
-              />
-            </Grid>
-            <Grid size={{ xs: 12, md: 3 }}>
-              <FormControl fullWidth size="small">
-                <InputLabel>Produto Base</InputLabel>
-                <Select
-                  value={filterProdutoId}
-                  label="Produto Base"
-                  onChange={(e) => setFilterProdutoId(e.target.value)}
-                >
-                  <MenuItem value=""><em>Todos</em></MenuItem>
-                  {produtos.map(p => (
-                    <MenuItem key={p.id} value={p.id}>{p.nome}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid size={{ xs: 12, md: 2 }}>
-              <FormControl fullWidth size="small">
-                <InputLabel>Status</InputLabel>
-                <Select
-                  value={filterStatus}
-                  label="Status"
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                >
-                  <MenuItem value=""><em>Todos</em></MenuItem>
-                  {Object.keys(STATUS_COLORS).map(s => (
-                    <MenuItem key={s} value={s}>{STATUS_COLORS[s].label}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid size={{ xs: 12, md: 2 }}>
-              <TextField
-                label="Data Início"
-                type="date"
-                fullWidth
-                size="small"
-                slotProps={{ inputLabel: { shrink: true } }}
-                value={filterDataInicio}
-                onChange={(e) => setFilterDataInicio(e.target.value)}
-              />
-            </Grid>
-            <Grid size={{ xs: 12, md: 2 }}>
-              <TextField
-                label="Data Fim"
-                type="date"
-                fullWidth
-                size="small"
-                slotProps={{ inputLabel: { shrink: true } }}
-                value={filterDataFim}
-                onChange={(e) => setFilterDataFim(e.target.value)}
-              />
-            </Grid>
-            <Grid size={{ xs: 12, md: 1 }} sx={{ display: 'flex', gap: 1 }}>
-              <IconButton onClick={handleSearch} sx={{ bgcolor: 'var(--accent-primary)', color: 'white', '&:hover': { bgcolor: 'var(--accent-secondary)' } }} size="small">
-                <Search size={20} />
-              </IconButton>
-              <IconButton onClick={handleClearFilters} sx={{ bgcolor: 'rgba(255,255,255,0.05)', color: 'var(--text-secondary)', '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' } }} size="small">
-                <X size={20} />
-              </IconButton>
-            </Grid>
-          </Grid>
-        </Box>
-      </PremiumCard>
+      <FilterBar 
+        fields={[
+          { name: 'numero', label: 'Número da OP', type: 'text', size: 2 },
+          { name: 'produtoId', label: 'Produto Base', type: 'select', size: 3, options: produtos.map(p => ({ value: p.id, label: p.nome })) },
+          { name: 'status', label: 'Status', type: 'select', size: 2, options: Object.keys(STATUS_COLORS).map(s => ({ value: s, label: STATUS_COLORS[s].label })) },
+          { name: 'dataInicio', label: 'Data Início', type: 'date', size: 2 },
+          { name: 'dataFim', label: 'Data Fim', type: 'date', size: 2 }
+        ]}
+        onSearch={handleSearch}
+        onClear={handleClearFilters}
+        initialValues={activeFilters}
+      />
 
       <PremiumCard>
         {loading ? (

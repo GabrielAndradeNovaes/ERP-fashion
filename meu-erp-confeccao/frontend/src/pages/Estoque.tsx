@@ -5,6 +5,7 @@ import Modal from '../components/Modal';
 import { DataTable } from '../components/DataTable';
 import PageHeader from '../components/PageHeader';
 import PremiumCard from '../components/PremiumCard';
+import FilterBar from '../components/FilterBar';
 import { useAuth } from '../contexts/AuthContext';
 import type { ColumnDef } from '@tanstack/react-table';
 import {
@@ -60,6 +61,7 @@ interface ProdutoBase {
 const Estoque = () => {
   const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState(0); // 0 = Materiais, 1 = Produtos
+  const [activeFilters, setActiveFilters] = useState<Record<string, any>>({});
   const { hasPermission } = useAuth();
   const canEdit = hasPermission('ESTOQUE_EDIT');
 
@@ -244,6 +246,16 @@ const Estoque = () => {
     }
   ], []);
 
+  const filteredMateriais = React.useMemo(() => {
+    return materiais.filter(m => {
+      if (activeTab === 0) {
+        if (activeFilters.codigo && !m.codigo?.toLowerCase().includes(activeFilters.codigo.toLowerCase())) return false;
+        if (activeFilters.nome && !m.nome?.toLowerCase().includes(activeFilters.nome.toLowerCase())) return false;
+      }
+      return true;
+    });
+  }, [materiais, activeFilters, activeTab]);
+
   const flatSkus = React.useMemo(() => {
     return produtos.flatMap(p => p.skus.map(sku => ({
       ...sku,
@@ -251,6 +263,17 @@ const Estoque = () => {
       produtoBaseCodigo: p.codigo
     })));
   }, [produtos]);
+
+  const filteredSkus = React.useMemo(() => {
+    return flatSkus.filter(sku => {
+      if (activeTab === 1) {
+        if (activeFilters.codigo && !sku.produtoBaseCodigo?.toLowerCase().includes(activeFilters.codigo.toLowerCase())) return false;
+        if (activeFilters.cor && !sku.cor?.toLowerCase().includes(activeFilters.cor.toLowerCase())) return false;
+        if (activeFilters.tamanho && !sku.tamanho?.toLowerCase().includes(activeFilters.tamanho.toLowerCase())) return false;
+      }
+      return true;
+    });
+  }, [flatSkus, activeFilters, activeTab]);
 
   const columnsProdutos: ColumnDef<any, any, any>[] = React.useMemo(() => [
     {
@@ -318,9 +341,34 @@ const Estoque = () => {
         }
       />
 
+      {activeTab === 0 && (
+        <FilterBar 
+          fields={[
+            { name: 'codigo', label: 'Código', type: 'text', size: 3 },
+            { name: 'nome', label: 'Nome do Material', type: 'text', size: 4 },
+          ]}
+          onSearch={(f) => setActiveFilters(f)}
+          onClear={() => setActiveFilters({})}
+          initialValues={activeFilters}
+        />
+      )}
+
+      {activeTab === 1 && (
+        <FilterBar 
+          fields={[
+            { name: 'codigo', label: 'Código Produto Base', type: 'text', size: 3 },
+            { name: 'cor', label: 'Cor (SKU)', type: 'text', size: 3 },
+            { name: 'tamanho', label: 'Tamanho (SKU)', type: 'text', size: 3 },
+          ]}
+          onSearch={(f) => setActiveFilters(f)}
+          onClear={() => setActiveFilters({})}
+          initialValues={activeFilters}
+        />
+      )}
+
       <PremiumCard>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <Tabs value={activeTab} onChange={(_, val) => setActiveTab(val)}>
+          <Tabs value={activeTab} onChange={(_, val) => { setActiveTab(val); setActiveFilters({}); }}>
             <Tab label="Matérias-Primas" />
             <Tab label="Produtos (SKUs)" />
           </Tabs>
@@ -335,20 +383,20 @@ const Estoque = () => {
             <Typography color="error">{error}</Typography>
           </Box>
         ) : activeTab === 0 ? (
-          materiais.length === 0 ? (
+          filteredMateriais.length === 0 ? (
             <Box sx={{ p: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', color: 'text.secondary' }}>
               <Typography>Nenhum material encontrado.</Typography>
             </Box>
           ) : (
-            <DataTable columns={columnsMateriais} data={materiais} />
+            <DataTable columns={columnsMateriais} data={filteredMateriais} />
           )
         ) : (
-          flatSkus.length === 0 ? (
+          filteredSkus.length === 0 ? (
             <Box sx={{ p: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', color: 'text.secondary' }}>
               <Typography>Nenhum SKU encontrado. Você precisa cadastrar SKUs nos produtos.</Typography>
             </Box>
           ) : (
-            <DataTable columns={columnsProdutos} data={flatSkus} />
+            <DataTable columns={columnsProdutos} data={filteredSkus} />
           )
         )}
       </PremiumCard>

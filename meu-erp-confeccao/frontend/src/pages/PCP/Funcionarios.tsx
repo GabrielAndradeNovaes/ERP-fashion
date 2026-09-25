@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { 
   Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Button, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField,
-  Switch, FormControlLabel, Autocomplete, MenuItem, Select, InputLabel, FormControl
+  Switch, FormControlLabel, Autocomplete, MenuItem, Select, InputLabel, FormControl, TablePagination
 } from '@mui/material';
+import FilterBar from '../../components/FilterBar';
 import api from '../../api/axios';
 import { useAuth } from '../../contexts/AuthContext';
 import { Edit2, Trash2, Plus } from 'lucide-react';
@@ -51,6 +52,24 @@ const Funcionarios: React.FC = () => {
   const [diasSelecionados, setDiasSelecionados] = useState<number[]>([]);
   const [horarioEntrada, setHorarioEntrada] = useState<string>('07:00');
   const [horarioSaida, setHorarioSaida] = useState<string>('17:00');
+
+  const [activeFilters, setActiveFilters] = useState<Record<string, any>>({});
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const filteredFuncionarios = React.useMemo(() => {
+    return funcionarios.filter(f => {
+      if (activeFilters.nome && !f.nome?.toLowerCase().includes(activeFilters.nome.toLowerCase())) return false;
+      if (activeFilters.grupo && f.grupo?.nome !== activeFilters.grupo) return false;
+      if (activeFilters.status && (activeFilters.status === 'ATIVO' ? !f.ativo : f.ativo)) return false;
+      return true;
+    });
+  }, [funcionarios, activeFilters]);
+
+  const paginatedFuncionarios = React.useMemo(() => {
+    const start = page * rowsPerPage;
+    return filteredFuncionarios.slice(start, start + rowsPerPage);
+  }, [filteredFuncionarios, page, rowsPerPage]);
 
   const { hasPermission } = useAuth();
   const canEdit = hasPermission('PCP_EDIT');
@@ -157,6 +176,20 @@ const Funcionarios: React.FC = () => {
         )}
       </Box>
 
+      <FilterBar 
+        fields={[
+          { name: 'nome', label: 'Nome ou Matrícula', type: 'text', size: 3 },
+          { name: 'grupo', label: 'Grupo / Setor', type: 'select', size: 3, options: grupos.map(g => ({ value: g.nome, label: g.nome })) },
+          { name: 'status', label: 'Status', type: 'select', size: 2, options: [
+            { value: 'ATIVO', label: 'Ativo' },
+            { value: 'INATIVO', label: 'Inativo' }
+          ] }
+        ]}
+        onSearch={(f) => { setActiveFilters(f); setPage(0); }}
+        onClear={() => { setActiveFilters({}); setPage(0); }}
+        initialValues={activeFilters}
+      />
+
       <TableContainer component={Paper} className="premium-card">
         <Table>
           <TableHead>
@@ -169,7 +202,7 @@ const Funcionarios: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {funcionarios.map(f => (
+            {paginatedFuncionarios.map(f => (
               <TableRow key={f.id} hover>
                 <TableCell>{f.nome}</TableCell>
                 <TableCell>{f.grupo?.nome || '-'}</TableCell>
@@ -190,13 +223,26 @@ const Funcionarios: React.FC = () => {
                 )}
               </TableRow>
             ))}
-            {funcionarios.length === 0 && (
+            {paginatedFuncionarios.length === 0 && (
               <TableRow>
                 <TableCell colSpan={6} align="center">Nenhum funcionário cadastrado.</TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={filteredFuncionarios.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={(e, newPage) => setPage(newPage)}
+          onRowsPerPageChange={(e) => {
+            setRowsPerPage(parseInt(e.target.value, 10));
+            setPage(0);
+          }}
+          labelRowsPerPage="Linhas por página:"
+        />
       </TableContainer>
 
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>

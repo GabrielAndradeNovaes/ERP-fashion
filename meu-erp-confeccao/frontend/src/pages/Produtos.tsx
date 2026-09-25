@@ -33,6 +33,7 @@ import {
   IconButton
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import FilterBar from '../components/FilterBar';
 import { useToast } from '../contexts/ToastContext';
 
 interface ProdutoBase {
@@ -127,6 +128,17 @@ const Produtos = () => {
   const [dbTamanhos, setDbTamanhos] = useState<any[]>([]);
   const [temporarySkus, setTemporarySkus] = useState<any[]>([]);
   const [dbCategorias, setDbCategorias] = useState<any[]>([]);
+  const [activeFilters, setActiveFilters] = useState<Record<string, any>>({});
+
+  const filteredProdutos = React.useMemo(() => {
+    return produtos.filter(p => {
+      if (activeFilters.codigo && !p.codigo?.toLowerCase().includes(activeFilters.codigo.toLowerCase())) return false;
+      if (activeFilters.nome && !p.nome?.toLowerCase().includes(activeFilters.nome.toLowerCase())) return false;
+      if (activeFilters.categoriaId && p.categoria?.id !== activeFilters.categoriaId) return false;
+      if (activeFilters.status && p.status !== activeFilters.status) return false;
+      return true;
+    });
+  }, [produtos, activeFilters]);
 
   const fetchInitialData = async () => {
     try {
@@ -589,6 +601,21 @@ const Produtos = () => {
         }
       />
 
+      <FilterBar 
+        fields={[
+          { name: 'codigo', label: 'Código', type: 'text', size: 2 },
+          { name: 'nome', label: 'Nome do Produto', type: 'text', size: 3 },
+          { name: 'categoriaId', label: 'Categoria', type: 'select', size: 3, options: dbCategorias.map(c => ({ value: c.id, label: c.nome })) },
+          { name: 'status', label: 'Status', type: 'select', size: 2, options: [
+            { value: 'ATIVO', label: 'Ativo' },
+            { value: 'INATIVO', label: 'Inativo' }
+          ] }
+        ]}
+        onSearch={(f) => setActiveFilters(f)}
+        onClear={() => setActiveFilters({})}
+        initialValues={activeFilters}
+      />
+
       <PremiumCard>
         <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="h6" sx={{ fontWeight: 600, color: 'var(--text-primary)' }}>Catálogo</Typography>
@@ -617,7 +644,7 @@ const Produtos = () => {
           }}>
             <DataTable 
               columns={columns} 
-              data={produtos} 
+              data={filteredProdutos} 
               onRowClick={(row) => openEditModal(row.original)} 
             />
           </Box>
