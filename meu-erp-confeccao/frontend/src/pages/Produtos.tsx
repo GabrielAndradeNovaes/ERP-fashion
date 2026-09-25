@@ -422,13 +422,13 @@ const Produtos = () => {
     skuCores.forEach(cor => {
         skuTamanhos.forEach(tamanho => {
             // Check if it already exists in temporary
-            const exists = temporarySkus.find(ts => ts.cor === cor.nome && ts.tamanho === tamanho.nome);
+            const exists = temporarySkus.find(ts => ts.corNome === cor.nome && ts.tamanhoNome === tamanho.nome);
             if (!exists) {
                 newSkus.push({ 
                   corId: cor.id,
-                  cor: cor.nome, 
+                  corNome: cor.nome, 
                   tamanhoId: tamanho.id,
-                  tamanho: tamanho.nome, 
+                  tamanhoNome: tamanho.nome, 
                   codigoBarras: '', 
                   precoVenda: selectedProduto.precoVenda 
                 });
@@ -444,7 +444,7 @@ const Produtos = () => {
   const handleAutoGenerateEan = () => {
     const updated = temporarySkus.map(ts => ({
       ...ts,
-      codigoBarras: ts.codigoBarras ? ts.codigoBarras : `${selectedProduto?.codigo}-${ts.cor.substring(0,3).toUpperCase()}-${ts.tamanho.toUpperCase()}`
+      codigoBarras: ts.codigoBarras ? ts.codigoBarras : `${selectedProduto?.codigo}-${(ts.corNome || '').substring(0,3).toUpperCase()}-${(ts.tamanhoNome || '').toUpperCase()}`
     }));
     setTemporarySkus(updated);
   };
@@ -889,8 +889,8 @@ const Produtos = () => {
                     <TableBody>
                       {temporarySkus.map((sku: any, idx: number) => (
                         <TableRow key={idx} sx={{ '&:hover': { bgcolor: 'rgba(255,255,255,0.02)' } }}>
-                          <TableCell sx={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>{sku.cor}</TableCell>
-                          <TableCell sx={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>{sku.tamanho}</TableCell>
+                          <TableCell sx={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>{sku.corNome || 'Padrão'}</TableCell>
+                          <TableCell sx={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>{sku.tamanhoNome || 'Único'}</TableCell>
                           <TableCell sx={{ borderColor: 'var(--border-color)', p: 1 }}>
                             <TextField 
                               size="small" 
