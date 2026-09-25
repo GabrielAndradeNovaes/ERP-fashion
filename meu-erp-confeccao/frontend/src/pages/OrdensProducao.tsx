@@ -424,7 +424,7 @@ const OrdensProducao = () => {
                 type="date"
                 fullWidth
                 size="small"
-                InputLabelProps={{ shrink: true }}
+                slotProps={{ inputLabel: { shrink: true } }}
                 value={filterDataInicio}
                 onChange={(e) => setFilterDataInicio(e.target.value)}
               />
@@ -435,7 +435,7 @@ const OrdensProducao = () => {
                 type="date"
                 fullWidth
                 size="small"
-                InputLabelProps={{ shrink: true }}
+                slotProps={{ inputLabel: { shrink: true } }}
                 value={filterDataFim}
                 onChange={(e) => setFilterDataFim(e.target.value)}
               />
