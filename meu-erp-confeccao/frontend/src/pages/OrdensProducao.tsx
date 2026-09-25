@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Play, CheckCircle2, Package, Edit, RotateCcw, ChevronRight, Eye } from 'lucide-react';
+import { Play, CheckCircle2, Package, Edit, RotateCcw, ChevronRight, Eye, Trash2 } from 'lucide-react';
 import api from '../api/axios';
 import Modal from '../components/Modal';
 import PageHeader from '../components/PageHeader';
@@ -252,6 +252,19 @@ const OrdensProducao = () => {
     handleCloseMenu();
   };
 
+  const handleExcluir = async (opId: string) => {
+    if (!window.confirm('Tem certeza que deseja excluir permanentemente esta Ordem de Produção? Essa ação não pode ser desfeita.')) return;
+    
+    try {
+      await api.delete(`/production/ordens/${opId}`);
+      showToast('Ordem excluída com sucesso.', 'success');
+      fetchInitialData();
+    } catch (err: any) {
+      showToast(err.response?.data?.message || 'Erro ao excluir OP', 'error');
+    }
+    handleCloseMenu();
+  };
+
   const handleGerarPacotes = async () => {
     if (!selectedOrdem) return;
     try {
@@ -420,6 +433,11 @@ const OrdensProducao = () => {
         {menuOrdem?.status === 'PENDENTE' && canEdit && (
           <MenuItem onClick={() => handleAlterarStatus(menuOrdem.id, 'EM_ANDAMENTO')}>
             <Play size={16} color="var(--success)" /> Iniciar Produção
+          </MenuItem>
+        )}
+        {menuOrdem?.status === 'PENDENTE' && canEdit && (
+          <MenuItem onClick={() => handleExcluir(menuOrdem.id)} sx={{ color: 'var(--danger) !important' }}>
+            <Trash2 size={16} /> Excluir OP
           </MenuItem>
         )}
         

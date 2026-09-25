@@ -399,4 +399,16 @@ public class OrdemProducaoServiceImpl implements OrdemProducaoService {
                 itens
         );
     }
+    @Override
+    @Transactional
+    public void excluirOrdemProducao(UUID id) {
+        OrdemProducao op = ordemProducaoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Ordem de Produção não encontrada."));
+
+        if (op.getStatus() != OrdemProducaoStatus.PENDENTE) {
+            throw new IllegalStateException("Apenas Ordens de Produção com status PENDENTE podem ser excluídas.");
+        }
+
+        ordemProducaoRepository.delete(op);
+    }
 }

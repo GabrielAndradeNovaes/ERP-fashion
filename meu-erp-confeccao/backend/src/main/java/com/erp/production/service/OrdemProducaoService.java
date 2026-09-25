@@ -15,4 +15,5 @@ public interface OrdemProducaoService {
     OrdemProducaoResponse atualizarStatus(UUID id, OrdemProducaoStatus novoStatus);
     OrdemProducaoResponse atualizarOrdemProducao(UUID id, OrdemProducaoRequest request);
     OrdemProducaoResponse estornarOrdemProducao(UUID id);
+    void excluirOrdemProducao(UUID id);
 }

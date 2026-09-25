@@ -73,4 +73,10 @@ public class OrdemProducaoController {
     public ResponseEntity<OrdemProducaoResponse> estornar(@PathVariable UUID id) {
         return ResponseEntity.ok(ordemProducaoService.estornarOrdemProducao(id));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> excluir(@PathVariable UUID id) {
+        ordemProducaoService.excluirOrdemProducao(id);
+        return ResponseEntity.noContent().build();
+    }
 }
