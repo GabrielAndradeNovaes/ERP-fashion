@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Paper, Avatar, Divider, Button, Chip, Switch, FormControlLabel } from '@mui/material';
-import { Sun, Moon, Palette, Droplets, Leaf, Flame, Flower2, Monitor, Cpu, Box, Mail, Shield, Building, Key, Bell, CheckCircle, Lock } from 'lucide-react';
+import { Sun, Moon, Palette, Droplets, Leaf, Flame, Flower2, Monitor, Cpu, Box as BoxIcon, Mail, Shield, Building, Key, Bell, CheckCircle, Lock } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useThemeContext } from '../contexts/ThemeContext';
 import api from '../api/axios';
@@ -205,7 +205,7 @@ const Settings = () => {
               <ThemeOptionCard 
                 active={mode === 'brutalism'} 
                 title="Brutalism" 
-                icon={<Box size={32} />} 
+                icon={<BoxIcon size={32} />} 
                 onClick={() => setMode('brutalism')} 
                 colors={['#ffffff', '#000000', '#000000']}
               />
