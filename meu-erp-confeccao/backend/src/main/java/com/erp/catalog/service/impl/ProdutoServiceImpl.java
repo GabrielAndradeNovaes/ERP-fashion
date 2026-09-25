@@ -116,6 +116,17 @@ public class ProdutoServiceImpl implements ProdutoService {
 
         // Processa as Grades (SKUs)
         if (request.skus() != null) {
+            // Remove SKUs que não estão na nova lista
+            java.util.List<ProdutoSku> skusParaRemover = produto.getSkus().stream()
+                    .filter(s -> request.skus().stream().noneMatch(dto -> {
+                        boolean corMatches = (s.getCor() != null && s.getCor().getId().equals(dto.corId())) || (s.getCor() == null && dto.corId() == null);
+                        boolean tamanhoMatches = (s.getTamanho() != null && s.getTamanho().getId().equals(dto.tamanhoId())) || (s.getTamanho() == null && dto.tamanhoId() == null);
+                        return corMatches && tamanhoMatches;
+                    }))
+                    .collect(java.util.stream.Collectors.toList());
+            
+            skusParaRemover.forEach(produto::removeSku);
+
             for (com.erp.catalog.dto.ProdutoSkuRequest skuDto : request.skus()) {
                 // Verifica se a combinação de Cor + Tamanho já existe no produto
                 java.util.Optional<ProdutoSku> skuExistenteOpt = produto.getSkus().stream()
