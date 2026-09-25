@@ -496,7 +496,7 @@ const OrdensProducao = () => {
                     {produtos.find(p => p.id === produtoBaseId)?.skus?.map(sku => (
                       <Grid size={{ xs: 6, sm: 4 }} key={sku.id}>
                         <TextField
-                          label={`${sku.corNome} - ${sku.tamanhoNome}`}
+                          label={[sku.corNome, sku.tamanhoNome].filter(Boolean).join(' - ') || 'SKU Único'}
                           type="number"
                           variant="outlined"
                           fullWidth
