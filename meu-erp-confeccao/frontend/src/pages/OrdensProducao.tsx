@@ -492,30 +492,48 @@ const OrdensProducao = () => {
               {produtoBaseId && (
                 <Box>
                   <Typography variant="subtitle2" sx={{ mb: 1, color: 'var(--text-secondary)' }}>Grade do Produto (Qtd. por SKU)</Typography>
-                  <Grid container spacing={2}>
-                    {produtos.find(p => p.id === produtoBaseId)?.skus?.map(sku => (
-                      <Grid size={{ xs: 6, sm: 4 }} key={sku.id}>
-                        <TextField
-                          label={[sku.corNome, sku.tamanhoNome].filter(Boolean).join(' - ') || 'SKU Único'}
-                          type="number"
-                          variant="outlined"
-                          fullWidth
-                          size="small"
-                          slotProps={{ htmlInput: { min: 0 } }}
-                          value={skuQuantities[sku.id] || ''}
-                          onChange={e => {
-                            const val = e.target.value;
-                            setSkuQuantities(prev => ({ ...prev, [sku.id]: val === '' ? 0 : parseInt(val) }));
-                          }}
-                        />
-                      </Grid>
-                    ))}
-                    {(!produtos.find(p => p.id === produtoBaseId)?.skus || produtos.find(p => p.id === produtoBaseId)?.skus?.length === 0) && (
-                      <Grid size={{ xs: 12 }}>
-                        <Typography variant="body2" color="error">Este produto não possui grade (SKUs) cadastrada. Crie a grade antes de gerar a OP.</Typography>
-                      </Grid>
-                    )}
-                  </Grid>
+                  <TableContainer component={Paper} variant="outlined" sx={{ maxHeight: 250, bgcolor: 'var(--bg-default)', borderColor: 'var(--border-color)' }}>
+                    <Table size="small" stickyHeader>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell sx={{ bgcolor: 'var(--bg-card)', color: 'var(--text-secondary)', fontWeight: 600 }}>Cor</TableCell>
+                          <TableCell sx={{ bgcolor: 'var(--bg-card)', color: 'var(--text-secondary)', fontWeight: 600 }}>Tamanho</TableCell>
+                          <TableCell sx={{ bgcolor: 'var(--bg-card)', color: 'var(--text-secondary)', fontWeight: 600 }} align="right" width="130px">Quantidade</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {produtos.find(p => p.id === produtoBaseId)?.skus?.map(sku => (
+                          <TableRow key={sku.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                            <TableCell sx={{ color: 'var(--text-primary)' }}>{sku.corNome || 'Padrão'}</TableCell>
+                            <TableCell sx={{ color: 'var(--text-primary)' }}>{sku.tamanhoNome || 'Único'}</TableCell>
+                            <TableCell align="right">
+                              <TextField
+                                type="number"
+                                variant="outlined"
+                                size="small"
+                                fullWidth
+                                slotProps={{ htmlInput: { min: 0, style: { textAlign: 'right', padding: '4px 8px' } } }}
+                                value={skuQuantities[sku.id] || ''}
+                                onChange={e => {
+                                  const val = e.target.value;
+                                  setSkuQuantities(prev => ({ ...prev, [sku.id]: val === '' ? 0 : parseInt(val) }));
+                                }}
+                              />
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                        {(!produtos.find(p => p.id === produtoBaseId)?.skus || produtos.find(p => p.id === produtoBaseId)?.skus?.length === 0) && (
+                          <TableRow>
+                            <TableCell colSpan={3} align="center" sx={{ py: 3 }}>
+                              <Typography variant="body2" color="error">
+                                Este produto não possui grade (SKUs) cadastrada. Crie a grade antes de gerar a OP.
+                              </Typography>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
                 </Box>
               )}
 
