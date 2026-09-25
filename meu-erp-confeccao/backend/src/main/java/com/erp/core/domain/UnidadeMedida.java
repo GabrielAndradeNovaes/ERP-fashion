@@ -33,6 +33,9 @@ public class UnidadeMedida {
     @Column(nullable = false)
     private boolean deleted = false;
 
+    @Column(nullable = false)
+    private Boolean ativo = true;
+
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 
@@ -42,4 +45,6 @@ public class UnidadeMedida {
     public void setNome(String nome) { this.nome = nome; }
     public boolean isDeleted() { return deleted; }
     public void setDeleted(boolean deleted) { this.deleted = deleted; }
+    public Boolean getAtivo() { return ativo; }
+    public void setAtivo(Boolean ativo) { this.ativo = ativo; }
 }
