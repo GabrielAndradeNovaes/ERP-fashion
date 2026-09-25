@@ -97,10 +97,10 @@ const FilterBar: React.FC<FilterBarProps> = ({
           ))}
           
           <Grid size={{ xs: 12, md: 'auto' }} sx={{ display: 'flex', gap: 1 }}>
-            <IconButton onClick={handleSearch} sx={{ bgcolor: 'var(--accent-primary)', color: 'white', '&:hover': { bgcolor: 'var(--accent-secondary)' } }} size="small">
+            <IconButton onClick={handleSearch} sx={{ bgcolor: 'var(--accent-primary)', color: 'white', '&:hover': { bgcolor: 'var(--accent-secondary)' }, width: 40, height: 40 }}>
               <SearchIcon sx={{ fontSize: 20 }} />
             </IconButton>
-            <IconButton onClick={handleClear} sx={{ bgcolor: 'rgba(255,255,255,0.05)', color: 'var(--text-secondary)', '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' } }} size="small">
+            <IconButton onClick={handleClear} sx={{ bgcolor: 'rgba(255,255,255,0.05)', color: 'var(--text-secondary)', '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' }, width: 40, height: 40 }}>
               <X size={20} />
             </IconButton>
           </Grid>
