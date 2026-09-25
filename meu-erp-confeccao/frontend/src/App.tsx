@@ -176,7 +176,7 @@ const Sidebar = () => {
                       padding: '0.75rem 1rem',
                       borderRadius: 'var(--radius-md)',
                       color: isActive ? 'white' : 'var(--text-secondary)',
-                      background: isActive ? 'var(--accent-gradient)' : 'transparent',
+                      background: isActive ? 'var(--accent-primary)' : 'transparent',
                       fontWeight: isActive ? 600 : 500,
                       transition: 'all var(--transition-fast)',
                       boxShadow: isActive ? '0 4px 14px 0 rgba(99, 102, 241, 0.39)' : 'none',
@@ -277,7 +277,7 @@ const AdminSidebar = () => {
             display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.75rem 1rem',
             borderRadius: 'var(--radius-md)',
             color: location.pathname === `${adminPrefix}/` ? 'white' : 'var(--text-secondary)',
-            background: location.pathname === `${adminPrefix}/` ? 'var(--accent-gradient)' : 'transparent',
+            background: location.pathname === `${adminPrefix}/` ? 'var(--accent-primary)' : 'transparent',
             fontWeight: location.pathname === `${adminPrefix}/` ? 600 : 500,
             textDecoration: 'none'
           }}
@@ -291,7 +291,7 @@ const AdminSidebar = () => {
             display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.75rem 1rem',
             borderRadius: 'var(--radius-md)',
             color: location.pathname === `${adminPrefix}/tenants` ? 'white' : 'var(--text-secondary)',
-            background: location.pathname === `${adminPrefix}/tenants` ? 'var(--accent-gradient)' : 'transparent',
+            background: location.pathname === `${adminPrefix}/tenants` ? 'var(--accent-primary)' : 'transparent',
             fontWeight: location.pathname === `${adminPrefix}/tenants` ? 600 : 500,
             textDecoration: 'none'
           }}
@@ -305,7 +305,7 @@ const AdminSidebar = () => {
             display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.75rem 1rem',
             borderRadius: 'var(--radius-md)',
             color: location.pathname === `${adminPrefix}/logs` ? 'white' : 'var(--text-secondary)',
-            background: location.pathname === `${adminPrefix}/logs` ? 'var(--accent-gradient)' : 'transparent',
+            background: location.pathname === `${adminPrefix}/logs` ? 'var(--accent-primary)' : 'transparent',
             fontWeight: location.pathname === `${adminPrefix}/logs` ? 600 : 500,
             textDecoration: 'none'
           }}
@@ -319,7 +319,7 @@ const AdminSidebar = () => {
             display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.75rem 1rem',
             borderRadius: 'var(--radius-md)',
             color: location.pathname === `${adminPrefix}/billing` ? 'white' : 'var(--text-secondary)',
-            background: location.pathname === `${adminPrefix}/billing` ? 'var(--accent-gradient)' : 'transparent',
+            background: location.pathname === `${adminPrefix}/billing` ? 'var(--accent-primary)' : 'transparent',
             fontWeight: location.pathname === `${adminPrefix}/billing` ? 600 : 500,
             textDecoration: 'none'
           }}
@@ -333,7 +333,7 @@ const AdminSidebar = () => {
             display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.75rem 1rem',
             borderRadius: 'var(--radius-md)',
             color: location.pathname === `${adminPrefix}/settings` ? 'white' : 'var(--text-secondary)',
-            background: location.pathname === `${adminPrefix}/settings` ? 'var(--accent-gradient)' : 'transparent',
+            background: location.pathname === `${adminPrefix}/settings` ? 'var(--accent-primary)' : 'transparent',
             fontWeight: location.pathname === `${adminPrefix}/settings` ? 600 : 500,
             textDecoration: 'none'
           }}
