@@ -10,5 +10,6 @@ import java.util.UUID;
 
 @Repository
 public interface RecebimentoNfRepository extends JpaRepository<RecebimentoNf, UUID> {
-    Page<RecebimentoNf> findByNumeroNfeContainingIgnoreCase(String numeroNfe, Pageable pageable);
+    Page<RecebimentoNf> findByChaveAcessoNfeContainingIgnoreCase(String chaveNfe, Pageable pageable);
+    java.util.Optional<RecebimentoNf> findByChaveAcessoNfe(String chave);
 }

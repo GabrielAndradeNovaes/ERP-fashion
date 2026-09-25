@@ -1,6 +1,6 @@
 package com.erp.procurement.dto;
 
-import com.erp.procurement.domain.RecebimentoStatus;
+import com.erp.procurement.domain.RecebimentoNfStatus;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,7 +15,7 @@ public record RecebimentoNfResponse(
     UUID ordemCompraId,
     String ordemCompraNumero,
     BigDecimal valorTotalNf,
-    RecebimentoStatus status,
+    RecebimentoNfStatus status,
     LocalDateTime dataRecebimento,
     LocalDateTime criadoEm,
     List<RecebimentoNfItemResponse> itens

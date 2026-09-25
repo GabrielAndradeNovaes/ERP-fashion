@@ -4,7 +4,7 @@ import {
   TableContainer, TableHead, TableRow, Paper, IconButton, Chip 
 } from '@mui/material';
 import { Search, Plus, Eye, CheckCircle, Clock } from 'lucide-react';
-import api from '../../services/api';
+import api from '../../api/axios';
 
 interface OrdemCompra {
   id: string;
@@ -24,7 +24,7 @@ export default function OrdensCompra() {
   const fetchOrdens = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/api/procurement/ordens-compra', {
+      const res = await api.get('/procurement/ordens-compra', {
         params: { numeroPedido: search }
       });
       setOrdens(res.data.content);

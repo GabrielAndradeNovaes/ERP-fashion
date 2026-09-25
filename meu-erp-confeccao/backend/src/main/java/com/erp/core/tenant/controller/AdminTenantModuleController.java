@@ -19,7 +19,7 @@ public class AdminTenantModuleController {
     private final TenantModuleRepository tenantModuleRepository;
     
     // Todos os módulos possíveis
-    private static final List<String> ALL_MODULES = Arrays.asList("CORE", "PCP", "ESTOQUE", "FINANCEIRO", "VENDAS", "CADASTROS");
+    private static final List<String> ALL_MODULES = Arrays.asList("CORE", "PCP", "ESTOQUE", "FINANCEIRO", "VENDAS", "CADASTROS", "COMPRAS");
 
     public AdminTenantModuleController(TenantModuleRepository tenantModuleRepository) {
         this.tenantModuleRepository = tenantModuleRepository;

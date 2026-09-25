@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
 import { LayoutDashboard, Scissors, PackageSearch, Package, ClipboardList, LogOut, Building2 } from 'lucide-react';
+import { Box, Typography } from '@mui/material';
 import Estoque from './pages/Estoque';
-import Produtos from './pages/Produtos';
 import OrdensCompra from './pages/compras/OrdensCompra';
 import EntradaXml from './pages/compras/EntradaXml';
 import Produtos from './pages/Produtos';

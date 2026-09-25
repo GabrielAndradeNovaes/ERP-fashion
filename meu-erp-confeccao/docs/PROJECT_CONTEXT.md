@@ -20,6 +20,7 @@ Para garantir escalabilidade, segurança e suporte a planos Enterprise, adotamos
 A estrutura de dados precisa refletir a complexidade do chão de fábrica:
 - **Catálogo Base:** Tabelas para `produtos_base` (o modelo genérico), `atributos_cores` e `atributos_tamanhos`.
 - **SKUs (Grade):** Tabela `produtos_skus` que materializa o cruzamento do produto base com cor e tamanho (ex: Camiseta Gola V - Azul - M).
+- **Compras e Suprimentos:** Gestão de pedidos a fornecedores (`ordens_compra`), itens aguardados, e importação de notas fiscais (`recebimentos_nf`) para dar entrada automática em materiais.
 - **Ficha Técnica (BOM):** Tabelas `fichas_tecnicas` (cabeçalho e versão) e `fichas_tecnicas_materiais` (ingredientes). O consumo de material varia dependendo do tamanho e cor da peça que será produzida.
 - **PCP e Estoque:** Movimentação transacional rigorosa para baixar tecido em rolos e gerar ordens de corte e costura (interna ou via Facções).
 

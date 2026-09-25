@@ -46,7 +46,7 @@ public class RecebimentoNfService {
     public Page<RecebimentoNfResponse> listar(String chaveNfe, Pageable pageable) {
         Page<RecebimentoNf> recebimentos;
         if (chaveNfe != null && !chaveNfe.isEmpty()) {
-            recebimentos = recebimentoNfRepository.findByChaveNfeContainingIgnoreCase(chaveNfe, pageable);
+            recebimentos = recebimentoNfRepository.findByChaveAcessoNfeContainingIgnoreCase(chaveNfe, pageable);
         } else {
             recebimentos = recebimentoNfRepository.findAll(pageable);
         }
@@ -74,7 +74,7 @@ public class RecebimentoNfService {
         String numNf = inf.ide != null ? inf.ide.nNF : "";
         String cnpjFornecedor = inf.emit != null ? inf.emit.cnpj : "";
         
-        if (recebimentoNfRepository.findByChaveNfe(chave).isPresent()) {
+        if (recebimentoNfRepository.findByChaveAcessoNfe(chave).isPresent()) {
             throw new RuntimeException("Nota Fiscal com chave " + chave + " já foi recebida.");
         }
 
@@ -88,10 +88,10 @@ public class RecebimentoNfService {
 
         RecebimentoNf recebimento = new RecebimentoNf();
         recebimento.setEmpresa(empresa);
-        recebimento.setChaveNfe(chave);
-        recebimento.setNumeroNf(numNf);
+        recebimento.setChaveAcessoNfe(chave);
+        recebimento.setNumeroNfe(numNf);
         recebimento.setDataRecebimento(LocalDateTime.now());
-        recebimento.setStatus(RecebimentoStatus.CONCLUIDO); // Ou PENDENTE_CONFERENCIA dependendo da regra
+        recebimento.setStatus(RecebimentoNfStatus.PROCESSADA); // Ou PENDENTE dependendo da regra
 
         // Vincular Ordem de Compra se fornecida
         if (ordemCompraId != null) {
@@ -104,7 +104,7 @@ public class RecebimentoNfService {
             recebimento.setFornecedor(oc.getFornecedor());
             
             // Atualiza status da OC para ENTREGUE ou PARCIAL (simplificado aqui para ENTREGUE)
-            oc.setStatus(OrdemCompraStatus.ENTREGUE);
+            oc.setStatus(OrdemCompraStatus.RECEBIDA);
             ordemCompraRepository.save(oc);
         } else {
             // Se não tem OC, tenta achar o Fornecedor pelo CNPJ
@@ -120,15 +120,15 @@ public class RecebimentoNfService {
             for (NfeProc.Det det : inf.det) {
                 if (det.prod != null) {
                     RecebimentoNfItem item = new RecebimentoNfItem();
-                    item.setProdutoNome(det.prod.xProd);
-                    item.setProdutoCodigo(det.prod.cProd);
+                    item.setNomeProdutoNf(det.prod.xProd);
+                    item.setCodigoProdutoNf(det.prod.cProd);
                     
                     BigDecimal qtd = new BigDecimal(det.prod.qCom);
                     BigDecimal valUn = new BigDecimal(det.prod.vUnCom);
                     BigDecimal valProd = new BigDecimal(det.prod.vProd);
                     
                     item.setQuantidade(qtd);
-                    item.setPrecoUnitario(valUn);
+                    item.setValorUnitario(valUn);
                     item.setValorTotal(valProd);
                     
                     valorTotal = valorTotal.add(valProd);
@@ -153,8 +153,8 @@ public class RecebimentoNfService {
     private RecebimentoNfResponse toResponse(RecebimentoNf r) {
         return new RecebimentoNfResponse(
                 r.getId(),
-                r.getChaveNfe(),
-                r.getNumeroNf(),
+                r.getChaveAcessoNfe(),
+                r.getNumeroNfe(),
                 r.getFornecedor() != null ? r.getFornecedor().getId() : null,
                 r.getFornecedor() != null ? r.getFornecedor().getNome() : null,
                 r.getOrdemCompra() != null ? r.getOrdemCompra().getId() : null,
@@ -165,12 +165,12 @@ public class RecebimentoNfService {
                 r.getCriadoEm(),
                 r.getItens().stream().map(item -> new RecebimentoNfItemResponse(
                         item.getId(),
-                        item.getProdutoNome(),
-                        item.getProdutoCodigo(),
+                        item.getNomeProdutoNf(),
+                        item.getCodigoProdutoNf(),
                         item.getQuantidade(),
-                        item.getPrecoUnitario(),
+                        item.getValorUnitario(),
                         item.getValorTotal(),
-                        item.getOrdemCompraItem() != null ? item.getOrdemCompraItem().getId() : null,
+                        null,
                         item.getMaterial() != null ? item.getMaterial().getId() : null
                 )).collect(Collectors.toList())
         );

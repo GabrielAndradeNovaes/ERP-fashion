@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS ordens_compra_itens (
     preco_unitario DECIMAL(10, 2) NOT NULL,
     valor_total DECIMAL(12, 2) NOT NULL,
     CONSTRAINT fk_oci_oc FOREIGN KEY (ordem_compra_id) REFERENCES ordens_compra(id) ON DELETE CASCADE,
-    CONSTRAINT fk_oci_material FOREIGN KEY (material_id) REFERENCES estoque_materiais(id)
+    CONSTRAINT fk_oci_material FOREIGN KEY (material_id) REFERENCES materiais(id)
 );
 
 CREATE TABLE IF NOT EXISTS recebimentos_nf (
@@ -58,5 +58,5 @@ CREATE TABLE IF NOT EXISTS recebimentos_nf_itens (
     valor_unitario DECIMAL(10, 2) NOT NULL,
     valor_total DECIMAL(12, 2) NOT NULL,
     CONSTRAINT fk_rnfi_rnf FOREIGN KEY (recebimento_nf_id) REFERENCES recebimentos_nf(id) ON DELETE CASCADE,
-    CONSTRAINT fk_rnfi_material FOREIGN KEY (material_id) REFERENCES estoque_materiais(id)
+    CONSTRAINT fk_rnfi_material FOREIGN KEY (material_id) REFERENCES materiais(id)
 );

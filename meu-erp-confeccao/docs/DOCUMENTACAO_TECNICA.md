@@ -90,7 +90,26 @@ Kardex de entradas e saídas de materiais.
 
 ---
 
-### 2.3. Módulo: Engenharia (Ficha Técnica) (Schema Tenant)
+### 2.3. Módulo: Compras e Suprimentos (Schema Tenant)
+
+#### Tabela: `ordens_compra` e `ordens_compra_itens`
+Gestão de pedidos de suprimentos feitos aos fornecedores.
+- `id` (UUID, PK): Identificador da ordem.
+- `numero_pedido` (Varchar): Número do pedido para acompanhamento.
+- `fornecedor_id` (UUID): Vínculo com o fornecedor (empresa).
+- `status` (Enum): PENDENTE, ENTREGUE, CANCELADO.
+- Itens vinculam a materiais com quantidades solicitadas e recebidas, além de preço unitário e total.
+
+#### Tabela: `recebimentos_nf` e `recebimentos_nf_itens`
+Registro de notas fiscais de entrada. O XML parser converte essas entradas para abater ordens de compra e dar entrada no estoque.
+- `id` (UUID, PK): Identificador.
+- `chave_acesso` (Varchar): Chave da NFe.
+- `ordem_compra_id` (UUID, FK, Nullable): OP relacionada.
+- Itens da NF têm vínculo opcional/posterior com `materiais` (De/Para de fornecedor).
+
+---
+
+### 2.4. Módulo: Engenharia (Ficha Técnica) (Schema Tenant)
 
 #### Tabela: `fichas_tecnicas`
 Cabeçalho do Bill of Materials (BOM). Define "como" o produto é feito.
@@ -209,6 +228,8 @@ Todos os endpoints requerem autenticação JWT (`Authorization: Bearer <token>`)
 | Tenants | `/api/admin/tenants` | Cadastro e setup de novos schemas de banco para empresas. |
 | Catálogo | `/api/catalog/produtos` | Gerencia produtos e SKUs. |
 | Estoque | `/api/inventory/materiais` | Gerencia insumos. |
+| Compras | `/api/procurement/ordens-compra` | Gestão de ordens de compra. |
+| NF de Entrada | `/api/procurement/nf` | Processamento de NFe via upload de XML. |
 | Ficha Técnica | `/api/production/fichas-tecnicas` | Configura materiais e roteiro (operações). |
 | Produção | `/api/production/ordens` | Criação, listagem e alteração de status de OPs. |
 | Pacotes | `/api/production/ordens/{id}/gerar-pacotes` | Gera pacotes e cupons com códigos de barra baseados no tamanho do pacote. |

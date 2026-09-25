@@ -4,7 +4,7 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow 
 } from '@mui/material';
 import { Upload, FileText, CheckCircle } from 'lucide-react';
-import api from '../../services/api';
+import api from '../../api/axios';
 
 interface XmlItem {
   id: string;
