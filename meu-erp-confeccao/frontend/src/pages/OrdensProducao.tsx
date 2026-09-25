@@ -30,8 +30,10 @@ import {
   Grid,
   Drawer,
   Tabs,
-  Tab
+  Tab,
+  Pagination
 } from '@mui/material';
+import { Search, X } from 'lucide-react';
 import AddIcon from '@mui/icons-material/Add';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useToast } from '../contexts/ToastContext';
@@ -123,24 +125,85 @@ const OrdensProducao = () => {
   const { hasPermission } = useAuth();
   const canEdit = hasPermission('PCP_EDIT');
 
-  useEffect(() => {
-    fetchInitialData();
-  }, []);
+  // Pagination and Filters
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [filterNumero, setFilterNumero] = useState('');
+  const [filterProdutoId, setFilterProdutoId] = useState('');
+  const [filterStatus, setFilterStatus] = useState('');
+  const [filterDataInicio, setFilterDataInicio] = useState('');
+  const [filterDataFim, setFilterDataFim] = useState('');
 
-  const fetchInitialData = async () => {
+  useEffect(() => {
+    fetchOrdens();
+    fetchProdutos();
+  }, [page]); // trigger fetchOrdens when page changes
+
+  const fetchProdutos = async () => {
+    try {
+      const produtosRes = await api.get('/catalog/produtos');
+      setProdutos(produtosRes.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const fetchOrdens = async () => {
     try {
       setLoading(true);
-      const [ordensRes, produtosRes] = await Promise.all([
-        api.get('/production/ordens'),
-        api.get('/catalog/produtos')
-      ]);
-      setOrdens(ordensRes.data);
-      setProdutos(produtosRes.data);
+      const params = new URLSearchParams({
+        page: (page - 1).toString(),
+        size: '10',
+      });
+      if (filterNumero) params.append('numero', filterNumero);
+      if (filterProdutoId) params.append('produtoId', filterProdutoId);
+      if (filterStatus) params.append('status', filterStatus);
+      if (filterDataInicio) params.append('dataInicio', filterDataInicio);
+      if (filterDataFim) params.append('dataFim', filterDataFim);
+
+      const res = await api.get(`/production/ordens/search?${params.toString()}`);
+      setOrdens(res.data.content);
+      setTotalPages(res.data.totalPages);
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSearch = () => {
+    setPage(1);
+    fetchOrdens();
+  };
+
+  const handleClearFilters = () => {
+    setFilterNumero('');
+    setFilterProdutoId('');
+    setFilterStatus('');
+    setFilterDataInicio('');
+    setFilterDataFim('');
+    setPage(1);
+    // As setState é assíncrono, se chamarmos fetchOrdens aqui, pode usar valores velhos.
+    // O melhor é fazer timeout ou resetar via useEffect, ou passar parametros:
+    fetchOrdensSemFiltros();
+  };
+
+  const fetchOrdensSemFiltros = async () => {
+    setLoading(true);
+    try {
+      const res = await api.get(`/production/ordens/search?page=0&size=10`);
+      setOrdens(res.data.content);
+      setTotalPages(res.data.totalPages);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchInitialData = async () => {
+    fetchOrdens();
+    fetchProdutos();
   };
 
   const handleOpenDetails = (op: OrdemProducao) => {
@@ -311,12 +374,91 @@ const OrdensProducao = () => {
         }
       />
 
+      <PremiumCard sx={{ mb: 3 }}>
+        <Box sx={{ p: 3 }}>
+          <Typography variant="subtitle2" sx={{ mb: 2, color: 'var(--text-secondary)' }}>Filtros de Pesquisa</Typography>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={12} md={2}>
+              <TextField
+                label="Número da OP"
+                variant="outlined"
+                fullWidth
+                size="small"
+                value={filterNumero}
+                onChange={(e) => setFilterNumero(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs={12} md={3}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Produto Base</InputLabel>
+                <Select
+                  value={filterProdutoId}
+                  label="Produto Base"
+                  onChange={(e) => setFilterProdutoId(e.target.value)}
+                >
+                  <MenuItem value=""><em>Todos</em></MenuItem>
+                  {produtos.map(p => (
+                    <MenuItem key={p.id} value={p.id}>{p.nome}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={2}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Status</InputLabel>
+                <Select
+                  value={filterStatus}
+                  label="Status"
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                >
+                  <MenuItem value=""><em>Todos</em></MenuItem>
+                  {Object.keys(STATUS_COLORS).map(s => (
+                    <MenuItem key={s} value={s}>{STATUS_COLORS[s].label}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={2}>
+              <TextField
+                label="Data Início"
+                type="date"
+                fullWidth
+                size="small"
+                InputLabelProps={{ shrink: true }}
+                value={filterDataInicio}
+                onChange={(e) => setFilterDataInicio(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs={12} md={2}>
+              <TextField
+                label="Data Fim"
+                type="date"
+                fullWidth
+                size="small"
+                InputLabelProps={{ shrink: true }}
+                value={filterDataFim}
+                onChange={(e) => setFilterDataFim(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs={12} md={1} sx={{ display: 'flex', gap: 1 }}>
+              <IconButton onClick={handleSearch} sx={{ bgcolor: 'var(--accent-primary)', color: 'white', '&:hover': { bgcolor: 'var(--accent-secondary)' } }} size="small">
+                <Search size={20} />
+              </IconButton>
+              <IconButton onClick={handleClearFilters} sx={{ bgcolor: 'rgba(255,255,255,0.05)', color: 'var(--text-secondary)', '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' } }} size="small">
+                <X size={20} />
+              </IconButton>
+            </Grid>
+          </Grid>
+        </Box>
+      </PremiumCard>
+
       <PremiumCard>
         {loading ? (
           <Box sx={{ p: 6, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             <CircularProgress sx={{ color: 'var(--accent-primary)' }} />
           </Box>
         ) : (
+          <>
           <TableContainer>
           <Table sx={{ minWidth: 650 }} aria-label="tabela de ordens">
             <TableHead>
@@ -399,6 +541,19 @@ const OrdensProducao = () => {
             </TableBody>
           </Table>
         </TableContainer>
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 3, borderTop: '1px solid var(--border-color)' }}>
+          <Pagination
+            count={totalPages}
+            page={page}
+            onChange={(e, value) => setPage(value)}
+            color="primary"
+            sx={{
+              '& .MuiPaginationItem-root': { color: 'var(--text-secondary)' },
+              '& .Mui-selected': { bgcolor: 'var(--accent-primary) !important', color: 'white' }
+            }}
+          />
+        </Box>
+        </>
         )}
       </PremiumCard>
 

@@ -9,6 +9,7 @@ import java.util.UUID;
 public interface OrdemProducaoService {
     OrdemProducaoResponse criarOrdemProducao(OrdemProducaoRequest request);
     List<OrdemProducaoResponse> listarTodas();
+    org.springframework.data.domain.Page<OrdemProducaoResponse> buscarComFiltros(String numero, String produtoId, OrdemProducaoStatus status, java.time.LocalDate dataInicio, java.time.LocalDate dataFim, org.springframework.data.domain.Pageable pageable);
     OrdemProducaoResponse iniciarProducao(UUID id);
     void gerarPacotes(UUID id, int tamanhoPacote);
     void biparPacote(String codigoBarras);

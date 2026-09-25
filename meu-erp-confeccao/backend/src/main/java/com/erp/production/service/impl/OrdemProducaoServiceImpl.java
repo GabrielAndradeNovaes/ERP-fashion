@@ -103,6 +103,34 @@ public class OrdemProducaoServiceImpl implements OrdemProducaoService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public org.springframework.data.domain.Page<OrdemProducaoResponse> buscarComFiltros(String numero, String produtoId, OrdemProducaoStatus status, java.time.LocalDate dataInicio, java.time.LocalDate dataFim, org.springframework.data.domain.Pageable pageable) {
+        org.springframework.data.jpa.domain.Specification<OrdemProducao> spec = (root, query, cb) -> {
+            java.util.List<jakarta.persistence.criteria.Predicate> predicates = new java.util.ArrayList<>();
+            
+            if (numero != null && !numero.trim().isEmpty()) {
+                predicates.add(cb.like(cb.lower(root.get("numero")), "%" + numero.trim().toLowerCase() + "%"));
+            }
+            if (produtoId != null && !produtoId.trim().isEmpty()) {
+                predicates.add(cb.equal(root.get("produtoBase").get("id"), UUID.fromString(produtoId)));
+            }
+            if (status != null) {
+                predicates.add(cb.equal(root.get("status"), status));
+            }
+            if (dataInicio != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("criadoEm"), dataInicio.atStartOfDay()));
+            }
+            if (dataFim != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("criadoEm"), dataFim.atTime(23, 59, 59)));
+            }
+            
+            return cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]));
+        };
+        
+        return ordemProducaoRepository.findAll(spec, pageable).map(this::mapToResponse);
+    }
+
+    @Override
     @Transactional
     public OrdemProducaoResponse iniciarProducao(UUID id) {
         OrdemProducao op = ordemProducaoRepository.findById(id)
