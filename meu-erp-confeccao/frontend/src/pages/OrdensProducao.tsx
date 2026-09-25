@@ -378,7 +378,7 @@ const OrdensProducao = () => {
         <Box sx={{ p: 3 }}>
           <Typography variant="subtitle2" sx={{ mb: 2, color: 'var(--text-secondary)' }}>Filtros de Pesquisa</Typography>
           <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} md={2}>
+            <Grid size={{ xs: 12, md: 2 }}>
               <TextField
                 label="Número da OP"
                 variant="outlined"
@@ -388,7 +388,7 @@ const OrdensProducao = () => {
                 onChange={(e) => setFilterNumero(e.target.value)}
               />
             </Grid>
-            <Grid item xs={12} md={3}>
+            <Grid size={{ xs: 12, md: 3 }}>
               <FormControl fullWidth size="small">
                 <InputLabel>Produto Base</InputLabel>
                 <Select
@@ -403,7 +403,7 @@ const OrdensProducao = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} md={2}>
+            <Grid size={{ xs: 12, md: 2 }}>
               <FormControl fullWidth size="small">
                 <InputLabel>Status</InputLabel>
                 <Select
@@ -418,7 +418,7 @@ const OrdensProducao = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} md={2}>
+            <Grid size={{ xs: 12, md: 2 }}>
               <TextField
                 label="Data Início"
                 type="date"
@@ -429,7 +429,7 @@ const OrdensProducao = () => {
                 onChange={(e) => setFilterDataInicio(e.target.value)}
               />
             </Grid>
-            <Grid item xs={12} md={2}>
+            <Grid size={{ xs: 12, md: 2 }}>
               <TextField
                 label="Data Fim"
                 type="date"
@@ -440,7 +440,7 @@ const OrdensProducao = () => {
                 onChange={(e) => setFilterDataFim(e.target.value)}
               />
             </Grid>
-            <Grid item xs={12} md={1} sx={{ display: 'flex', gap: 1 }}>
+            <Grid size={{ xs: 12, md: 1 }} sx={{ display: 'flex', gap: 1 }}>
               <IconButton onClick={handleSearch} sx={{ bgcolor: 'var(--accent-primary)', color: 'white', '&:hover': { bgcolor: 'var(--accent-secondary)' } }} size="small">
                 <Search size={20} />
               </IconButton>
