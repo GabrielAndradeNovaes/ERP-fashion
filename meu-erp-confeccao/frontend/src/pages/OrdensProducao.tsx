@@ -132,8 +132,11 @@ const OrdensProducao = () => {
 
   useEffect(() => {
     fetchOrdens();
+  }, [page, activeFilters]); // trigger fetchOrdens when page or activeFilters changes
+
+  useEffect(() => {
     fetchProdutos();
-  }, [page]); // trigger fetchOrdens when page changes
+  }, []);
 
   const fetchProdutos = async () => {
     try {
@@ -160,8 +163,9 @@ const OrdensProducao = () => {
       const res = await api.get(`/production/ordens/search?${params.toString()}`);
       setOrdens(res.data.content);
       setTotalPages(res.data.totalPages);
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      console.error("Erro na busca de OPs:", err);
+      showToast(err.response?.data?.message || 'Erro ao buscar ordens de produção', 'error');
     } finally {
       setLoading(false);
     }
@@ -175,7 +179,6 @@ const OrdensProducao = () => {
   const handleClearFilters = () => {
     setActiveFilters({});
     setPage(1);
-    fetchOrdensSemFiltros();
   };
 
   const fetchOrdensSemFiltros = async () => {
