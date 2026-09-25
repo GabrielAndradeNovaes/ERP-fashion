@@ -27,9 +27,12 @@ public class FichaTecnica {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @OneToOne(optional = false)
-    @JoinColumn(name = "produto_base_id", nullable = false, unique = true)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "produto_base_id", nullable = false)
     private ProdutoBase produtoBase;
+
+    @Column(nullable = false)
+    private Boolean ativa = true;
 
     @Column(nullable = false, length = 10)
     private String versao; // Ex: v1, v2
@@ -132,5 +135,13 @@ public class FichaTecnica {
                 .map(FichaTecnicaOperacao::getTempoCalculadoCentesimal)
                 .filter(java.util.Objects::nonNull)
                 .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+    }
+
+    public Boolean getAtiva() {
+        return ativa;
+    }
+
+    public void setAtiva(Boolean ativa) {
+        this.ativa = ativa;
     }
 }

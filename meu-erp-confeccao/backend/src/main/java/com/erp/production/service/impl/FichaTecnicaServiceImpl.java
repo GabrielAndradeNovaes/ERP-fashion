@@ -12,6 +12,7 @@ import com.erp.production.domain.TipoTrajeto;
 import com.erp.production.dto.*;
 import com.erp.production.repository.FichaTecnicaOperacaoRepository;
 import com.erp.production.repository.FichaTecnicaRepository;
+import com.erp.production.repository.OrdemProducaoRepository;
 import com.erp.production.repository.TabelaTempoPadraoRepository;
 import com.erp.production.service.FichaTecnicaService;
 import com.erp.production.service.MotorCalculoSamService;
@@ -32,6 +33,7 @@ public class FichaTecnicaServiceImpl implements FichaTecnicaService {
     private final MaterialRepository materialRepository;
     private final TabelaTempoPadraoRepository tabelaTempoPadraoRepository;
     private final FichaTecnicaOperacaoRepository fichaTecnicaOperacaoRepository;
+    private final OrdemProducaoRepository ordemProducaoRepository;
     private final MotorCalculoSamService motorCalculoSamService;
 
     public FichaTecnicaServiceImpl(FichaTecnicaRepository fichaTecnicaRepository, 
@@ -39,12 +41,14 @@ public class FichaTecnicaServiceImpl implements FichaTecnicaService {
                                    MaterialRepository materialRepository,
                                    TabelaTempoPadraoRepository tabelaTempoPadraoRepository,
                                    FichaTecnicaOperacaoRepository fichaTecnicaOperacaoRepository,
+                                   OrdemProducaoRepository ordemProducaoRepository,
                                    MotorCalculoSamService motorCalculoSamService) {
         this.fichaTecnicaRepository = fichaTecnicaRepository;
         this.produtoBaseRepository = produtoBaseRepository;
         this.materialRepository = materialRepository;
         this.tabelaTempoPadraoRepository = tabelaTempoPadraoRepository;
         this.fichaTecnicaOperacaoRepository = fichaTecnicaOperacaoRepository;
+        this.ordemProducaoRepository = ordemProducaoRepository;
         this.motorCalculoSamService = motorCalculoSamService;
     }
 
@@ -111,6 +115,8 @@ public class FichaTecnicaServiceImpl implements FichaTecnicaService {
         FichaTecnica fichaTecnica = fichaTecnicaRepository.findById(fichaTecnicaId)
                 .orElseThrow(() -> new IllegalArgumentException("Ficha Técnica não encontrada com ID: " + fichaTecnicaId));
 
+        fichaTecnica = verificarEClonarSeNecessario(fichaTecnica);
+
         Integer qFolhas = request.quantidadeFolhas() != null ? request.quantidadeFolhas() : 0;
         Integer qParadas = request.quantidadeParadas() != null ? request.quantidadeParadas() : 0;
 
@@ -150,11 +156,20 @@ public class FichaTecnicaServiceImpl implements FichaTecnicaService {
     @Override
     @Transactional
     public FichaTecnicaResponse updateOperacao(UUID fichaTecnicaId, UUID operacaoId, FichaTecnicaOperacaoRequest request) {
-        FichaTecnica fichaTecnica = fichaTecnicaRepository.findById(fichaTecnicaId)
+        FichaTecnica fichaTecnicaOriginal = fichaTecnicaRepository.findById(fichaTecnicaId)
                 .orElseThrow(() -> new IllegalArgumentException("Ficha Técnica não encontrada com ID: " + fichaTecnicaId));
 
-        FichaTecnicaOperacao operacao = fichaTecnicaOperacaoRepository.findById(operacaoId)
+        FichaTecnicaOperacao operacaoAntiga = fichaTecnicaOperacaoRepository.findById(operacaoId)
                 .orElseThrow(() -> new IllegalArgumentException("Operação não encontrada com ID: " + operacaoId));
+
+        Integer ordemExecucaoAntiga = operacaoAntiga.getOrdemExecucao();
+
+        FichaTecnica fichaTecnica = verificarEClonarSeNecessario(fichaTecnicaOriginal);
+
+        FichaTecnicaOperacao operacao = fichaTecnica.getOperacoes().stream()
+                .filter(op -> op.getOrdemExecucao().equals(ordemExecucaoAntiga))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Operação não encontrada no clone da Ficha Técnica"));
 
         if (!operacao.getFichaTecnica().getId().equals(fichaTecnicaId)) {
             throw new IllegalArgumentException("A operação não pertence a esta Ficha Técnica.");
@@ -194,11 +209,20 @@ public class FichaTecnicaServiceImpl implements FichaTecnicaService {
     @Override
     @Transactional
     public FichaTecnicaResponse removeOperacao(UUID fichaTecnicaId, UUID operacaoId) {
-        FichaTecnica fichaTecnica = fichaTecnicaRepository.findById(fichaTecnicaId)
+        FichaTecnica fichaTecnicaOriginal = fichaTecnicaRepository.findById(fichaTecnicaId)
                 .orElseThrow(() -> new IllegalArgumentException("Ficha Técnica não encontrada com ID: " + fichaTecnicaId));
 
-        FichaTecnicaOperacao operacao = fichaTecnicaOperacaoRepository.findById(operacaoId)
+        FichaTecnicaOperacao operacaoAntiga = fichaTecnicaOperacaoRepository.findById(operacaoId)
                 .orElseThrow(() -> new IllegalArgumentException("Operação não encontrada com ID: " + operacaoId));
+
+        Integer ordemExecucaoAntiga = operacaoAntiga.getOrdemExecucao();
+
+        FichaTecnica fichaTecnica = verificarEClonarSeNecessario(fichaTecnicaOriginal);
+
+        FichaTecnicaOperacao operacao = fichaTecnica.getOperacoes().stream()
+                .filter(op -> op.getOrdemExecucao().equals(ordemExecucaoAntiga))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Operação não encontrada no clone da Ficha Técnica"));
 
         if (!operacao.getFichaTecnica().getId().equals(fichaTecnicaId)) {
             throw new IllegalArgumentException("A operação não pertence a esta Ficha Técnica.");
@@ -214,6 +238,8 @@ public class FichaTecnicaServiceImpl implements FichaTecnicaService {
     public FichaTecnicaResponse addMaterial(UUID fichaTecnicaId, com.erp.production.dto.FichaTecnicaMaterialRequest request) {
         FichaTecnica fichaTecnica = fichaTecnicaRepository.findById(fichaTecnicaId)
                 .orElseThrow(() -> new IllegalArgumentException("Ficha Técnica não encontrada com ID: " + fichaTecnicaId));
+
+        fichaTecnica = verificarEClonarSeNecessario(fichaTecnica);
 
         Material material = materialRepository.findById(request.materialId())
                 .orElseThrow(() -> new IllegalArgumentException("Material não encontrado com ID: " + request.materialId()));
@@ -235,13 +261,22 @@ public class FichaTecnicaServiceImpl implements FichaTecnicaService {
     @Override
     @Transactional
     public FichaTecnicaResponse removeMaterial(UUID fichaTecnicaId, UUID materialId) {
-        FichaTecnica fichaTecnica = fichaTecnicaRepository.findById(fichaTecnicaId)
+        FichaTecnica fichaTecnicaOriginal = fichaTecnicaRepository.findById(fichaTecnicaId)
                 .orElseThrow(() -> new IllegalArgumentException("Ficha Técnica não encontrada com ID: " + fichaTecnicaId));
 
-        FichaTecnicaMaterial materialToRemove = fichaTecnica.getMateriais().stream()
+        FichaTecnicaMaterial materialAntigo = fichaTecnicaOriginal.getMateriais().stream()
                 .filter(m -> m.getId().equals(materialId))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Material não encontrado na Ficha Técnica"));
+
+        UUID materialRealId = materialAntigo.getMaterial().getId();
+
+        FichaTecnica fichaTecnica = verificarEClonarSeNecessario(fichaTecnicaOriginal);
+
+        FichaTecnicaMaterial materialToRemove = fichaTecnica.getMateriais().stream()
+                .filter(m -> m.getMaterial().getId().equals(materialRealId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Material não encontrado no clone da Ficha Técnica"));
 
         fichaTecnica.removeMaterial(materialToRemove);
         FichaTecnica saved = fichaTecnicaRepository.save(fichaTecnica);
@@ -254,6 +289,8 @@ public class FichaTecnicaServiceImpl implements FichaTecnicaService {
 
     private void atualizarPrecoCustoProdutoBase(FichaTecnica ficha) {
         ProdutoBase produto = ficha.getProdutoBase();
+        produto.setFichaTecnica(ficha); // Ensure this is set to active
+
         BigDecimal custoTotal = BigDecimal.ZERO;
         if (ficha.getMateriais() != null) {
             for (FichaTecnicaMaterial mat : ficha.getMateriais()) {
@@ -318,5 +355,62 @@ public class FichaTecnicaServiceImpl implements FichaTecnicaService {
                 materiais,
                 operacoes
         );
+    }
+    private FichaTecnica verificarEClonarSeNecessario(FichaTecnica ficha) {
+        boolean emUso = ordemProducaoRepository.existsByFichaTecnicaId(ficha.getId());
+        if (!emUso) {
+            return ficha;
+        }
+
+        ficha.setAtiva(false);
+        fichaTecnicaRepository.save(ficha);
+
+        FichaTecnica novaFicha = new FichaTecnica();
+        novaFicha.setProdutoBase(ficha.getProdutoBase());
+        
+        String vAtual = ficha.getVersao() != null ? ficha.getVersao().toUpperCase() : "V1";
+        if (vAtual.startsWith("V")) {
+            try {
+                int vNum = Integer.parseInt(vAtual.substring(1));
+                novaFicha.setVersao("V" + (vNum + 1));
+            } catch(Exception e) {
+                novaFicha.setVersao(vAtual + "-NOVA");
+            }
+        } else {
+            novaFicha.setVersao(vAtual + "-NOVA");
+        }
+        
+        novaFicha.setObservacoes(ficha.getObservacoes());
+        novaFicha.setAtiva(true);
+
+        if (ficha.getMateriais() != null) {
+            for(FichaTecnicaMaterial fm : ficha.getMateriais()) {
+                FichaTecnicaMaterial novoMat = new FichaTecnicaMaterial();
+                novoMat.setMaterial(fm.getMaterial());
+                novoMat.setQuantidade(fm.getQuantidade());
+                novaFicha.addMaterial(novoMat);
+            }
+        }
+
+        if (ficha.getOperacoes() != null) {
+            for(FichaTecnicaOperacao fo : ficha.getOperacoes()) {
+                FichaTecnicaOperacao novaOp = new FichaTecnicaOperacao();
+                novaOp.setNome(fo.getNome());
+                novaOp.setMaquina(fo.getMaquina());
+                novaOp.setOrdemExecucao(fo.getOrdemExecucao());
+                novaOp.setQuantidadeFolhas(fo.getQuantidadeFolhas());
+                novaOp.setQuantidadeParadas(fo.getQuantidadeParadas());
+                novaOp.setRpmMaquina(fo.getRpmMaquina());
+                novaOp.setPontosPorCm(fo.getPontosPorCm());
+                novaOp.setComprimentoCosturaCm(fo.getComprimentoCosturaCm());
+                novaOp.setTipoTrajeto(fo.getTipoTrajeto());
+                novaOp.setDificuldadeTecido(fo.getDificuldadeTecido());
+                novaOp.setSamMinutos(fo.getSamMinutos());
+                novaOp.setTempoCalculadoCentesimal(fo.getTempoCalculadoCentesimal());
+                novaFicha.addOperacao(novaOp);
+            }
+        }
+
+        return fichaTecnicaRepository.save(novaFicha);
     }
 }

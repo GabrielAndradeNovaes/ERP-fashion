@@ -77,8 +77,8 @@ public class ProdutoBase {
     @OneToMany(mappedBy = "produtoBase", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProdutoSku> skus = new ArrayList<>();
 
-    @OneToOne(mappedBy = "produtoBase", cascade = CascadeType.ALL, orphanRemoval = true)
-    private com.erp.production.domain.FichaTecnica fichaTecnica;
+    @OneToMany(mappedBy = "produtoBase", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<com.erp.production.domain.FichaTecnica> fichasTecnicas = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {
@@ -196,14 +196,29 @@ public class ProdutoBase {
         sku.setProdutoBase(null);
     }
 
+    @Transient
     public com.erp.production.domain.FichaTecnica getFichaTecnica() {
-        return fichaTecnica;
+        return fichasTecnicas.stream().filter(com.erp.production.domain.FichaTecnica::getAtiva).findFirst().orElse(null);
     }
 
     public void setFichaTecnica(com.erp.production.domain.FichaTecnica fichaTecnica) {
-        this.fichaTecnica = fichaTecnica;
         if (fichaTecnica != null) {
             fichaTecnica.setProdutoBase(this);
+            fichaTecnica.setAtiva(true);
+            
+            // Inativar as outras
+            for (com.erp.production.domain.FichaTecnica f : this.fichasTecnicas) {
+                f.setAtiva(false);
+            }
+            this.fichasTecnicas.add(fichaTecnica);
         }
+    }
+    
+    public List<com.erp.production.domain.FichaTecnica> getFichasTecnicas() {
+        return fichasTecnicas;
+    }
+    
+    public void setFichasTecnicas(List<com.erp.production.domain.FichaTecnica> fichasTecnicas) {
+        this.fichasTecnicas = fichasTecnicas;
     }
 }
