@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Typography, TextField, FormControl, InputLabel, Select, MenuItem, IconButton, Box } from '@mui/material';
 import Grid from '@mui/material/Grid';
-import { Search, X } from 'lucide-react';
+import { X } from 'lucide-react';
+import SearchIcon from '@mui/icons-material/Search';
 import PremiumCard from './PremiumCard';
 
 export type FilterFieldType = 'text' | 'select' | 'date';
@@ -97,7 +98,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
           
           <Grid size={{ xs: 12, md: 'auto' }} sx={{ display: 'flex', gap: 1 }}>
             <IconButton onClick={handleSearch} sx={{ bgcolor: 'var(--accent-primary)', color: 'white', '&:hover': { bgcolor: 'var(--accent-secondary)' } }} size="small">
-              <Search size={20} />
+              <SearchIcon sx={{ fontSize: 20 }} />
             </IconButton>
             <IconButton onClick={handleClear} sx={{ bgcolor: 'rgba(255,255,255,0.05)', color: 'var(--text-secondary)', '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' } }} size="small">
               <X size={20} />
