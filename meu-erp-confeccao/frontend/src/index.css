@@ -274,9 +274,9 @@
 
   --sidebar-width: 280px;
   --topbar-height: 70px;
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
   
   --transition-fast: 0.1s linear;
   --transition-normal: 0.1s linear;
@@ -300,9 +300,9 @@
 
   --sidebar-width: 280px;
   --topbar-height: 70px;
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
   
   --transition-fast: 0s;
   --transition-normal: 0.05s linear;
