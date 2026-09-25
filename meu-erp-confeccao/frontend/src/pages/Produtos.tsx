@@ -476,6 +476,11 @@ const Produtos = () => {
     setTemporarySkus(updated);
   };
 
+  const removeTemporarySku = (index: number) => {
+    const updated = temporarySkus.filter((_, i) => i !== index);
+    setTemporarySkus(updated);
+  };
+
   const handleAddMaterial = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedProduto?.fichaTecnica || !selectedMaterialId || !quantidadeMaterial) return;
@@ -908,11 +913,16 @@ const Produtos = () => {
                               placeholder="EAN ou Código"
                             />
                           </TableCell>
+                          <TableCell sx={{ borderColor: 'var(--border-color)', p: 1 }} align="center">
+                            <IconButton size="small" color="error" onClick={() => removeTemporarySku(idx)}>
+                              <Trash2 size={16} />
+                            </IconButton>
+                          </TableCell>
                         </TableRow>
                       ))}
                       {temporarySkus.length === 0 && (
                         <TableRow>
-                          <TableCell colSpan={4} align="center" sx={{ py: 3, color: 'text.secondary' }}>
+                          <TableCell colSpan={5} align="center" sx={{ py: 3, color: 'text.secondary' }}>
                             Nenhum tamanho ou cor (SKU) na grade.
                           </TableCell>
                         </TableRow>
