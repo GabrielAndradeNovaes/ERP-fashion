@@ -1,7 +1,9 @@
 import { BrowserRouter, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
 import { LayoutDashboard, Scissors, PackageSearch, Package, ClipboardList, LogOut, Building2 } from 'lucide-react';
-import { Box, Typography } from '@mui/material';
 import Estoque from './pages/Estoque';
+import Produtos from './pages/Produtos';
+import OrdensCompra from './pages/compras/OrdensCompra';
+import EntradaXml from './pages/compras/EntradaXml';
 import Produtos from './pages/Produtos';
 import OrdensProducao from './pages/OrdensProducao';
 import Cupons from './pages/PCP/Cupons';
@@ -107,6 +109,14 @@ const Sidebar = () => {
       items: [
         { path: '/financeiro/contas-pagar', label: 'Contas a Pagar', icon: <ClipboardList size={20} />, perm: 'PCP_VIEW' }, // TODO proper perm
         { path: '/financeiro/receber', label: 'Títulos a Receber', icon: <ClipboardList size={20} />, perm: 'PCP_VIEW' },
+      ]
+    },
+    {
+      title: 'Compras e Suprimentos',
+      module: 'COMPRAS',
+      items: [
+        { path: '/compras/pedidos', label: 'Pedidos de Compra', icon: <ClipboardList size={20} /> },
+        { path: '/compras/entrada-xml', label: 'Entrada via XML', icon: <FileText size={20} /> },
       ]
     },
     {
@@ -238,6 +248,9 @@ const MainApp = () => {
           <Route path="/pcp/produtividade" element={<PrivateRoute requiredPermission="PCP_VIEW"><Produtividade /></PrivateRoute>} />
           <Route path="/financeiro/contas-pagar" element={<PrivateRoute requiredPermission="PCP_VIEW"><ContasPagar /></PrivateRoute>} />
           <Route path="/financeiro/receber" element={<PrivateRoute requiredPermission="PCP_VIEW"><ContasReceber /></PrivateRoute>} />
+
+          <Route path="/compras/pedidos" element={<PrivateRoute><OrdensCompra /></PrivateRoute>} />
+          <Route path="/compras/entrada-xml" element={<PrivateRoute><EntradaXml /></PrivateRoute>} />
 
           <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
           

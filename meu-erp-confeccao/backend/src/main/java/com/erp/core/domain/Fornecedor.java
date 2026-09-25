@@ -66,6 +66,9 @@ public class Fornecedor {
     @Column(columnDefinition = "jsonb")
     private String endereco;
 
+    @Column(name = "avaliacao")
+    private Integer avaliacao = 5;
+
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 
@@ -103,4 +106,7 @@ public class Fornecedor {
 
     public String getEndereco() { return endereco; }
     public void setEndereco(String endereco) { this.endereco = endereco; }
+
+    public Integer getAvaliacao() { return avaliacao; }
+    public void setAvaliacao(Integer avaliacao) { this.avaliacao = avaliacao; }
 }
