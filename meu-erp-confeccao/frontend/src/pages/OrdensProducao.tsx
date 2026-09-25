@@ -38,8 +38,8 @@ import { useToast } from '../contexts/ToastContext';
 
 interface ProdutoSku {
   id: string;
-  tamanho: string;
-  cor: string;
+  tamanhoNome: string;
+  corNome: string;
 }
 
 interface ProdutoBase {
@@ -496,7 +496,7 @@ const OrdensProducao = () => {
                     {produtos.find(p => p.id === produtoBaseId)?.skus?.map(sku => (
                       <Grid size={{ xs: 6, sm: 4 }} key={sku.id}>
                         <TextField
-                          label={`${sku.cor} - ${sku.tamanho}`}
+                          label={`${sku.corNome} - ${sku.tamanhoNome}`}
                           type="number"
                           variant="outlined"
                           fullWidth
