@@ -41,7 +41,8 @@ const FilterBar: React.FC<FilterBarProps> = ({
     setValues(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSearch = () => {
+  const handleSearch = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     onSearch(values);
   };
 
@@ -52,7 +53,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
 
   return (
     <PremiumCard sx={{ mb: 3 }}>
-      <Box sx={{ p: 3 }}>
+      <Box component="form" onSubmit={handleSearch} sx={{ p: 3 }}>
         <Typography variant="subtitle2" sx={{ mb: 2, color: 'var(--text-secondary)' }}>{title}</Typography>
         <Grid container spacing={2} alignItems="center">
           {fields.map(field => (
@@ -97,7 +98,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
           ))}
           
           <Grid size={{ xs: 12, md: 'auto' }} sx={{ display: 'flex', gap: 1 }}>
-            <IconButton onClick={handleSearch} sx={{ bgcolor: 'var(--accent-primary)', color: 'white', '&:hover': { bgcolor: 'var(--accent-secondary)' }, width: 40, height: 40 }}>
+            <IconButton type="submit" sx={{ bgcolor: 'var(--accent-primary)', color: 'white', '&:hover': { bgcolor: 'var(--accent-secondary)' }, width: 40, height: 40 }}>
               <SearchIcon sx={{ fontSize: 20 }} />
             </IconButton>
             <IconButton onClick={handleClear} sx={{ bgcolor: 'rgba(255,255,255,0.05)', color: 'var(--text-secondary)', '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' }, width: 40, height: 40 }}>
