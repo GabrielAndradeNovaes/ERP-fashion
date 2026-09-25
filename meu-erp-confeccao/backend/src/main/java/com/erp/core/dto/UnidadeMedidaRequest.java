@@ -6,5 +6,6 @@ public record UnidadeMedidaRequest(
     String email,
     String telefone,
     String tipo,
-    String sigla
+    String sigla,
+    Boolean ativo
 ) {}

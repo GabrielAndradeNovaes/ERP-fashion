@@ -9,5 +9,6 @@ public record UnidadeMedidaResponse(
     String email,
     String telefone,
     String tipo,
-    String sigla
+    String sigla,
+    Boolean ativo
 ) {}

@@ -27,6 +27,7 @@ public class UnidadeMedidaServiceImpl implements UnidadeMedidaService {
         UnidadeMedida entity = new UnidadeMedida();
         entity.setNome(request.nome());
         entity.setSigla(request.sigla());
+        entity.setAtivo(request.ativo() != null ? request.ativo() : true);
         return mapToResponse(repository.save(entity));
     }
 
@@ -48,6 +49,7 @@ public class UnidadeMedidaServiceImpl implements UnidadeMedidaService {
         UnidadeMedida entity = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Not found"));
         entity.setNome(request.nome());
         entity.setSigla(request.sigla());
+        entity.setAtivo(request.ativo() != null ? request.ativo() : true);
         return mapToResponse(repository.save(entity));
     }
 
@@ -65,7 +67,8 @@ public class UnidadeMedidaServiceImpl implements UnidadeMedidaService {
                 null,
                 null,
                 null,
-                entity.getSigla()
+                entity.getSigla(),
+                entity.getAtivo()
         );
     }
 }
