@@ -463,11 +463,11 @@ button {
   border-radius: var(--radius-lg);
   padding: 1.5rem;
   box-shadow: var(--shadow-md);
-  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  transition: box-shadow var(--transition-normal);
 }
 
 .glass-card:hover {
-  transform: translateY(-4px);
+
   box-shadow: var(--shadow-lg), 0 0 0 1px var(--border-focus);
 }
 
