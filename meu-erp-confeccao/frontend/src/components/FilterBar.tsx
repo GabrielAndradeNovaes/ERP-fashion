@@ -42,7 +42,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
   };
 
   const handleSearch = () => {
-    onSearch(values);
+    onSearch({ ...values });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -61,7 +61,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
     <PremiumCard sx={{ mb: 3 }}>
       <Box sx={{ p: 3 }}>
         <Typography variant="subtitle2" sx={{ mb: 2, color: 'var(--text-secondary)' }}>{title}</Typography>
-        <Grid container spacing={2} alignItems="center">
+        <Grid container spacing={2} sx={{ alignItems: 'center' }}>
           {fields.map(field => (
             <Grid size={{ xs: 12, md: field.size || 2 }} key={field.name}>
               {field.type === 'text' && (

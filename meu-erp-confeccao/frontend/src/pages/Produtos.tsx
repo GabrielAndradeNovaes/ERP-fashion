@@ -45,6 +45,8 @@ interface ProdutoBase {
   precoCusto: number;
   fichaTecnica: any; // Simplified for now
   skus?: any[];
+  categoria?: any;
+  status?: string;
 }
 
 interface Material {
