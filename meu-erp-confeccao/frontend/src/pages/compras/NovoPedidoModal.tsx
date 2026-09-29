@@ -87,7 +87,7 @@ export default function NovoPedidoModal({ open, onClose, onSuccess }: NovoPedido
       <DialogTitle>Novo Pedido de Compra</DialogTitle>
       <DialogContent dividers>
         <Grid container spacing={3}>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               select
               label="Fornecedor"
@@ -100,7 +100,7 @@ export default function NovoPedidoModal({ open, onClose, onSuccess }: NovoPedido
               ))}
             </TextField>
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               label="Número do Pedido (Opcional)"
               fullWidth
@@ -108,17 +108,17 @@ export default function NovoPedidoModal({ open, onClose, onSuccess }: NovoPedido
               onChange={(e) => setFormData({ ...formData, numeroPedido: e.target.value })}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               label="Previsão de Entrega"
               type="date"
               fullWidth
-              InputLabelProps={{ shrink: true }}
+              slotProps={{ inputLabel: { shrink: true } }}
               value={formData.dataPrevisaoEntrega}
               onChange={(e) => setFormData({ ...formData, dataPrevisaoEntrega: e.target.value })}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               label="Observações"
               fullWidth
@@ -137,7 +137,7 @@ export default function NovoPedidoModal({ open, onClose, onSuccess }: NovoPedido
 
         {formData.itens.map((item, index) => (
           <Grid container spacing={2} key={index} sx={{ mb: 2, alignItems: 'center' }}>
-            <Grid item xs={12} sm={5}>
+            <Grid size={{ xs: 12, sm: 5 }}>
               <TextField
                 select
                 label="Material"
@@ -151,7 +151,7 @@ export default function NovoPedidoModal({ open, onClose, onSuccess }: NovoPedido
                 ))}
               </TextField>
             </Grid>
-            <Grid item xs={6} sm={3}>
+            <Grid size={{ xs: 6, sm: 3 }}>
               <TextField
                 label="Quantidade"
                 type="number"
@@ -161,7 +161,7 @@ export default function NovoPedidoModal({ open, onClose, onSuccess }: NovoPedido
                 onChange={(e) => handleItemChange(index, 'quantidadeSolicitada', e.target.value)}
               />
             </Grid>
-            <Grid item xs={6} sm={3}>
+            <Grid size={{ xs: 6, sm: 3 }}>
               <TextField
                 label="Preço Unitário"
                 type="number"
@@ -171,7 +171,7 @@ export default function NovoPedidoModal({ open, onClose, onSuccess }: NovoPedido
                 onChange={(e) => handleItemChange(index, 'precoUnitario', e.target.value)}
               />
             </Grid>
-            <Grid item xs={12} sm={1}>
+            <Grid size={{ xs: 12, sm: 1 }}>
               <IconButton color="error" onClick={() => handleRemoveItem(index)}>
                 <Trash2 size={20} />
               </IconButton>
