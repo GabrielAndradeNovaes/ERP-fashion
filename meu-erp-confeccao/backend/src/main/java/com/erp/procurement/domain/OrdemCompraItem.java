@@ -7,6 +7,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "ordens_compra_itens")
+@org.hibernate.envers.Audited
 public class OrdemCompraItem {
 
     @Id
@@ -19,6 +20,7 @@ public class OrdemCompraItem {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "material_id", nullable = false)
+    @org.hibernate.envers.Audited(targetAuditMode = org.hibernate.envers.RelationTargetAuditMode.NOT_AUDITED)
     private Material material;
 
     @Column(name = "quantidade_solicitada", nullable = false)

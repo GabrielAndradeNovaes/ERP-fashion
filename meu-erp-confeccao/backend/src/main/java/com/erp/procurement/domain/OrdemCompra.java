@@ -23,6 +23,7 @@ public class OrdemCompra {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "empresa_id", nullable = false)
+    @org.hibernate.envers.Audited(targetAuditMode = org.hibernate.envers.RelationTargetAuditMode.NOT_AUDITED)
     private Empresa empresa;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
