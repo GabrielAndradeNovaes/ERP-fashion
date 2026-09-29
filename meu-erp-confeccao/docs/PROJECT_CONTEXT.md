@@ -26,6 +26,9 @@ A estrutura de dados precisa refletir a complexidade do chão de fábrica:
 
 ## 5. Regras de Desenvolvimento
 - A API será "API-First" (RESTful), visando integrações fáceis com e-commerces (Nuvemshop) e emissores fiscais (Bling).
-- Segurança rigorosa com JWT. O Token sempre conterá o `tenant_id` para roteamento no Spring Boot.
+- Segurança rigorosa com JWT. O Token sempre conterá o `tenant_id` para roteamento no Spring Boot, e é implementado um esquema duplo de **Access Token (15m)** e **Refresh Token (7d)**.
+- **Proteção contra Brute Force:** Endpoints sensíveis (como Login) utilizam a biblioteca **Bucket4j** para atomicidade e controle eficiente de Rate Limiting.
+- **Isolamento de Dados (RLS):** Utiliza-se um sistema robusto de isolamento a nível de linha via Hibernate Filters (`tenantFilter` no banco master, `empresaFilter` no tenant), prevenindo o vazamento de dados caso cláusulas WHERE não sejam explicitamente usadas.
+- **Auditoria de Dados:** O sistema de banco de dados utiliza o **Hibernate Envers** em entidades-chave do negócio (OrdemCompra, Fornecedor, Cliente, etc.) para registrar tabelas de histórico transparente (_Audit Trail_).
 - Manter acoplamento fraco entre os módulos lógicos do sistema.
 - **ADRs Obrigatórias:** Toda decisão técnica, nova feature, modelagem de BD ou alteração de arquitetura será documentada em `docs/ADR/` antes do desenvolvimento.
