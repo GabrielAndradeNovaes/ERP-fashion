@@ -7,6 +7,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "acessos_logs")
+@org.hibernate.annotations.Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 public class AcessoLog {
 
     @Id

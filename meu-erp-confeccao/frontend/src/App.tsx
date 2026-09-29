@@ -268,7 +268,7 @@ import { CreditCard } from 'lucide-react';
 const AdminSidebar = () => {
   const location = useLocation();
   const { user, logout } = useAuth();
-  const adminPrefix = window.location.hostname.split('.')[0] === 'admin' ? '' : '/admin';
+  const adminPrefix = (window.location.hostname.split('.')[0] === 'admin' || window.location.hostname === 'localhost') ? '' : '/admin';
   
   return (
     <div className="sidebar premium-card" style={{ 

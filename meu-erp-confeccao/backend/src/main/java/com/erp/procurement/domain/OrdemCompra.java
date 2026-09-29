@@ -13,6 +13,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "ordens_compra")
+@org.hibernate.envers.Audited
 @Filter(name = "empresaFilter", condition = "empresa_id IN (:empresaIds)")
 public class OrdemCompra {
 

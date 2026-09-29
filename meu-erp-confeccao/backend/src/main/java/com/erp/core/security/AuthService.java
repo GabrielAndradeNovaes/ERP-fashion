@@ -53,6 +53,7 @@ public class AuthService {
         userDetails.setEmpresas(empresas);
 
         String jwtToken = jwtService.generateToken(userDetails);
+        String refreshToken = jwtService.generateRefreshToken(userDetails);
         
         String tenantStatus = getTenantStatus(userDetails.getTenantId());
 
@@ -65,6 +66,7 @@ public class AuthService {
 
         return new AuthResponse(
                 jwtToken,
+                refreshToken,
                 userDetails.getUsuario().getNome(),
                 userDetails.getUsuario().getEmail(),
                 userDetails.getUsuario().getRole(),
@@ -152,5 +154,42 @@ public class AuthService {
             e.printStackTrace();
             throw new RuntimeException("Erro ao validar empresa do usuário", e);
         }
+    }
+
+    public AuthResponse refreshToken(String refreshToken) {
+        String userEmail = jwtService.extractUsername(refreshToken);
+        if (userEmail != null) {
+            UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsService.loadUserByUsername(userEmail);
+            if (jwtService.isTokenValid(refreshToken, userDetails)) {
+                
+                java.util.List<String> empresas = getEmpresas(userDetails.getUsuario().getId().toString(), userDetails.getTenantId());
+                userDetails.setEmpresas(empresas);
+                
+                String newAccessToken = jwtService.generateToken(userDetails);
+                String newRefreshToken = jwtService.generateRefreshToken(userDetails); // rotates refresh token
+                
+                String tenantStatus = getTenantStatus(userDetails.getTenantId());
+                String filialId = userDetails.getUsuario().getFilialPrincipalId() != null ? userDetails.getUsuario().getFilialPrincipalId().toString() : null;
+                java.util.List<String> permissoes = userDetails.getUsuario().getPermissoes() != null 
+                    ? new java.util.ArrayList<>(userDetails.getUsuario().getPermissoes()) 
+                    : new java.util.ArrayList<>();
+                java.util.List<String> modulosAtivos = getModulosAtivos(userDetails.getTenantId());
+
+                return new AuthResponse(
+                        newAccessToken,
+                        newRefreshToken,
+                        userDetails.getUsuario().getNome(),
+                        userDetails.getUsuario().getEmail(),
+                        userDetails.getUsuario().getRole(),
+                        userDetails.getTenantId(),
+                        tenantStatus,
+                        empresas,
+                        filialId,
+                        permissoes,
+                        modulosAtivos
+                );
+            }
+        }
+        throw new org.springframework.security.authentication.BadCredentialsException("Token de atualização inválido");
     }
 }

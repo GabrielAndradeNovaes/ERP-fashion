@@ -9,6 +9,7 @@ import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "clientes")
+@org.hibernate.envers.Audited
 @Filter(name = "empresaFilter", condition = "empresa_id IN (:empresaIds)")
 @SQLDelete(sql = "UPDATE clientes SET deleted = true WHERE id=?")
 public class Cliente {

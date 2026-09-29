@@ -1,43 +1,36 @@
 package com.erp.core.security;
 
-import org.springframework.data.redis.core.StringRedisTemplate;
+import io.github.bucket4j.Bandwidth;
+import io.github.bucket4j.Bucket;
+import io.github.bucket4j.Refill;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class LoginRateLimiterService {
 
-    private final StringRedisTemplate redisTemplate;
+    private final ConcurrentHashMap<String, Bucket> cache = new ConcurrentHashMap<>();
     
-    // Configurações: 5 tentativas a cada 15 minutos
-    private static final int MAX_ATTEMPTS = 5;
-    private static final Duration LOCK_TIME = Duration.ofMinutes(15);
-    private static final String PREFIX = "login_attempts:";
+    // Configurações: 5 tentativas, renovando 5 tentativas a cada 15 minutos
+    private final Bandwidth limit;
 
-    public LoginRateLimiterService(StringRedisTemplate redisTemplate) {
-        this.redisTemplate = redisTemplate;
+    public LoginRateLimiterService() {
+        Refill refill = Refill.intervally(5, Duration.ofMinutes(15));
+        this.limit = Bandwidth.classic(5, refill);
     }
 
     public void checkAndIncrement(String clientIp) {
-        String key = PREFIX + clientIp;
+        Bucket bucket = cache.computeIfAbsent(clientIp, k -> Bucket.builder().addLimit(limit).build());
         
-        String attemptsStr = redisTemplate.opsForValue().get(key);
-        int attempts = attemptsStr != null ? Integer.parseInt(attemptsStr) : 0;
-
-        if (attempts >= MAX_ATTEMPTS) {
+        if (!bucket.tryConsume(1)) {
             throw new RateLimitExceededException("Muitas tentativas de login. Tente novamente mais tarde.");
-        }
-
-        if (attempts == 0) {
-            redisTemplate.opsForValue().set(key, "1", LOCK_TIME);
-        } else {
-            redisTemplate.opsForValue().increment(key);
         }
     }
 
     public void reset(String clientIp) {
-        String key = PREFIX + clientIp;
-        redisTemplate.delete(key);
+        // Remove the bucket from cache to reset limit immediately
+        cache.remove(clientIp);
     }
 }

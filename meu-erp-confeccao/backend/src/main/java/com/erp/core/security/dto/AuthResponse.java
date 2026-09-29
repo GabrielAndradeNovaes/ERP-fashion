@@ -2,6 +2,7 @@ package com.erp.core.security.dto;
 
 public class AuthResponse {
     private String token;
+    private String refreshToken;
     private String nome;
     private String email;
     private String role;
@@ -12,8 +13,9 @@ public class AuthResponse {
     private java.util.List<String> permissoes;
     private java.util.List<String> modulosAtivos;
 
-    public AuthResponse(String token, String nome, String email, String role, String tenantId, String tenantStatus, java.util.List<String> empresas, String filialPrincipalId, java.util.List<String> permissoes, java.util.List<String> modulosAtivos) {
+    public AuthResponse(String token, String refreshToken, String nome, String email, String role, String tenantId, String tenantStatus, java.util.List<String> empresas, String filialPrincipalId, java.util.List<String> permissoes, java.util.List<String> modulosAtivos) {
         this.token = token;
+        this.refreshToken = refreshToken;
         this.nome = nome;
         this.email = email;
         this.role = role;
@@ -26,6 +28,7 @@ public class AuthResponse {
     }
 
     public String getToken() { return token; }
+    public String getRefreshToken() { return refreshToken; }
     public String getNome() { return nome; }
     public String getEmail() { return email; }
     public String getRole() { return role; }

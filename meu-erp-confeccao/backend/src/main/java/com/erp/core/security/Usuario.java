@@ -18,6 +18,7 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "usuarios", schema = "master")
+@org.hibernate.annotations.Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 public class Usuario {
 
     @Id
