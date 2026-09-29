@@ -5,6 +5,7 @@ import {
 } from '@mui/material';
 import { Search, Plus, Eye, CheckCircle, Clock } from 'lucide-react';
 import api from '../../api/axios';
+import NovoPedidoModal from './NovoPedidoModal';
 
 interface OrdemCompra {
   id: string;
@@ -20,6 +21,7 @@ export default function OrdensCompra() {
   const [ordens, setOrdens] = useState<OrdemCompra[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const fetchOrdens = async () => {
     try {
@@ -52,10 +54,21 @@ export default function OrdensCompra() {
     <Box sx={{ p: 3 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
         <Typography variant="h4" sx={{ fontWeight: 800 }}>Pedidos de Compra</Typography>
-        <Button variant="contained" color="primary" startIcon={<Plus size={20} />}>
+        <Button 
+          variant="contained" 
+          color="primary" 
+          startIcon={<Plus size={20} />}
+          onClick={() => setModalOpen(true)}
+        >
           Novo Pedido
         </Button>
       </Box>
+
+      <NovoPedidoModal 
+        open={modalOpen} 
+        onClose={() => setModalOpen(false)} 
+        onSuccess={fetchOrdens} 
+      />
 
       {/* Box de busca respeitando as regras do usuário:
           - Sem hover effect (sem scale ou shadow hover na caixa)
