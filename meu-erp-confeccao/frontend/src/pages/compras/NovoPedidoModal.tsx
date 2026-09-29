@@ -69,14 +69,39 @@ export default function NovoPedidoModal({ open, onClose, onSuccess }: NovoPedido
   };
 
   const handleSubmit = async () => {
+    if (!formData.fornecedorId) {
+      alert('Selecione um fornecedor.');
+      return;
+    }
+    
+    if (formData.itens.length === 0) {
+      alert('Adicione pelo menos um item ao pedido.');
+      return;
+    }
+
+    const hasInvalidItem = formData.itens.some(item => !item.materialId || item.quantidadeSolicitada <= 0);
+    if (hasInvalidItem) {
+      alert('Verifique os itens: material é obrigatório e quantidade deve ser maior que zero.');
+      return;
+    }
+
     try {
       setLoading(true);
-      await api.post('/procurement/ordens-compra', formData);
+      // Clean up empty strings that should be null for backend
+      const payload = {
+        ...formData,
+        dataPrevisaoEntrega: formData.dataPrevisaoEntrega === '' ? null : formData.dataPrevisaoEntrega,
+        numeroPedido: formData.numeroPedido === '' ? null : formData.numeroPedido,
+        observacoes: formData.observacoes === '' ? null : formData.observacoes,
+      };
+
+      await api.post('/procurement/ordens-compra', payload);
       onSuccess();
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      alert('Erro ao salvar o pedido.');
+      const msg = error.response?.data?.message || 'Erro ao salvar o pedido.';
+      alert(msg);
     } finally {
       setLoading(false);
     }

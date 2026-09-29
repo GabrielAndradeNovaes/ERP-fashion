@@ -61,6 +61,9 @@ public class OrdemCompraService {
 
     @Transactional
     public OrdemCompraResponse criar(OrdemCompraRequest request) {
+        if (request.fornecedorId() == null) {
+            throw new RuntimeException("O ID do fornecedor é obrigatório.");
+        }
         Fornecedor fornecedor = fornecedorRepository.findById(request.fornecedorId())
                 .orElseThrow(() -> new RuntimeException("Fornecedor não encontrado"));
 
@@ -84,6 +87,9 @@ public class OrdemCompraService {
 
         if (request.itens() != null) {
             for (var itemReq : request.itens()) {
+                if (itemReq.materialId() == null) {
+                    throw new RuntimeException("O ID do material é obrigatório para todos os itens.");
+                }
                 Material material = materialRepository.findById(itemReq.materialId())
                         .orElseThrow(() -> new RuntimeException("Material não encontrado: " + itemReq.materialId()));
 
