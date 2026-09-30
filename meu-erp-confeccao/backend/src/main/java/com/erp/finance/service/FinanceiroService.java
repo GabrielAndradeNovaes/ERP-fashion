@@ -73,10 +73,18 @@ public class FinanceiroService {
     @Transactional
     public TituloPagar criarTituloPagarManual(com.erp.finance.dto.TituloRequest request) {
         java.util.List<UUID> empresas = com.erp.core.tenant.EmpresaContext.getEmpresas();
-        if (empresas.isEmpty()) throw new IllegalStateException("Nenhuma empresa no contexto");
-        
-        Empresa empresa = empresaRepository.findById(empresas.get(0))
-                .orElseThrow(() -> new IllegalArgumentException("Empresa não encontrada"));
+        Empresa empresa;
+        if (empresas != null && !empresas.isEmpty()) {
+            empresa = empresaRepository.findById(empresas.get(0))
+                    .orElseThrow(() -> new IllegalArgumentException("Empresa não encontrada"));
+        } else {
+            java.util.List<Empresa> todasEmpresas = empresaRepository.findAll();
+            if (!todasEmpresas.isEmpty()) {
+                empresa = todasEmpresas.get(0);
+            } else {
+                throw new IllegalStateException("Nenhuma empresa no contexto e nenhuma empresa cadastrada");
+            }
+        }
 
         TituloPagar titulo = new TituloPagar();
         titulo.setEmpresa(empresa);
@@ -96,10 +104,18 @@ public class FinanceiroService {
     @Transactional
     public com.erp.finance.domain.TituloReceber criarTituloReceberManual(com.erp.finance.dto.TituloRequest request) {
         java.util.List<UUID> empresas = com.erp.core.tenant.EmpresaContext.getEmpresas();
-        if (empresas.isEmpty()) throw new IllegalStateException("Nenhuma empresa no contexto");
-        
-        Empresa empresa = empresaRepository.findById(empresas.get(0))
-                .orElseThrow(() -> new IllegalArgumentException("Empresa não encontrada"));
+        Empresa empresa;
+        if (empresas != null && !empresas.isEmpty()) {
+            empresa = empresaRepository.findById(empresas.get(0))
+                    .orElseThrow(() -> new IllegalArgumentException("Empresa não encontrada"));
+        } else {
+            java.util.List<Empresa> todasEmpresas = empresaRepository.findAll();
+            if (!todasEmpresas.isEmpty()) {
+                empresa = todasEmpresas.get(0);
+            } else {
+                throw new IllegalStateException("Nenhuma empresa no contexto e nenhuma empresa cadastrada");
+            }
+        }
 
         com.erp.finance.domain.TituloReceber titulo = new com.erp.finance.domain.TituloReceber();
         titulo.setEmpresa(empresa);

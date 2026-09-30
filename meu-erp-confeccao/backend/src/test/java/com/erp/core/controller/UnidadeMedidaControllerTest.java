@@ -29,8 +29,8 @@ public class UnidadeMedidaControllerTest {
 
     @Test
     void testCreate() {
-        UnidadeMedidaRequest req = new UnidadeMedidaRequest(null, null, null, null, null, null);
-        UnidadeMedidaResponse res = new UnidadeMedidaResponse(null, null, null, null, null, null, null);
+        UnidadeMedidaRequest req = new UnidadeMedidaRequest(null, null, null, null, null, null, null);
+        UnidadeMedidaResponse res = new UnidadeMedidaResponse(null, null, null, null, null, null, null, null);
         when(service.create(req)).thenReturn(res);
         ResponseEntity<UnidadeMedidaResponse> result = controller.create(req);
         assertEquals(HttpStatus.CREATED, result.getStatusCode());
@@ -39,7 +39,7 @@ public class UnidadeMedidaControllerTest {
 
     @Test
     void testGetAll() {
-        List<UnidadeMedidaResponse> list = Collections.singletonList(new UnidadeMedidaResponse(null, null, null, null, null, null, null));
+        List<UnidadeMedidaResponse> list = Collections.singletonList(new UnidadeMedidaResponse(null, null, null, null, null, null, null, null));
         when(service.getAll()).thenReturn(list);
         ResponseEntity<List<UnidadeMedidaResponse>> result = controller.getAll();
         assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -49,7 +49,7 @@ public class UnidadeMedidaControllerTest {
     @Test
     void testGetById() {
         UUID id = UUID.randomUUID();
-        UnidadeMedidaResponse res = new UnidadeMedidaResponse(null, null, null, null, null, null, null);
+        UnidadeMedidaResponse res = new UnidadeMedidaResponse(null, null, null, null, null, null, null, null);
         when(service.getById(id)).thenReturn(res);
         ResponseEntity<UnidadeMedidaResponse> result = controller.getById(id);
         assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -59,8 +59,8 @@ public class UnidadeMedidaControllerTest {
     @Test
     void testUpdate() {
         UUID id = UUID.randomUUID();
-        UnidadeMedidaRequest req = new UnidadeMedidaRequest(null, null, null, null, null, null);
-        UnidadeMedidaResponse res = new UnidadeMedidaResponse(null, null, null, null, null, null, null);
+        UnidadeMedidaRequest req = new UnidadeMedidaRequest(null, null, null, null, null, null, null);
+        UnidadeMedidaResponse res = new UnidadeMedidaResponse(null, null, null, null, null, null, null, null);
         when(service.update(id, req)).thenReturn(res);
         ResponseEntity<UnidadeMedidaResponse> result = controller.update(id, req);
         assertEquals(HttpStatus.OK, result.getStatusCode());

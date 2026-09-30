@@ -80,7 +80,12 @@ public class OrdemCompraService {
                     .orElseThrow(() -> new RuntimeException("Empresa não encontrada no banco"));
             oc.setEmpresa(empresa);
         } else {
-            throw new RuntimeException("Nenhuma empresa no contexto da requisição");
+            java.util.List<Empresa> todasEmpresas = empresaRepository.findAll();
+            if (!todasEmpresas.isEmpty()) {
+                oc.setEmpresa(todasEmpresas.get(0));
+            } else {
+                throw new RuntimeException("Nenhuma empresa no contexto da requisição e nenhuma empresa cadastrada.");
+            }
         }
 
         BigDecimal valorTotal = BigDecimal.ZERO;

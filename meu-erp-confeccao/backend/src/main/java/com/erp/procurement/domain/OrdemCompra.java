@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "ordens_compra")
-@org.hibernate.envers.Audited
+
 @Filter(name = "empresaFilter", condition = "empresa_id IN (:empresaIds)")
 public class OrdemCompra {
 
@@ -23,7 +23,7 @@ public class OrdemCompra {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "empresa_id", nullable = false)
-    @org.hibernate.envers.Audited(targetAuditMode = org.hibernate.envers.RelationTargetAuditMode.NOT_AUDITED)
+
     private Empresa empresa;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

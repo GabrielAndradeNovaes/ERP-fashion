@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/production/produtividade")
+@RequestMapping(value = "/api/production/produtividade", produces = "application/json")
 public class ProdutividadeController {
 
     private final ProdutividadeService produtividadeService;

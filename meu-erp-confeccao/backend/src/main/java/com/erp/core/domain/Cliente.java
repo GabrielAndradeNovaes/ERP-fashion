@@ -9,14 +9,14 @@ import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "clientes")
-@org.hibernate.envers.Audited
+
 @Filter(name = "empresaFilter", condition = "empresa_id IN (:empresaIds)")
 @SQLDelete(sql = "UPDATE clientes SET deleted = true WHERE id=?")
 public class Cliente {
 
     @jakarta.persistence.ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
     @jakarta.persistence.JoinColumn(name = "empresa_id")
-    @org.hibernate.envers.Audited(targetAuditMode = org.hibernate.envers.RelationTargetAuditMode.NOT_AUDITED)
+
     private Empresa empresa;
     
     public Empresa getEmpresa() { return empresa; }

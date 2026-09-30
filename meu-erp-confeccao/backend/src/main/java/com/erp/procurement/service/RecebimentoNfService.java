@@ -80,11 +80,18 @@ public class RecebimentoNfService {
 
         // Buscar a empresa do contexto
         List<UUID> empresas = EmpresaContext.getEmpresas();
-        if (empresas == null || empresas.isEmpty()) {
-            throw new RuntimeException("Nenhuma empresa no contexto da requisição");
+        Empresa empresa;
+        if (empresas != null && !empresas.isEmpty()) {
+            empresa = empresaRepository.findById(empresas.get(0))
+                    .orElseThrow(() -> new RuntimeException("Empresa não encontrada no banco"));
+        } else {
+            java.util.List<Empresa> todasEmpresas = empresaRepository.findAll();
+            if (!todasEmpresas.isEmpty()) {
+                empresa = todasEmpresas.get(0);
+            } else {
+                throw new RuntimeException("Nenhuma empresa no contexto da requisição e nenhuma empresa cadastrada.");
+            }
         }
-        Empresa empresa = empresaRepository.findById(empresas.get(0))
-                .orElseThrow(() -> new RuntimeException("Empresa não encontrada no banco"));
 
         RecebimentoNf recebimento = new RecebimentoNf();
         recebimento.setEmpresa(empresa);

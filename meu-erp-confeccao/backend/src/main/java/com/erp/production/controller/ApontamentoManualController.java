@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/production/apontamentos-manuais")
+@RequestMapping(value = "/api/production/apontamentos-manuais", produces = "application/json")
 public class ApontamentoManualController {
 
     private final ApontamentoManualRepository repository;
@@ -44,6 +44,11 @@ public class ApontamentoManualController {
         if (empresas != null && !empresas.isEmpty()) {
             Empresa empresa = entityManager.getReference(Empresa.class, empresas.get(0));
             apontamento.setEmpresa(empresa);
+        } else {
+            java.util.List<Empresa> todasEmpresas = entityManager.createQuery("SELECT e FROM Empresa e", Empresa.class).getResultList();
+            if (!todasEmpresas.isEmpty()) {
+                apontamento.setEmpresa(todasEmpresas.get(0));
+            }
         }
 
         ApontamentoManual salvo = repository.save(apontamento);

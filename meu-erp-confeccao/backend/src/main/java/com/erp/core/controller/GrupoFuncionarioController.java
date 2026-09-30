@@ -34,6 +34,11 @@ public class GrupoFuncionarioController {
         if (empresas != null && !empresas.isEmpty()) {
             Empresa empresa = entityManager.getReference(Empresa.class, empresas.get(0));
             grupo.setEmpresa(empresa);
+        } else {
+            java.util.List<Empresa> todasEmpresas = entityManager.createQuery("SELECT e FROM Empresa e", Empresa.class).getResultList();
+            if (!todasEmpresas.isEmpty()) {
+                grupo.setEmpresa(todasEmpresas.get(0));
+            }
         }
         return repository.save(grupo);
     }

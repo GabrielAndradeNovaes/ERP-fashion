@@ -29,7 +29,7 @@ public class AuthControllerTest {
     @Test
     void testLogin() {
         AuthRequest req = new AuthRequest();
-        AuthResponse res = new AuthResponse("mocked_token", "Usuário Teste", "teste@empresa.com", "ADMIN", "tenant_teste", "ATIVO", null, null, null, null);
+        AuthResponse res = new AuthResponse("mocked_token", "mocked_refresh_token", "Usuário Teste", "teste@empresa.com", "ADMIN", "tenant_teste", "ATIVO", null, null, null, null);
         
         jakarta.servlet.http.HttpServletRequest httpRequest = mock(jakarta.servlet.http.HttpServletRequest.class);
         when(httpRequest.getRemoteAddr()).thenReturn("127.0.0.1");

@@ -44,7 +44,8 @@ public class UnidadeMedidaServiceImplTest {
                 null,
                 null,
                 null,
-                "m"
+                "m",
+                null
         );
     }
 

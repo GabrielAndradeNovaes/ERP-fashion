@@ -23,6 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import com.erp.production.repository.OrdemProducaoRepository;
 import com.erp.production.service.MotorCalculoSamService;
 import com.erp.production.dto.CalculoSamInput;
 import com.erp.production.dto.CalculoSamOutput;
@@ -52,6 +53,8 @@ public class FichaTecnicaServiceImplTest {
     private FichaTecnicaOperacaoRepository fichaTecnicaOperacaoRepository;
     @Mock
     private MotorCalculoSamService motorCalculoSamService;
+    @Mock
+    private OrdemProducaoRepository ordemProducaoRepository;
 
     @InjectMocks
     private FichaTecnicaServiceImpl service;

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/funcionarios")
+@RequestMapping(value = "/api/funcionarios", produces = "application/json")
 public class FuncionarioController {
 
     private final FuncionarioRepository funcionarioRepository;
@@ -41,6 +41,11 @@ public class FuncionarioController {
             java.util.List<java.util.UUID> empresas = com.erp.core.tenant.EmpresaContext.getEmpresas();
             if (empresas != null && !empresas.isEmpty()) {
                 novo.setEmpresa(entityManager.getReference(com.erp.core.domain.Empresa.class, empresas.get(0)));
+            } else {
+                java.util.List<com.erp.core.domain.Empresa> todasEmpresas = entityManager.createQuery("SELECT e FROM Empresa e", com.erp.core.domain.Empresa.class).getResultList();
+                if (!todasEmpresas.isEmpty()) {
+                    novo.setEmpresa(todasEmpresas.get(0));
+                }
             }
             return grupoFuncionarioRepository.save(novo);
         }

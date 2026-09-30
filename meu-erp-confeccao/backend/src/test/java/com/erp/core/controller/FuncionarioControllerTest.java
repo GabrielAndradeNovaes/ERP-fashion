@@ -54,7 +54,8 @@ public class FuncionarioControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+        org.springframework.http.converter.json.MappingJackson2HttpMessageConverter converter = new org.springframework.http.converter.json.MappingJackson2HttpMessageConverter();
+        mockMvc = MockMvcBuilders.standaloneSetup(controller).setMessageConverters(converter).build();
 
         grupo = new GrupoFuncionario();
         grupo.setId(UUID.randomUUID());
@@ -73,7 +74,7 @@ public class FuncionarioControllerTest {
     void shouldListarTodos() throws Exception {
         when(funcionarioRepository.findAll()).thenReturn(List.of(funcionario));
 
-        mockMvc.perform(get("/api/funcionarios"))
+        mockMvc.perform(get("/api/funcionarios").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].nome").value("Maria"));
     }

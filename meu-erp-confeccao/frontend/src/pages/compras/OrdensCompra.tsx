@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Box, Typography, Button, TextField, Table, TableBody, TableCell, 
-  TableContainer, TableHead, TableRow, Paper, IconButton, Chip 
+  TableContainer, TableHead, TableRow, Paper, IconButton, Chip, Tooltip 
 } from '@mui/material';
-import { Search, Plus, Eye, CheckCircle, Clock } from 'lucide-react';
+import { Search, Plus, Eye, CheckCircle, Clock, XCircle, Send } from 'lucide-react';
 import api from '../../api/axios';
 import NovoPedidoModal from './NovoPedidoModal';
+import toast, { Toaster } from 'react-hot-toast';
 
 interface OrdemCompra {
   id: string;
@@ -41,17 +42,33 @@ export default function OrdensCompra() {
     fetchOrdens();
   }, []); // eslint-disable-line
 
+  const handleStatusChange = async (id: string, novoStatus: string) => {
+    try {
+      await api.patch(`/procurement/ordens-compra/${id}/status`, null, {
+        params: { status: novoStatus }
+      });
+      toast.success(`Ordem de compra atualizada para ${novoStatus}`);
+      fetchOrdens();
+    } catch (error) {
+      console.error(error);
+      toast.error('Erro ao atualizar status');
+    }
+  };
+
   const getStatusChip = (status: string) => {
     switch(status) {
-      case 'PENDENTE': return <Chip label="Pendente" color="warning" size="small" icon={<Clock size={16} />} />;
-      case 'ENTREGUE': return <Chip label="Entregue" color="success" size="small" icon={<CheckCircle size={16} />} />;
-      case 'CANCELADO': return <Chip label="Cancelado" color="error" size="small" />;
+      case 'RASCUNHO': return <Chip label="Rascunho" color="default" size="small" icon={<Clock size={16} />} />;
+      case 'EMITIDA': return <Chip label="Emitida" color="info" size="small" icon={<Send size={16} />} />;
+      case 'PARCIALMENTE_RECEBIDA': return <Chip label="Parcial" color="warning" size="small" icon={<Clock size={16} />} />;
+      case 'RECEBIDA': return <Chip label="Recebida" color="success" size="small" icon={<CheckCircle size={16} />} />;
+      case 'CANCELADA': return <Chip label="Cancelada" color="error" size="small" icon={<XCircle size={16} />} />;
       default: return <Chip label={status} size="small" />;
     }
   };
 
   return (
     <Box sx={{ p: 3 }}>
+      <Toaster position="top-right" />
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
         <Typography variant="h4" sx={{ fontWeight: 800 }}>Pedidos de Compra</Typography>
         <Button 
@@ -134,9 +151,32 @@ export default function OrdensCompra() {
                   </TableCell>
                   <TableCell>{getStatusChip(oc.status)}</TableCell>
                   <TableCell align="right">
-                    <IconButton size="small" color="primary">
-                      <Eye size={20} />
-                    </IconButton>
+                    {oc.status === 'RASCUNHO' && (
+                      <>
+                        <Tooltip title="Emitir Pedido">
+                          <IconButton size="small" color="info" onClick={() => handleStatusChange(oc.id, 'EMITIDA')}>
+                            <Send size={20} />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Cancelar Pedido">
+                          <IconButton size="small" color="error" onClick={() => handleStatusChange(oc.id, 'CANCELADA')}>
+                            <XCircle size={20} />
+                          </IconButton>
+                        </Tooltip>
+                      </>
+                    )}
+                    {oc.status === 'EMITIDA' && (
+                      <Tooltip title="Cancelar Pedido">
+                        <IconButton size="small" color="error" onClick={() => handleStatusChange(oc.id, 'CANCELADA')}>
+                          <XCircle size={20} />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                    <Tooltip title="Visualizar Detalhes">
+                      <IconButton size="small" color="primary">
+                        <Eye size={20} />
+                      </IconButton>
+                    </Tooltip>
                   </TableCell>
                 </TableRow>
               ))

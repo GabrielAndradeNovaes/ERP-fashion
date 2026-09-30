@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/financeiro/titulos")
+@RequestMapping(value = "/api/financeiro/titulos", produces = "application/json")
 public class TituloPagarController {
 
     private final FinanceiroService financeiroService;
