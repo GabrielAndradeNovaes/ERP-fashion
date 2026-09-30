@@ -32,3 +32,7 @@ A estrutura de dados precisa refletir a complexidade do ch√£o de f√°brica:
 - **Auditoria de Dados:** O sistema de banco de dados utiliza o **Hibernate Envers** em entidades-chave do neg√≥cio (OrdemCompra, Fornecedor, Cliente, etc.) para registrar tabelas de hist√≥rico transparente (_Audit Trail_).
 - Manter acoplamento fraco entre os m√≥dulos l√≥gicos do sistema.
 - **ADRs Obrigat√≥rias:** Toda decis√£o t√©cnica, nova feature, modelagem de BD ou altera√ß√£o de arquitetura ser√° documentada em `docs/ADR/` antes do desenvolvimento.
+
+## ⁄ltimas AtualizaÁıes (30/09/2026)
+- **Tratamento Multi-tenant p/ SUPERADMIN**: Adicionado fallback em Controllers e Services (OrdemCompraService, FinanceiroService, FornecedorServiceImpl, etc) para utilizar a Empresa matriz do tenant (via empresaRepository.findAll().get(0)) caso o EmpresaContext.getEmpresas() venha vazio, resolvendo Internal Server Errors quando um usu·rio GLOBAL cria registros no tenant.
+- **Frontend de Compras**: Implementada a renderizaÁ„o correta das tags de OrdemCompraStatus e criados os botıes/aÁıes (Emitir e Cancelar) com chamadas ‡ API via Axios e notificaÁıes com eact-hot-toast.
