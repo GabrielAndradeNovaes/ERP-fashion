@@ -9,7 +9,9 @@ O sistema segue o modelo **SaaS Multi-Tenant** utilizando a abordagem **Schema-p
 - **Banco de Dados:** PostgreSQL 15 (Isolamento lógico de clientes por schemas, ex: `tenant_1`, `tenant_c2b84f0e`)
 - **Autenticação:** JWT com extração dinâmica do `tenantId` e escopos de permissões.
 
-A interceptação de requisições e a resolução do schema ativo é feita de forma transparente pela integração do JWT com a camada do Hibernate/JPA, eliminando a necessidade de repasse manual de cabeçalhos nas requisições do front-end.
+A interceptação de requisições e a resolução do schema ativo é feita de forma transparente pela integração do JWT com a camada do Hibernate/JPA, eliminando a necessidade de repasse manual de cabeçalhos nas requisições do front-end. 
+
+**Resolução de Contexto (Empresa Context):** O sistema isola dados via Hibernate Filters (`empresaFilter`) baseado nas empresas vinculadas ao usuário. No caso de acesso de usuários tipo `SUPERADMIN` (que não possuem vínculo explícito em `usuario_empresas`), os serviços executam um _fallback_ dinâmico, utilizando a empresa matriz (`empresaRepository.findAll().get(0)`) do respectivo tenant para evitar erros ao persistir novos cadastros (como Compras e Cadastros Base).
 
 ---
 
@@ -97,7 +99,7 @@ Gestão de pedidos de suprimentos feitos aos fornecedores.
 - `id` (UUID, PK): Identificador da ordem.
 - `numero_pedido` (Varchar): Número do pedido para acompanhamento.
 - `fornecedor_id` (UUID): Vínculo com o fornecedor (empresa).
-- `status` (Enum): PENDENTE, ENTREGUE, CANCELADO.
+- `status` (Enum): RASCUNHO, EMITIDA, PARCIALMENTE_RECEBIDA, RECEBIDA, CANCELADA. (Pedidos iniciam como Rascunho, podem ser emitidos para os fornecedores ou cancelados).
 - Itens vinculam a materiais com quantidades solicitadas e recebidas, além de preço unitário e total.
 
 #### Tabela: `recebimentos_nf` e `recebimentos_nf_itens`
@@ -140,7 +142,7 @@ Roteiro de costura e operações. Agora suporta cálculo exato do Tempo Padrão 
 
 ---
 
-### 2.4. Módulo: Ordens de Produção (PCP) (Schema Tenant)
+### 2.5. Módulo: Ordens de Produção (PCP) (Schema Tenant)
 
 #### Tabela: `ordens_producao`
 Solicitação de fabricação de um produto.
@@ -167,7 +169,7 @@ Tickets operacionais destacáveis de cada pacote para leitura (bipagem) de produ
 
 ---
 
-### 2.5. Módulo: RH e Produtividade (Schema Tenant)
+### 2.6. Módulo: RH e Produtividade (Schema Tenant)
 
 #### Tabela: `funcionarios`
 Colaboradores do chão de fábrica (costureiras, cortadores).
@@ -193,7 +195,7 @@ Registro de leitura do cupom (bipagem) ou apontamento de tempo manual pelas cost
 
 ---
 
-### 2.6. Módulo: Financeiro (Schema Tenant)
+### 2.7. Módulo: Financeiro (Schema Tenant)
 
 #### Tabela: `titulos_receber`
 Contas a receber dos clientes.
@@ -228,7 +230,7 @@ Todos os endpoints requerem autenticação JWT (`Authorization: Bearer <token>`)
 | Tenants | `/api/admin/tenants` | Cadastro e setup de novos schemas de banco para empresas. |
 | Catálogo | `/api/catalog/produtos` | Gerencia produtos e SKUs. |
 | Estoque | `/api/inventory/materiais` | Gerencia insumos. |
-| Compras | `/api/procurement/ordens-compra` | Gestão de ordens de compra. |
+| Compras | `/api/procurement/ordens-compra` | Gestão de ordens de compra e aprovações. |
 | NF de Entrada | `/api/procurement/nf` | Processamento de NFe via upload de XML. |
 | Ficha Técnica | `/api/production/fichas-tecnicas` | Configura materiais e roteiro (operações). |
 | Produção | `/api/production/ordens` | Criação, listagem e alteração de status de OPs. |
@@ -243,7 +245,10 @@ Todos os endpoints requerem autenticação JWT (`Authorization: Bearer <token>`)
 
 ---
 
-## 4. Próximos Passos (Roadmap Técnico)
+## 4. Auditoria de Dados
+Atualmente, as anotações do Hibernate Envers (`@Audited`) foram temporariamente desabilitadas para as entidades principais (OrdemCompra, Fornecedor, Cliente, OrdemCompraItem) em função de conflitos de migração de esquemas com tabelas _audit trail_. 
+
+## 5. Próximos Passos (Roadmap Técnico)
 
 1. **Gestão de Facções:** Expandir o sistema para despachar OPs fisicamente para empresas terceirizadas (Facções) e controlar o retorno.
 2. **Gestão Financeira/Custos:** Calcular o custo final da OP cruzando com custos fixos e variáveis, comparando com o previsto na ficha técnica.

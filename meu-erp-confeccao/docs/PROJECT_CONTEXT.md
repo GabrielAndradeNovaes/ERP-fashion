@@ -5,8 +5,8 @@ O sistema será um ERP comercial (SaaS) vendido em massa para pequenas e médias
 
 ## 2. Arquitetura Multi-Tenant
 Para garantir escalabilidade, segurança e suporte a planos Enterprise, adotamos o padrão **Schema-per-Tenant** com um Banco Master de roteamento na mesma instância do PostgreSQL.
-- **Schema Master:** Guarda os cadastros das empresas contratantes (`clientes_tenant`), usuários de acesso e a estrutura lógica do SaaS.
-- **Tenant Schema (Schema do Cliente):** Cada cliente possui seu próprio schema relacional isolado (ex: `tenant_1`, `tenant_c2b84f0e`), contendo suas tabelas de produtos, estoque e ordens de produção. Isso facilita manutenções e garante isolamento sem o custo operacional de múltiplos bancos físicos.
+- **Schema Master:** Guarda os cadastros das empresas contratantes (clientes_tenant), usuários de acesso e a estrutura lógica do SaaS.
+- **Tenant Schema (Schema do Cliente):** Cada cliente possui seu próprio schema relacional isolado (ex: tenant_1, tenant_c2b84f0e), contendo suas tabelas de produtos, estoque e ordens de produção. Isso facilita manutenções e garante isolamento sem o custo operacional de múltiplos bancos físicos.
 
 ## 3. Stack Tecnológica
 - **Backend:** Java 17+ com Spring Boot 3. (Escolhido pela robustez corporativa, tipagem estática e suporte nativo a transações complexas e roteamento multi-tenant).
@@ -18,21 +18,21 @@ Para garantir escalabilidade, segurança e suporte a planos Enterprise, adotamos
 
 ## 4. Modelagem Core (O Domínio Têxtil)
 A estrutura de dados precisa refletir a complexidade do chão de fábrica:
-- **Catálogo Base:** Tabelas para `produtos_base` (o modelo genérico), `atributos_cores` e `atributos_tamanhos`.
-- **SKUs (Grade):** Tabela `produtos_skus` que materializa o cruzamento do produto base com cor e tamanho (ex: Camiseta Gola V - Azul - M).
-- **Compras e Suprimentos:** Gestão de pedidos a fornecedores (`ordens_compra`), itens aguardados, e importação de notas fiscais (`recebimentos_nf`) para dar entrada automática em materiais.
-- **Ficha Técnica (BOM):** Tabelas `fichas_tecnicas` (cabeçalho e versão) e `fichas_tecnicas_materiais` (ingredientes). O consumo de material varia dependendo do tamanho e cor da peça que será produzida.
+- **Catálogo Base:** Tabelas para produtos_base (o modelo genérico), atributos_cores e atributos_tamanhos.
+- **SKUs (Grade):** Tabela produtos_skus que materializa o cruzamento do produto base com cor e tamanho (ex: Camiseta Gola V - Azul - M).
+- **Compras e Suprimentos:** Gestão de pedidos a fornecedores (ordens_compra), itens aguardados, e importação de notas fiscais (recebimentos_nf) para dar entrada automática em materiais.
+- **Ficha Técnica (BOM):** Tabelas fichas_tecnicas (cabeçalho e versão) e fichas_tecnicas_materiais (ingredientes). O consumo de material varia dependendo do tamanho e cor da peça que será produzida.
 - **PCP e Estoque:** Movimentação transacional rigorosa para baixar tecido em rolos e gerar ordens de corte e costura (interna ou via Facções).
 
 ## 5. Regras de Desenvolvimento
-- A API será "API-First" (RESTful), visando integrações fáceis com e-commerces (Nuvemshop) e emissores fiscais (Bling).
-- Segurança rigorosa com JWT. O Token sempre conterá o `tenant_id` para roteamento no Spring Boot, e é implementado um esquema duplo de **Access Token (15m)** e **Refresh Token (7d)**.
+- A API será API-First (RESTful), visando integrações fáceis com e-commerces (Nuvemshop) e emissores fiscais (Bling).
+- Segurança rigorosa com JWT. O Token sempre conterá o tenant_id para roteamento no Spring Boot, e é implementado um esquema duplo de **Access Token (15m)** e **Refresh Token (7d)**.
 - **Proteção contra Brute Force:** Endpoints sensíveis (como Login) utilizam a biblioteca **Bucket4j** para atomicidade e controle eficiente de Rate Limiting.
-- **Isolamento de Dados (RLS):** Utiliza-se um sistema robusto de isolamento a nível de linha via Hibernate Filters (`tenantFilter` no banco master, `empresaFilter` no tenant), prevenindo o vazamento de dados caso cláusulas WHERE não sejam explicitamente usadas.
-- **Auditoria de Dados:** O sistema de banco de dados utiliza o **Hibernate Envers** em entidades-chave do negócio (OrdemCompra, Fornecedor, Cliente, etc.) para registrar tabelas de histórico transparente (_Audit Trail_).
+- **Isolamento de Dados (RLS):** Utiliza-se um sistema robusto de isolamento a nível de linha via Hibernate Filters (tenantFilter no banco master, empresaFilter no tenant), prevenindo o vazamento de dados caso cláusulas WHERE não sejam explicitamente usadas.
 - Manter acoplamento fraco entre os módulos lógicos do sistema.
-- **ADRs Obrigatórias:** Toda decisão técnica, nova feature, modelagem de BD ou alteração de arquitetura será documentada em `docs/ADR/` antes do desenvolvimento.
+- **ADRs Obrigatórias:** Toda decisão técnica, nova feature, modelagem de BD ou alteração de arquitetura será documentada em docs/ADR/ antes do desenvolvimento.
 
-## �ltimas Atualiza��es (30/09/2026)
-- **Tratamento Multi-tenant p/ SUPERADMIN**: Adicionado fallback em Controllers e Services (OrdemCompraService, FinanceiroService, FornecedorServiceImpl, etc) para utilizar a Empresa matriz do tenant (via empresaRepository.findAll().get(0)) caso o EmpresaContext.getEmpresas() venha vazio, resolvendo Internal Server Errors quando um usu�rio GLOBAL cria registros no tenant.
-- **Frontend de Compras**: Implementada a renderiza��o correta das tags de OrdemCompraStatus e criados os bot�es/a��es (Emitir e Cancelar) com chamadas � API via Axios e notifica��es com eact-hot-toast.
+## Últimas Atualizações (Outubro/2026)
+- **Tratamento Multi-tenant p/ SUPERADMIN**: Adicionado fallback em Controllers e Services (OrdemCompraService, FinanceiroService, FornecedorServiceImpl, etc) para utilizar a Empresa matriz do tenant caso o contexto venha vazio, resolvendo Internal Server Errors quando um usuário GLOBAL cria registros no tenant.
+- **Remoção de Auditoria Envers**: Removidas anotações @Audited de Fornecedor, Cliente e OrdemCompra temporariamente para estabilizar persistência.
+- **Frontend de Compras**: Implementada a renderização correta das tags de OrdemCompraStatus e criados os botões/ações (Emitir e Cancelar) com chamadas à API via Axios e notificações com react-hot-toast.
