@@ -1,51 +1,58 @@
-# TCC: Resumo e Estrutura do Artigo (Monografia)
+# TCC: Estrutura do Artigo e Monografia
 
-Este documento contém a estrutura base e os textos de apoio para a escrita do Trabalho de Conclusão de Curso (TCC) focado no Fashion ERP.
+Este documento detalha a estrutura da monografia baseada no viés de "Transparência nas Relações de Trabalho e Inclusão Digital" aplicado à indústria de confecção têxtil.
 
 ---
 
-## 1. Introdução e Contextualização
-A indústria de confecção de vestuário é um dos setores mais tradicionais e relevantes da economia, sendo caracterizada por uma cadeia produtiva fragmentada e intensiva em mão de obra. Pequenas e médias empresas (PMEs) desse setor enfrentam desafios diários em relação ao controle de suprimentos, gestão de engenharia de produto (fichas técnicas) e coordenação do chão de fábrica e das oficinas terceirizadas (facções). 
-O Fashion ERP surge como uma plataforma SaaS (Software as a Service) desenvolvida para digitalizar e otimizar a gestão das PMEs de confecção, oferecendo ferramentas de grande porte a um custo acessível mediante infraestrutura em nuvem compartilhada.
+## 1. Título Provisório
+**Transparência e Rastreabilidade no Setor Têxtil: Uma Abordagem SaaS Multi-Tenant para a Inclusão Digital e Formalização do Chão de Fábrica.**
 
-## 2. Problema de Pesquisa
-"Como a adoção de um sistema ERP com arquitetura SaaS Multi-Tenant pode solucionar os gargalos de apontamento de produtividade e controle de estoque dimensional (grades de cor e tamanho) em pequenas e médias indústrias de confecção?"
+## 2. Tema e Delimitação
+O trabalho aborda o desenvolvimento de uma arquitetura de software Multi-Tenant (SaaS) aplicada à gestão de Planejamento e Controle de Produção (PCP) em micro e pequenas facções têxteis. O foco será demonstrar como a digitalização do apontamento de produtividade (via código de barras) resolve problemas crônicos de subnotificação de trabalho e informalidade.
 
-## 3. Justificativa
-A maioria dos softwares de gestão disponíveis no mercado são generalistas. Eles não lidam bem com a matriz dimensional do setor têxtil, onde uma única camiseta gera múltiplos SKUs devido à combinação de cores e tamanhos. Além disso, a dificuldade em calcular o custo de produção exato (Standard Allowed Minute - SAM) e controlar as peças que vão e voltam de oficinas terceirizadas frequentemente resulta em desperdício de insumos e atrasos na entrega. O projeto justifica-se por trazer uma modelagem de domínio altamente especialista para a indústria do vestuário, unida a uma arquitetura de software moderna.
+## 3. Problemática (A Pergunta Central)
+De que forma o desenvolvimento de um sistema ERP em nuvem (SaaS), com arquitetura Multi-Tenant acessível e rastreabilidade de PCP, pode mitigar a informalidade e promover a transparência nas relações de remuneração em micro e pequenas indústrias têxteis?
 
 ## 4. Objetivos
-**Objetivo Geral:** 
-Desenvolver uma plataforma ERP na nuvem (SaaS) especializada na gestão da produção têxtil, com foco em rastreabilidade, controle dimensional e gestão de produtividade.
+
+**Objetivo Geral:**
+Desenvolver um sistema SaaS Multi-Tenant para o setor têxtil e analisar como sua implementação arquitetural e funcional contribui para a transparência trabalhista e a inclusão digital de pequenas facções.
 
 **Objetivos Específicos:**
-- Implementar uma arquitetura de banco de dados *Schema-per-Tenant* capaz de isolar os dados de diferentes clientes mantendo a mesma base de código.
-- Desenvolver um módulo de Ficha Técnica (BOM - Bill of Materials) que calcule o consumo de insumos e os tempos operacionais de costura.
-- Criar rotinas de PCP (Planejamento e Controle da Produção) com geração e bipagem de cupons com códigos de barra para apontamento de produtividade das costureiras.
-- Assegurar a segurança e performance da aplicação por meio de autenticação JWT, isolamento de requisições e rate limiting.
+- **Técnico:** Projetar e implementar uma arquitetura de banco de dados Multi-Tenant (Schema-per-tenant) com provisionamento automatizado de novos clientes.
+- **Técnico:** Desenvolver o módulo de PCP com funcionalidade de "bipagem" (leitura de código de barras) para rastreamento preciso do tempo e eficiência por operação.
+- **Social/Analítico:** Demonstrar, através da modelagem do sistema, como a substituição de controles manuais (papel) por registros digitais imutáveis protege os colaboradores contra perdas financeiras (horas não pagas) e protege as empresas contra inconsistências.
+- **Social/Analítico:** Avaliar como a redução de barreiras de infraestrutura (via modelo SaaS) democratiza o acesso de microempreendedores locais a tecnologias de gestão de nível corporativo.
 
-## 5. Referencial Teórico
-Tópicos sugeridos para abordar na escrita acadêmica:
-1. **Sistemas de Informação na Manufatura Têxtil:** A importância do PCP e da Ficha Técnica.
-2. **Cloud Computing e SaaS:** Modelos de distribuição de software e vantagens para PMEs.
-3. **Arquitetura Multi-Tenant:** Padrões de isolamento de dados (*Database-per-Tenant*, *Schema-per-Tenant*, *Row-level Isolation*).
-4. **Tecnologias Modernas de Desenvolvimento:** O ecossistema Spring Boot, React, e conteinerização com Docker.
+## 5. Justificativa
 
-## 6. Metodologia e Tecnologias Adotadas
-O desenvolvimento seguiu princípios de metodologias ágeis (sprints curtas) e a arquitetura "API-First".
-- **Backend:** Java 17, Spring Boot 3, Hibernate/JPA.
-- **Banco de Dados:** PostgreSQL 15, escolhido pelo excelente suporte nativo a manipulação de esquemas múltiplos.
-- **Controle de Versão do Banco:** Flyway configurado para orquestração dinâmica de migrations em múltiplos esquemas simultaneamente.
-- **Frontend:** React, Vite e TypeScript, utilizando a biblioteca Material UI (MUI) para garantir um design system moderno, fluido e de fácil manutenção.
-- **Infraestrutura:** Docker e Docker Compose, possibilitando a criação de containers replicáveis para Banco de Dados, Aplicação e Cache (Redis).
+**Justificativa Social:** 
+A indústria têxtil periférica (facções) opera majoritariamente na informalidade e é dependente de controles manuais suscetíveis a erros e fraudes. A digitalização do esforço produtivo garante o pagamento justo pelas peças produzidas, protegendo a força de trabalho e empoderando os microempreendedores com dados para tomada de decisão.
 
-## 7. Resultados Alcançados
-- Criação de um ecossistema seguro onde um único servidor hospeda múltiplos clientes isolados logicamente.
-- Gestão centralizada da engenharia do produto, resolvendo o problema dos SKUs de grade.
-- Operação otimizada no chão de fábrica através da emissão de pacotes e cupons scaneáveis.
-- Autenticação e roteamento de tráfego que identifica de qual "empresa" é o usuário ativo antes da execução de qualquer query SQL no banco de dados.
+**Justificativa Tecnológica:** 
+Implementar um SaaS Multi-Tenant exige a resolução de problemas complexos de engenharia de software (isolamento de dados, migrações dinâmicas com Flyway, roteamento em tempo real), validando os conhecimentos avançados adquiridos durante a graduação.
 
-## 8. Trabalhos Futuros
-- Módulo Integrador Fiscal: Geração nativa de NF-e e integração com SEFAZ.
-- Controle físico e logístico apurado de facções terceirizadas via aplicativo móvel.
-- Análise de Dados (Dashboards e IA) para predição de demanda e otimização de compra de fios e tecidos.
+## 6. Metodologia Proposta
+- **Natureza da Pesquisa:** Pesquisa Aplicada (pois resultará em um produto de software funcional).
+- **Abordagem:** Qualitativa (análise do impacto do software no modelo de negócio e nas relações de trabalho).
+- **Procedimentos Técnicos:**
+  1. Levantamento de Requisitos (Mapeamento das regras de negócio têxtil).
+  2. Desenvolvimento de Software (Utilizando Java/Spring Boot, React/TypeScript e PostgreSQL).
+  3. Arquitetura de Banco de Dados Multi-Tenant (Schema-per-Tenant).
+
+## 7. Estrutura de Capítulos (O Esqueleto do Texto)
+
+1. **Introdução:** Contextualização do setor têxtil, apresentação do problema, objetivos e justificativa.
+2. **Fundamentação Teórica:**
+   - O Setor Têxtil e o modelo de Facções (A dor social e a informalidade).
+   - Conceitos de Computação em Nuvem e SaaS (Software as a Service).
+   - Arquiteturas Multi-Tenant (Abordagens de isolamento de dados: Coluna vs. Schema vs. Database).
+3. **Metodologia e Tecnologias:** Como o sistema foi construído e quais stacks foram utilizadas (Spring Boot, React, Postgres, Docker).
+4. **Projeto e Arquitetura do Sistema:**
+   - A Orquestração do Control Plane (Banco Master e Provisionamento Automatizado).
+   - Roteamento Dinâmico de Banco de Dados (JWT e Filters).
+   - Modelagem do Domínio Têxtil (Ficha Técnica, Pacotes e Cupons).
+5. **O Módulo de PCP e o Impacto Social (Resultados e Discussões):**
+   - A lógica da Bipagem de Cupons e cálculo de produtividade real vs. teórica.
+   - Análise de como essa ferramenta substitui o "caderninho" e garante transparência na remuneração.
+6. **Considerações Finais:** Resposta à problemática, limitações do projeto e trabalhos futuros.
