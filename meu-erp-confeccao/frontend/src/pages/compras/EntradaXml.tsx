@@ -48,7 +48,9 @@ export default function EntradaXml() {
       setLoading(true);
       setError('');
       
-      const res = await api.post('/procurement/recebimentos-nf/upload-xml', formData);
+      const res = await api.post('/procurement/recebimentos-nf/upload-xml', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
       
       setResult(res.data);
     } catch (err: any) {
