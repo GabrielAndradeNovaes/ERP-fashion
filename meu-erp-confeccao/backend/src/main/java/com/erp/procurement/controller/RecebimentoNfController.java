@@ -35,7 +35,7 @@ public class RecebimentoNfController {
     }
 
     @PostMapping("/upload-xml")
-    public ResponseEntity<RecebimentoNfResponse> uploadXml(
+    public ResponseEntity<?> uploadXml(
             @RequestParam("file") MultipartFile file,
             @RequestParam(required = false) UUID ordemCompraId) {
         try {
@@ -43,7 +43,7 @@ public class RecebimentoNfController {
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(java.util.Map.of("message", e.getMessage() != null ? e.getMessage() : e.getClass().getName()));
         }
     }
 }
