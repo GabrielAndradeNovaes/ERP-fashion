@@ -115,9 +115,25 @@ public class RecebimentoNfService {
             ordemCompraRepository.save(oc);
         } else {
             // Se não tem OC, tenta achar o Fornecedor pelo CNPJ
-            // Como o documento pode estar formatado, isso pode ser frágil, ideal é manter apenas num formato.
+            // Se não encontrar, cadastra automaticamente usando os dados do emissor da NF.
             Fornecedor fornecedor = fornecedorRepository.findByDocumento(cnpjFornecedor)
-                    .orElseThrow(() -> new RuntimeException("Fornecedor com CNPJ " + cnpjFornecedor + " não encontrado. Cadastre-o primeiro ou vincule a uma OC."));
+                    .orElseGet(() -> {
+                        Fornecedor novoFornecedor = new Fornecedor();
+                        novoFornecedor.setEmpresa(empresa); // empresa deve estar disponível aqui
+                        novoFornecedor.setDocumento(cnpjFornecedor);
+                        
+                        String nomeEmissor = inf.emit != null && inf.emit.xNome != null && !inf.emit.xNome.trim().isEmpty() 
+                                ? inf.emit.xNome 
+                                : "Fornecedor " + cnpjFornecedor;
+                        
+                        novoFornecedor.setNome(nomeEmissor);
+                        novoFornecedor.setRazaoSocial(nomeEmissor);
+                        novoFornecedor.setTipoPessoa(cnpjFornecedor != null && cnpjFornecedor.length() == 11 ? "PF" : "PJ");
+                        novoFornecedor.setStatus("ATIVO");
+                        novoFornecedor.setCategoriaFornecedor("NFE_AUTO_CADASTRO");
+                        
+                        return fornecedorRepository.save(novoFornecedor);
+                    });
             recebimento.setFornecedor(fornecedor);
         }
 
