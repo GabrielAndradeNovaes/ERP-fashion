@@ -33,6 +33,8 @@ A estrutura de dados precisa refletir a complexidade do chão de fábrica:
 - **ADRs Obrigatórias:** Toda decisão técnica, nova feature, modelagem de BD ou alteração de arquitetura será documentada em docs/ADR/ antes do desenvolvimento.
 
 ## Últimas Atualizações (Outubro/2026)
+- **Correção Multi-tenant**: Corrigido bug de parsing do `tenantFilter` no `TenantFilterAspect`, permitindo roteamento seguro via String (schema name) e removido filtro conflitante da entidade `FaturaSaaS`.
 - **Tratamento Multi-tenant p/ SUPERADMIN**: Adicionado fallback em Controllers e Services (OrdemCompraService, FinanceiroService, FornecedorServiceImpl, etc) para utilizar a Empresa matriz do tenant caso o contexto venha vazio, resolvendo Internal Server Errors quando um usuário GLOBAL cria registros no tenant.
 - **Remoção de Auditoria Envers**: Removidas anotações @Audited de Fornecedor, Cliente e OrdemCompra temporariamente para estabilizar persistência.
 - **Frontend de Compras**: Implementada a renderização correta das tags de OrdemCompraStatus e criados os botões/ações (Emitir e Cancelar) com chamadas à API via Axios e notificações com react-hot-toast.
+- **Importação XML NF-e**: Adicionada funcionalidade de **cadastro automático de Fornecedor** caso o CNPJ emissor da nota fiscal não conste no banco de dados, utilizando os dados nativos do XML.
