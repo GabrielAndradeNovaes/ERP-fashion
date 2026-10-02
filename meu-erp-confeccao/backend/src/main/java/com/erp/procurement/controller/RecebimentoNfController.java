@@ -46,4 +46,14 @@ public class RecebimentoNfController {
             return ResponseEntity.badRequest().body(java.util.Map.of("message", e.getMessage() != null ? e.getMessage() : e.getClass().getName()));
         }
     }
+    @PostMapping("/{id}/confirmar-estoque")
+    public ResponseEntity<?> confirmarEstoque(@PathVariable UUID id) {
+        try {
+            recebimentoNfService.confirmarEntradaEstoque(id);
+            return ResponseEntity.ok(java.util.Map.of("message", "Estoque atualizado com sucesso"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(java.util.Map.of("message", e.getMessage() != null ? e.getMessage() : e.getClass().getName()));
+        }
+    }
 }

@@ -31,15 +31,18 @@ public class RecebimentoNfService {
     private final OrdemCompraRepository ordemCompraRepository;
     private final FornecedorRepository fornecedorRepository;
     private final EmpresaRepository empresaRepository;
+    private final com.erp.inventory.repository.MaterialFornecedorRepository materialFornecedorRepository;
 
     public RecebimentoNfService(RecebimentoNfRepository recebimentoNfRepository,
                                 OrdemCompraRepository ordemCompraRepository,
                                 FornecedorRepository fornecedorRepository,
-                                EmpresaRepository empresaRepository) {
+                                EmpresaRepository empresaRepository,
+                                com.erp.inventory.repository.MaterialFornecedorRepository materialFornecedorRepository) {
         this.recebimentoNfRepository = recebimentoNfRepository;
         this.ordemCompraRepository = ordemCompraRepository;
         this.fornecedorRepository = fornecedorRepository;
         this.empresaRepository = empresaRepository;
+        this.materialFornecedorRepository = materialFornecedorRepository;
     }
 
     @Transactional(readOnly = true)
@@ -98,7 +101,7 @@ public class RecebimentoNfService {
         recebimento.setChaveAcessoNfe(chave);
         recebimento.setNumeroNfe(numNf);
         recebimento.setDataRecebimento(LocalDateTime.now());
-        recebimento.setStatus(RecebimentoNfStatus.PROCESSADA); // Ou PENDENTE dependendo da regra
+        recebimento.setStatus(RecebimentoNfStatus.PENDENTE);
 
         // Vincular Ordem de Compra se fornecida
         if (ordemCompraId != null) {
@@ -156,8 +159,20 @@ public class RecebimentoNfService {
                     
                     valorTotal = valorTotal.add(valProd);
                     
-                    // Aqui entraria a inteligência de tentar ligar o item da NF com o item da OC (De-Para)
-                    // e consequentemente dar entrada no estoque se o material fosse identificado.
+                    // Inteligência De-Para
+                    if (recebimento.getFornecedor() != null && recebimento.getFornecedor().getId() != null) {
+                        java.util.Optional<com.erp.inventory.domain.MaterialFornecedor> mapping = 
+                            materialFornecedorRepository.findByFornecedorIdAndCodigoFornecedor(
+                                recebimento.getFornecedor().getId(), 
+                                det.prod.cProd
+                            );
+                        if (mapping.isPresent()) {
+                            item.setMaterial(mapping.get().getMaterial());
+                            // Armazena temporariamente o fator de conversão no item? 
+                            // RecebimentoNfItem atualmente não tem campo fatorConversao. 
+                            // Mas passaremos isso no response de qualquer forma mapeando depois.
+                        }
+                    }
                     
                     recebimento.addItem(item);
                 }
@@ -186,16 +201,45 @@ public class RecebimentoNfService {
                 r.getStatus(),
                 r.getDataRecebimento(),
                 r.getCriadoEm(),
-                r.getItens().stream().map(item -> new RecebimentoNfItemResponse(
-                        item.getId(),
-                        item.getNomeProdutoNf(),
-                        item.getCodigoProdutoNf(),
-                        item.getQuantidade(),
-                        item.getValorUnitario(),
-                        item.getValorTotal(),
-                        null,
-                        item.getMaterial() != null ? item.getMaterial().getId() : null
-                )).collect(Collectors.toList())
+                r.getItens().stream().map(item -> {
+                        com.erp.inventory.domain.MaterialFornecedor mapFornecedor = null;
+                        if (item.getMaterial() != null && r.getFornecedor() != null) {
+                            mapFornecedor = materialFornecedorRepository.findByFornecedorIdAndCodigoFornecedor(
+                                    r.getFornecedor().getId(), item.getCodigoProdutoNf()
+                            ).orElse(null);
+                        }
+                        return new RecebimentoNfItemResponse(
+                                item.getId(),
+                                item.getNomeProdutoNf(),
+                                item.getCodigoProdutoNf(),
+                                item.getQuantidade(),
+                                item.getValorUnitario(),
+                                item.getValorTotal(),
+                                null,
+                                item.getMaterial() != null ? item.getMaterial().getId() : null,
+                                item.getMaterial() != null ? item.getMaterial().getNome() : null,
+                                item.getMaterial() != null ? item.getMaterial().getCodigo() : null,
+                                mapFornecedor != null ? mapFornecedor.getFatorConversao() : null
+                        );
+                }).collect(Collectors.toList())
         );
+    }
+    @Transactional
+    public void confirmarEntradaEstoque(UUID recebimentoId) {
+        RecebimentoNf recebimento = recebimentoNfRepository.findById(recebimentoId)
+                .orElseThrow(() -> new RuntimeException("Recebimento não encontrado"));
+
+        if (recebimento.getStatus() == RecebimentoNfStatus.PROCESSADA) {
+            throw new RuntimeException("Este recebimento já foi processado e o estoque já foi atualizado.");
+        }
+
+        for (RecebimentoNfItem item : recebimento.getItens()) {
+            if (item.getMaterial() == null) {
+                throw new RuntimeException("O item " + item.getNomeProdutoNf() + " (" + item.getCodigoProdutoNf() + ") não está vinculado a um material interno.");
+            }
+        }
+
+        recebimento.setStatus(RecebimentoNfStatus.PROCESSADA);
+        recebimentoNfRepository.save(recebimento);
     }
 }

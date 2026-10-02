@@ -11,5 +11,8 @@ public record RecebimentoNfItemResponse(
     BigDecimal precoUnitario,
     BigDecimal valorTotal,
     UUID ordemCompraItemId,
-    UUID materialId
+    UUID materialId,
+    String materialNome,
+    String materialCodigo,
+    BigDecimal fatorConversao
 ) {}
