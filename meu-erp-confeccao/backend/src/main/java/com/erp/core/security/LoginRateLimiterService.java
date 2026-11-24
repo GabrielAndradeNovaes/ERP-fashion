@@ -2,7 +2,6 @@ package com.erp.core.security;
 
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
-import io.github.bucket4j.Refill;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -17,8 +16,10 @@ public class LoginRateLimiterService {
     private final Bandwidth limit;
 
     public LoginRateLimiterService() {
-        Refill refill = Refill.intervally(5, Duration.ofMinutes(15));
-        this.limit = Bandwidth.classic(5, refill);
+        this.limit = Bandwidth.builder()
+                .capacity(5)
+                .refillIntervally(5, Duration.ofMinutes(15))
+                .build();
     }
 
     public void checkAndIncrement(String clientIp) {

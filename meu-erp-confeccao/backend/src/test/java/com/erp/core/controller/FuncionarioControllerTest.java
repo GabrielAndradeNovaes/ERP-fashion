@@ -1,5 +1,6 @@
 package com.erp.core.controller;
 
+import com.erp.core.domain.Empresa;
 import com.erp.core.domain.Funcionario;
 import com.erp.core.domain.FuncionarioJornada;
 import com.erp.core.domain.GrupoFuncionario;
@@ -7,6 +8,7 @@ import com.erp.core.repository.FuncionarioRepository;
 import com.erp.core.repository.GrupoFuncionarioRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -91,11 +93,16 @@ public class FuncionarioControllerTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     void shouldCriarComNovoGrupoPeloNome() throws Exception {
         GrupoFuncionario novoGrupo = new GrupoFuncionario();
         novoGrupo.setNome("Novo Grupo");
         funcionario.setGrupo(novoGrupo);
         
+        TypedQuery<Empresa> query = mock(TypedQuery.class);
+        when(entityManager.createQuery(anyString(), eq(Empresa.class))).thenReturn(query);
+        when(query.getResultList()).thenReturn(List.of());
+
         // Ensure mock returns empty list for existing groups, triggering save
         when(grupoFuncionarioRepository.findByNomeContainingIgnoreCase(anyString())).thenReturn(new ArrayList<>());
         when(grupoFuncionarioRepository.save(any())).thenReturn(novoGrupo);

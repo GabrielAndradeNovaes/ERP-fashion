@@ -32,17 +32,20 @@ public class RecebimentoNfService {
     private final FornecedorRepository fornecedorRepository;
     private final EmpresaRepository empresaRepository;
     private final com.erp.inventory.repository.MaterialFornecedorRepository materialFornecedorRepository;
+    private final com.erp.inventory.service.EstoqueMovimentacaoService estoqueMovimentacaoService;
 
     public RecebimentoNfService(RecebimentoNfRepository recebimentoNfRepository,
                                 OrdemCompraRepository ordemCompraRepository,
                                 FornecedorRepository fornecedorRepository,
                                 EmpresaRepository empresaRepository,
-                                com.erp.inventory.repository.MaterialFornecedorRepository materialFornecedorRepository) {
+                                com.erp.inventory.repository.MaterialFornecedorRepository materialFornecedorRepository,
+                                com.erp.inventory.service.EstoqueMovimentacaoService estoqueMovimentacaoService) {
         this.recebimentoNfRepository = recebimentoNfRepository;
         this.ordemCompraRepository = ordemCompraRepository;
         this.fornecedorRepository = fornecedorRepository;
         this.empresaRepository = empresaRepository;
         this.materialFornecedorRepository = materialFornecedorRepository;
+        this.estoqueMovimentacaoService = estoqueMovimentacaoService;
     }
 
     @Transactional(readOnly = true)
@@ -234,9 +237,41 @@ public class RecebimentoNfService {
         }
 
         for (RecebimentoNfItem item : recebimento.getItens()) {
+            if (item.getMaterial() == null && recebimento.getFornecedor() != null) {
+                // Tenta buscar o mapeamento agora, caso o usuário tenha acabado de fazer o De/Para
+                java.util.Optional<com.erp.inventory.domain.MaterialFornecedor> mapping = 
+                    materialFornecedorRepository.findByFornecedorIdAndCodigoFornecedor(
+                        recebimento.getFornecedor().getId(), 
+                        item.getCodigoProdutoNf()
+                    );
+                if (mapping.isPresent()) {
+                    item.setMaterial(mapping.get().getMaterial());
+                }
+            }
+
             if (item.getMaterial() == null) {
                 throw new RuntimeException("O item " + item.getNomeProdutoNf() + " (" + item.getCodigoProdutoNf() + ") não está vinculado a um material interno.");
             }
+            
+            BigDecimal fatorConversao = BigDecimal.ONE;
+            if (recebimento.getFornecedor() != null) {
+                java.util.Optional<com.erp.inventory.domain.MaterialFornecedor> mapping = 
+                    materialFornecedorRepository.findByFornecedorIdAndCodigoFornecedor(
+                        recebimento.getFornecedor().getId(), item.getCodigoProdutoNf());
+                if (mapping.isPresent() && mapping.get().getFatorConversao() != null) {
+                    fatorConversao = mapping.get().getFatorConversao();
+                }
+            }
+            
+            BigDecimal qtdParaEstoque = item.getQuantidade().multiply(fatorConversao);
+            
+            String referencia = "Entrada NF " + recebimento.getNumeroNfe();
+            estoqueMovimentacaoService.registrarMovimentacao(
+                    item.getMaterial().getId(), 
+                    com.erp.inventory.domain.TipoMovimentacao.ENTRADA, 
+                    qtdParaEstoque, 
+                    referencia
+            );
         }
 
         recebimento.setStatus(RecebimentoNfStatus.PROCESSADA);

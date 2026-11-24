@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.sql.DataSource;
@@ -31,6 +32,7 @@ public class AuthIntegrationTest extends BaseIntegrationTest {
 
     @BeforeEach
     void setUp() throws Exception {
+        restTemplate.getRestTemplate().setRequestFactory(new JdkClientHttpRequestFactory());
         // Preparar banco de dados: 
         // 1. Inserir tenant na tabela master
         // 2. Inserir usuário na tabela master com tenant correto

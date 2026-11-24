@@ -49,10 +49,10 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Build Backend
+      - name: Build & Test Backend
         working-directory: meu-erp-confeccao/backend
         run: |
-          mvn clean package -Dmaven.test.skip=true
+          mvn clean package
 
   frontend:
     name: Frontend Build & Lint
@@ -76,6 +76,10 @@ jobs:
       - name: Run Linter
         working-directory: meu-erp-confeccao/frontend
         run: npm run lint --if-present
+
+      - name: Run Tests
+        working-directory: meu-erp-confeccao/frontend
+        run: npm run test
 
       - name: Build Frontend
         working-directory: meu-erp-confeccao/frontend

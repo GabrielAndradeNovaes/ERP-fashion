@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Play, CheckCircle2, Package, Edit, RotateCcw, ChevronRight, Eye, Trash2 } from 'lucide-react';
 import api from '../api/axios';
 import Modal from '../components/Modal';
@@ -27,13 +27,12 @@ import {
   Chip,
   Menu,
   LinearProgress,
-  Grid,
   Drawer,
   Tabs,
   Tab,
   Pagination
 } from '@mui/material';
-import FilterBar, { FilterField } from '../components/FilterBar';
+import FilterBar from '../components/FilterBar';
 import AddIcon from '@mui/icons-material/Add';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useToast } from '../contexts/ToastContext';
@@ -130,14 +129,6 @@ const OrdensProducao = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [activeFilters, setActiveFilters] = useState<Record<string, any>>({});
 
-  useEffect(() => {
-    fetchOrdens();
-  }, [page, activeFilters]); // trigger fetchOrdens when page or activeFilters changes
-
-  useEffect(() => {
-    fetchProdutos();
-  }, []);
-
   const fetchProdutos = async () => {
     try {
       const produtosRes = await api.get('/catalog/produtos');
@@ -147,7 +138,7 @@ const OrdensProducao = () => {
     }
   };
 
-  const fetchOrdens = async () => {
+  const fetchOrdens = useCallback(async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
@@ -169,7 +160,15 @@ const OrdensProducao = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, activeFilters, showToast]);
+
+  useEffect(() => {
+    fetchOrdens();
+  }, [fetchOrdens]);
+
+  useEffect(() => {
+    fetchProdutos();
+  }, []);
 
   const handleSearch = (filters: Record<string, any>) => {
     setActiveFilters(filters);
@@ -179,19 +178,6 @@ const OrdensProducao = () => {
   const handleClearFilters = () => {
     setActiveFilters({});
     setPage(1);
-  };
-
-  const fetchOrdensSemFiltros = async () => {
-    setLoading(true);
-    try {
-      const res = await api.get(`/production/ordens/search?page=0&size=10`);
-      setOrdens(res.data.content);
-      setTotalPages(res.data.totalPages);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
   };
 
   const fetchInitialData = async () => {

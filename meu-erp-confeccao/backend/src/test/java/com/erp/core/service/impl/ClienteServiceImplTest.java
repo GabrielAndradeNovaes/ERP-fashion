@@ -1,9 +1,12 @@
 package com.erp.core.service.impl;
 
 import com.erp.core.domain.Cliente;
+import com.erp.core.domain.Empresa;
 import com.erp.core.dto.ClienteRequest;
 import com.erp.core.dto.ClienteResponse;
 import com.erp.core.repository.ClienteRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +27,9 @@ public class ClienteServiceImplTest {
 
     @Mock
     private ClienteRepository repository;
+
+    @Mock
+    private EntityManager entityManager;
 
     @InjectMocks
     private ClienteServiceImpl service;
@@ -56,7 +62,11 @@ public class ClienteServiceImplTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     void shouldCreateSuccessfully() {
+        TypedQuery<Empresa> query = mock(TypedQuery.class);
+        when(entityManager.createQuery(anyString(), eq(Empresa.class))).thenReturn(query);
+        when(query.getResultList()).thenReturn(List.of());
         when(repository.save(any(Cliente.class))).thenReturn(mockCliente);
 
         ClienteResponse response = service.create(mockRequest);

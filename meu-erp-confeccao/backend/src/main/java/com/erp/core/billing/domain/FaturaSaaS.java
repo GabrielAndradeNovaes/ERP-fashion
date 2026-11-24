@@ -11,7 +11,6 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "faturas_saas", schema = "master")
-@org.hibernate.annotations.Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 public class FaturaSaaS {
 
     @Id

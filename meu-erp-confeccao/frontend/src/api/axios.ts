@@ -3,11 +3,14 @@ import log from 'loglevel';
 
 log.setLevel('info');
 
-// Construct base URL based on the current hostname
+// Construct base URL from env var or dynamically based on the current hostname (multi-tenant subdomains)
+const envApiUrl = import.meta.env.VITE_API_URL?.replace(/\/+$/, '');
 const protocol = window.location.protocol;
 const hostname = window.location.hostname;
 const apiPort = '8088'; // The port where the backend API is running
-const baseURL = `${protocol}//${hostname}:${apiPort}/api`;
+const baseURL = envApiUrl
+  ? (envApiUrl.endsWith('/api') ? envApiUrl : `${envApiUrl}/api`)
+  : `${protocol}//${hostname}:${apiPort}/api`;
 
 const api = axios.create({
   baseURL: baseURL,
@@ -22,6 +25,11 @@ api.interceptors.request.use(
     log.info(`API Request: ${config.method?.toUpperCase()} ${config.url}`);
     const token = localStorage.getItem('@FashionERP:token');
     const userString = localStorage.getItem('@FashionERP:user');
+    
+    // Auto-detect FormData to let the browser set the boundary correctly
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
     
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;

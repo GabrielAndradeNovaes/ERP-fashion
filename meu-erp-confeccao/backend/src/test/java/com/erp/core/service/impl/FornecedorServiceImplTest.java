@@ -1,9 +1,12 @@
 package com.erp.core.service.impl;
 
+import com.erp.core.domain.Empresa;
 import com.erp.core.domain.Fornecedor;
 import com.erp.core.dto.FornecedorRequest;
 import com.erp.core.dto.FornecedorResponse;
 import com.erp.core.repository.FornecedorRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +27,9 @@ public class FornecedorServiceImplTest {
 
     @Mock
     private FornecedorRepository repository;
+
+    @Mock
+    private EntityManager entityManager;
 
     @InjectMocks
     private FornecedorServiceImpl service;
@@ -57,7 +63,11 @@ public class FornecedorServiceImplTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     void shouldCreateSuccessfully() {
+        TypedQuery<Empresa> query = mock(TypedQuery.class);
+        when(entityManager.createQuery(anyString(), eq(Empresa.class))).thenReturn(query);
+        when(query.getResultList()).thenReturn(List.of());
         when(repository.save(any(Fornecedor.class))).thenReturn(mockFornecedor);
 
         FornecedorResponse response = service.create(mockRequest);
