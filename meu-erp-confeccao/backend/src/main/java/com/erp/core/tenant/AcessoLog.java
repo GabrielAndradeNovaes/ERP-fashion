@@ -6,8 +6,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "acessos_logs")
-@org.hibernate.annotations.Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
+@Table(name = "acessos_logs", schema = "master")
 public class AcessoLog {
 
     @Id
