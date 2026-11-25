@@ -4,11 +4,13 @@ import com.erp.core.domain.Empresa;
 import com.erp.core.domain.Fornecedor;
 import com.erp.core.repository.EmpresaRepository;
 import com.erp.core.repository.FornecedorRepository;
+import com.erp.core.tenant.EmpresaContext;
 import com.erp.inventory.domain.Material;
 import com.erp.inventory.domain.MaterialFornecedor;
 import com.erp.inventory.repository.MaterialFornecedorRepository;
 import com.erp.inventory.repository.MaterialRepository;
-import com.erp.core.tenant.EmpresaContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +23,16 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/inventory/materiais-fornecedor")
 public class MaterialFornecedorController {
+
+    private static final Logger log = LoggerFactory.getLogger(MaterialFornecedorController.class);
+
+    public record VincularMaterialFornecedorRequest(
+            UUID fornecedorId,
+            UUID materialId,
+            String codigoFornecedor,
+            String descricaoFornecedor,
+            BigDecimal fatorConversao
+    ) {}
 
     private final MaterialFornecedorRepository materialFornecedorRepository;
     private final FornecedorRepository fornecedorRepository;
@@ -40,54 +52,63 @@ public class MaterialFornecedorController {
 
     @PostMapping("/vincular")
     @Transactional
-    public ResponseEntity<?> vincularDePara(@RequestBody Map<String, Object> payload) {
+    public ResponseEntity<?> vincularDePara(@RequestBody VincularMaterialFornecedorRequest request) {
         try {
-            UUID fornecedorId = UUID.fromString(payload.get("fornecedorId").toString());
-            UUID materialId = UUID.fromString(payload.get("materialId").toString());
-            String codigoFornecedor = payload.get("codigoFornecedor").toString();
-            String descricaoFornecedor = payload.get("descricaoFornecedor") != null ? payload.get("descricaoFornecedor").toString() : null;
-            
-            BigDecimal fatorConversao = BigDecimal.ONE;
-            if (payload.containsKey("fatorConversao") && payload.get("fatorConversao") != null) {
-                fatorConversao = new BigDecimal(payload.get("fatorConversao").toString());
+            if (request == null || request.fornecedorId() == null || request.materialId() == null
+                    || request.codigoFornecedor() == null || request.codigoFornecedor().isBlank()) {
+                return ResponseEntity.badRequest().body(Map.of("message", "fornecedorId, materialId e codigoFornecedor são obrigatórios."));
             }
 
-            Fornecedor fornecedor = fornecedorRepository.findById(fornecedorId)
-                    .orElseThrow(() -> new RuntimeException("Fornecedor não encontrado"));
-                    
-            Material material = materialRepository.findById(materialId)
-                    .orElseThrow(() -> new RuntimeException("Material interno não encontrado"));
+            BigDecimal fatorConversao = request.fatorConversao() != null ? request.fatorConversao() : BigDecimal.ONE;
+            if (fatorConversao.compareTo(BigDecimal.ZERO) <= 0) {
+                return ResponseEntity.badRequest().body(Map.of("message", "O fator de conversão deve ser maior que zero."));
+            }
+
+            Fornecedor fornecedor = fornecedorRepository.findById(request.fornecedorId())
+                    .orElseThrow(() -> new IllegalArgumentException("Fornecedor não encontrado"));
+
+            Material material = materialRepository.findById(request.materialId())
+                    .orElseThrow(() -> new IllegalArgumentException("Material interno não encontrado"));
 
             List<UUID> empresas = EmpresaContext.getEmpresas();
             Empresa empresa;
             if (empresas != null && !empresas.isEmpty()) {
                 empresa = empresaRepository.findById(empresas.get(0))
-                        .orElseThrow(() -> new RuntimeException("Empresa não encontrada no banco"));
+                        .orElseThrow(() -> new IllegalArgumentException("Empresa não encontrada no banco"));
             } else {
-                empresa = empresaRepository.findAll().get(0);
+                List<Empresa> todasEmpresas = empresaRepository.findAll();
+                if (todasEmpresas.isEmpty()) {
+                    throw new IllegalArgumentException("Nenhuma empresa cadastrada no tenant.");
+                }
+                empresa = todasEmpresas.get(0);
             }
 
-            // Verifica se já existe um mapeamento
+            String codigoFornecedor = request.codigoFornecedor().trim();
+
             MaterialFornecedor mapping = materialFornecedorRepository
-                    .findByFornecedorIdAndCodigoFornecedor(fornecedorId, codigoFornecedor)
+                    .findByFornecedorIdAndCodigoFornecedor(request.fornecedorId(), codigoFornecedor)
                     .orElse(new MaterialFornecedor());
 
             mapping.setEmpresa(empresa);
             mapping.setFornecedor(fornecedor);
             mapping.setMaterial(material);
             mapping.setCodigoFornecedor(codigoFornecedor);
-            mapping.setDescricaoFornecedor(descricaoFornecedor);
+            mapping.setDescricaoFornecedor(request.descricaoFornecedor());
             mapping.setFatorConversao(fatorConversao);
 
-            materialFornecedorRepository.save(mapping);
+            mapping = materialFornecedorRepository.save(mapping);
 
             return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", "Mapeamento De/Para realizado com sucesso",
-                "mappingId", mapping.getId()
+                    "success", true,
+                    "message", "Mapeamento De/Para realizado com sucesso",
+                    "mappingId", mapping.getId(),
+                    "fatorConversao", mapping.getFatorConversao()
             ));
+        } catch (IllegalArgumentException e) {
+            log.warn("Erro de validação ao vincular material do fornecedor: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Erro inesperado ao vincular material do fornecedor", e);
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage() != null ? e.getMessage() : "Erro ao vincular"));
         }
     }

@@ -50,10 +50,12 @@ public class RecebimentoNfItem {
     }
 
     private void calcularValorTotal() {
-        if (this.quantidade != null && this.valorUnitario != null) {
-            this.valorTotal = this.quantidade.multiply(this.valorUnitario);
-        } else {
-            this.valorTotal = BigDecimal.ZERO;
+        if (this.valorTotal == null) {
+            if (this.quantidade != null && this.valorUnitario != null) {
+                this.valorTotal = this.quantidade.multiply(this.valorUnitario);
+            } else {
+                this.valorTotal = BigDecimal.ZERO;
+            }
         }
     }
 

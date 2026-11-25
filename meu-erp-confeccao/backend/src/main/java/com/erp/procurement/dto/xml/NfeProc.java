@@ -10,11 +10,30 @@ public class NfeProc {
     
     @JacksonXmlProperty(localName = "NFe")
     public NFe nfe;
+
+    @JacksonXmlProperty(localName = "protNFe")
+    public ProtNFe protNFe;
     
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class NFe {
         @JacksonXmlProperty(localName = "infNFe")
         public InfNFe infNFe;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class ProtNFe {
+        @JacksonXmlProperty(localName = "infProt")
+        public InfProt infProt;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class InfProt {
+        @JacksonXmlProperty(localName = "chNFe")
+        public String chNFe;
+        @JacksonXmlProperty(localName = "cStat")
+        public String cStat;
+        @JacksonXmlProperty(localName = "xMotivo")
+        public String xMotivo;
     }
     
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -27,6 +46,9 @@ public class NfeProc {
         
         @JacksonXmlProperty(localName = "emit")
         public Emit emit;
+
+        @JacksonXmlProperty(localName = "dest")
+        public Dest dest;
         
         @JacksonXmlProperty(localName = "total")
         public Total total;
@@ -48,6 +70,18 @@ public class NfeProc {
     public static class Emit {
         @JacksonXmlProperty(localName = "CNPJ")
         public String cnpj;
+        @JacksonXmlProperty(localName = "CPF")
+        public String cpf;
+        @JacksonXmlProperty(localName = "xNome")
+        public String xNome;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Dest {
+        @JacksonXmlProperty(localName = "CNPJ")
+        public String cnpj;
+        @JacksonXmlProperty(localName = "CPF")
+        public String cpf;
         @JacksonXmlProperty(localName = "xNome")
         public String xNome;
     }
@@ -76,6 +110,8 @@ public class NfeProc {
         public String cProd;
         @JacksonXmlProperty(localName = "xProd")
         public String xProd;
+        @JacksonXmlProperty(localName = "NCM")
+        public String ncm;
         @JacksonXmlProperty(localName = "uCom")
         public String uCom;
         @JacksonXmlProperty(localName = "qCom")
