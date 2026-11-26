@@ -416,7 +416,7 @@ export default function EntradaXml() {
             label="Fator de Conversão"
             value={fatorConversao}
             onChange={(e) => setFatorConversao(e.target.value)}
-            inputProps={{ min: 0.0001, step: 'any' }}
+            slotProps={{ htmlInput: { min: 0.0001, step: 'any' } }}
             helperText={
               qtdConvertidaPreview
                 ? `Ex: 1 rolo = 50 metros → informe 50. Entrada prevista no estoque: ${qtdConvertidaPreview}`
